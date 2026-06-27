@@ -1,0 +1,1317 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Benchmarks - GeneBench v1 et TerminalBench 2.1</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --background: #f3f4f6;
+      --surface: #ffffff;
+      --ink: #17181a;
+      --muted: #656970;
+      --line: #d9dce1;
+      --grid: #e7e9ed;
+      --sol: #292b2f;
+      --terra: #3478d4;
+      --luna: #188b62;
+      --gpt55: #d85f8c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--background);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .header-inner,
+    main {
+      width: min(1440px, 100%);
+      margin: 0 auto;
+      padding-inline: clamp(18px, 4vw, 56px);
+    }
+
+    .header-inner {
+      display: flex;
+      min-height: 76px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      font-size: 18px;
+      font-weight: 720;
+    }
+
+    .source {
+      color: var(--muted);
+      font-size: 13px;
+      text-decoration: none;
+    }
+
+    .source:hover,
+    .source:focus-visible {
+      color: var(--ink);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    main {
+      padding-block: clamp(28px, 5vw, 56px);
+    }
+
+    .intro {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 32px;
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 52px);
+      font-weight: 650;
+      line-height: 1.03;
+    }
+
+    .metric {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .count {
+      flex: none;
+      color: var(--muted);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .benchmark-section + .benchmark-section {
+      margin-top: clamp(40px, 6vw, 72px);
+    }
+
+    .benchmark-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 16px;
+    }
+
+    .benchmark-heading h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 680;
+    }
+
+    .chart-panel {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .toolbar {
+      display: flex;
+      min-height: 64px;
+      align-items: center;
+      gap: 16px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--line);
+      padding: 12px 18px;
+      scrollbar-width: thin;
+    }
+
+    .metric-picker {
+      display: inline-flex;
+      flex: none;
+      align-items: center;
+      gap: 9px;
+      color: #34363a;
+      font-size: 13px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .metric-picker select {
+      height: 38px;
+      min-width: 136px;
+      border: 1px solid #aeb2b9;
+      border-radius: 4px;
+      background: var(--surface);
+      color: var(--ink);
+      font: inherit;
+      padding: 0 32px 0 11px;
+    }
+
+    .metric-picker select:focus-visible {
+      outline: 2px solid var(--ink);
+      outline-offset: 2px;
+    }
+
+    .toolbar-divider {
+      flex: none;
+      width: 1px;
+      height: 28px;
+      background: var(--line);
+    }
+
+    .model-filters {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .filter {
+      position: relative;
+      display: inline-flex;
+      flex: none;
+      align-items: center;
+      gap: 8px;
+      min-height: 36px;
+      cursor: pointer;
+      color: #34363a;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .filter input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      opacity: 0;
+    }
+
+    .check {
+      display: grid;
+      width: 18px;
+      height: 18px;
+      place-items: center;
+      border: 1px solid #aeb2b9;
+      border-radius: 3px;
+      background: #fff;
+    }
+
+    .check::after {
+      width: 8px;
+      height: 4px;
+      border-bottom: 2px solid #fff;
+      border-left: 2px solid #fff;
+      content: "";
+      transform: translateY(-1px) rotate(-45deg);
+      opacity: 0;
+    }
+
+    .filter input:checked + .check {
+      border-color: var(--filter-color);
+      background: var(--filter-color);
+    }
+
+    .filter input:checked + .check::after {
+      opacity: 1;
+    }
+
+    .filter input:focus-visible + .check {
+      outline: 2px solid var(--ink);
+      outline-offset: 3px;
+    }
+
+    .swatch {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--filter-color);
+    }
+
+    .chart-scroll {
+      position: relative;
+      min-height: 650px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-color: #aeb2b9 transparent;
+    }
+
+    #chart {
+      display: block;
+      height: 650px;
+      min-width: 100%;
+    }
+
+    .scatter-legend {
+      display: flex;
+      min-height: 52px;
+      align-items: center;
+      gap: 20px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 18px;
+      scrollbar-width: thin;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      flex: none;
+      align-items: center;
+      gap: 8px;
+      color: #34363a;
+      font-size: 13px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--legend-color);
+    }
+
+    .scatter-scroll {
+      overflow-x: auto;
+      scrollbar-color: #aeb2b9 transparent;
+    }
+
+    #gene-scatter {
+      display: block;
+      height: 560px;
+      min-width: 900px;
+    }
+
+    .terminal-chart-wrap {
+      width: 100%;
+      overflow: hidden;
+      padding: 14px 18px 8px;
+    }
+
+    #terminal-chart {
+      display: block;
+      width: 100%;
+    }
+
+    .tooltip {
+      position: fixed;
+      z-index: 10;
+      width: max-content;
+      max-width: min(240px, calc(100vw - 24px));
+      padding: 10px 12px;
+      border: 1px solid #34363a;
+      border-radius: 5px;
+      background: #17181a;
+      color: #fff;
+      font-size: 13px;
+      line-height: 1.45;
+      pointer-events: none;
+      transform: translate(-50%, calc(-100% - 12px));
+      opacity: 0;
+    }
+
+    .tooltip strong {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 13px;
+    }
+
+    .tooltip.visible {
+      opacity: 1;
+    }
+
+    .data-section {
+      margin-top: clamp(36px, 5vw, 56px);
+    }
+
+    .table-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 16px;
+    }
+
+    .table-heading h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 680;
+    }
+
+    .sort-status {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .table-frame {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th {
+      height: 48px;
+      border-bottom: 1px solid var(--line);
+      background: #f7f8f9;
+      color: #4b4e54;
+      font-size: 12px;
+      font-weight: 680;
+      text-align: left;
+    }
+
+    th.numeric,
+    td.numeric {
+      text-align: right;
+    }
+
+    .sort-button {
+      display: inline-flex;
+      width: 100%;
+      height: 48px;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 7px;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      font: inherit;
+      padding: 0 16px;
+      text-align: inherit;
+    }
+
+    th.numeric .sort-button {
+      justify-content: flex-end;
+    }
+
+    .sort-button:hover {
+      color: var(--ink);
+    }
+
+    .sort-button:focus-visible {
+      outline: 2px solid var(--ink);
+      outline-offset: -3px;
+    }
+
+    .sort-indicator {
+      display: inline-block;
+      width: 12px;
+      color: #7a7e85;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    th[aria-sort="ascending"] .sort-indicator,
+    th[aria-sort="descending"] .sort-indicator {
+      color: var(--ink);
+    }
+
+    td {
+      height: 48px;
+      border-bottom: 1px solid #eceef1;
+      padding: 0 16px;
+      color: #34363a;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tbody tr:hover {
+      background: #f7f8f9;
+    }
+
+    .model-cell {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .model-dot {
+      width: 9px;
+      height: 9px;
+      flex: none;
+      border-radius: 50%;
+      background: var(--model-color);
+    }
+
+    .effort-cell {
+      color: #555960;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+    }
+
+    td.numeric {
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .notes {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .notes p {
+      margin: 0;
+    }
+
+    @media (max-width: 700px) {
+      .header-inner {
+        min-height: 64px;
+      }
+
+      .intro {
+        display: block;
+      }
+
+      .benchmark-heading {
+        display: block;
+      }
+
+      .count {
+        margin-top: 14px;
+      }
+
+      .table-heading {
+        display: block;
+      }
+
+      .sort-status {
+        margin-top: 8px;
+      }
+
+      .notes {
+        display: block;
+      }
+
+      .notes p + p {
+        margin-top: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">Benchmarks</div>
+      <a class="source" href="https://openai.com/index/previewing-gpt-5-6-sol/" target="_blank" rel="noreferrer">
+        Source : OpenAI
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <h1 id="page-title">Comparaison des benchmarks</h1>
+        <p class="metric">GeneBench v1 &middot; TerminalBench 2.1</p>
+      </div>
+    </section>
+
+    <section class="benchmark-section" aria-labelledby="genebench-title">
+      <div class="benchmark-heading">
+        <div>
+          <h2 id="genebench-title">GeneBench v1</h2>
+          <p class="metric" id="metric-description">Score pass@1 &middot; ordre croissant</p>
+        </div>
+        <div class="count" id="count" aria-live="polite"></div>
+      </div>
+      <div class="chart-panel" aria-label="Graphique comparatif GeneBench v1">
+        <div class="toolbar">
+          <label class="metric-picker" for="metric-select">
+            <span>Mesure</span>
+            <select id="metric-select">
+              <option value="score">Score</option>
+              <option value="tokens">Tokens</option>
+              <option value="cost">Co&ucirc;t</option>
+            </select>
+          </label>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <div class="model-filters" id="filters" aria-label="Modeles affiches"></div>
+        </div>
+        <div class="chart-scroll" id="chart-scroll">
+          <svg id="chart" role="img" aria-labelledby="chart-title chart-description">
+            <title id="chart-title">Scores GeneBench v1 par modele et niveau d'effort</title>
+            <desc id="chart-description">Diagramme en barres trie par score croissant. L'axe vertical indique le score en pourcentage. Chaque categorie de l'axe horizontal correspond a un modele et un niveau d'effort.</desc>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="benchmark-section" aria-labelledby="gene-scatter-title">
+      <div class="benchmark-heading">
+        <div>
+          <h2 id="gene-scatter-title">GeneBench v1 : co&ucirc;t et score</h2>
+          <p class="metric">Co&ucirc;t API en USD, &eacute;chelle logarithmique &middot; score pass@1</p>
+        </div>
+        <div class="count" id="scatter-count">22 points</div>
+      </div>
+      <div class="chart-panel" aria-label="Nuage de points GeneBench cout et score">
+        <div class="scatter-legend" aria-label="Legende des modeles">
+          <span class="legend-item"><span class="legend-dot" style="--legend-color:#292b2f"></span>GPT-5.6 Sol</span>
+          <span class="legend-item"><span class="legend-dot" style="--legend-color:#3478d4"></span>GPT-5.6 Terra</span>
+          <span class="legend-item"><span class="legend-dot" style="--legend-color:#188b62"></span>GPT-5.6 Luna</span>
+          <span class="legend-item"><span class="legend-dot" style="--legend-color:#d85f8c"></span>GPT-5.5</span>
+        </div>
+        <div class="scatter-scroll" id="gene-scatter-scroll">
+          <svg id="gene-scatter" role="img" aria-labelledby="gene-scatter-svg-title gene-scatter-description">
+            <title id="gene-scatter-svg-title">GeneBench v1 : cout API et score</title>
+            <desc id="gene-scatter-description">Nuage de points avec le cout API sur une echelle logarithmique en abscisse et le score en ordonnee.</desc>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="benchmark-section" aria-labelledby="terminalbench-title">
+      <div class="benchmark-heading">
+        <div>
+          <h2 id="terminalbench-title">TerminalBench 2.1</h2>
+          <p class="metric">Coding &middot; score d&eacute;croissant &middot; axe 50&ndash;100&nbsp;%</p>
+        </div>
+        <div class="count">9 mod&egrave;les</div>
+      </div>
+      <div class="chart-panel" aria-label="Graphique comparatif TerminalBench 2.1">
+        <div class="terminal-chart-wrap" id="terminal-chart-wrap">
+          <svg id="terminal-chart" role="img" aria-labelledby="terminal-chart-title terminal-chart-description">
+            <title id="terminal-chart-title">Scores TerminalBench 2.1 par modele</title>
+            <desc id="terminal-chart-description">Diagramme en barres horizontales trie par score decroissant.</desc>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="data-section" aria-labelledby="table-title">
+      <div class="table-heading">
+        <h2 id="table-title">Donn&eacute;es GeneBench v1</h2>
+        <p class="sort-status" id="sort-status" aria-live="polite">Tri : score d&eacute;croissant</p>
+      </div>
+      <div class="table-frame">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col" data-sort-key="model" aria-sort="none">
+                <button class="sort-button" type="button" data-sort-key="model">
+                  Mod&egrave;le <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                </button>
+              </th>
+              <th scope="col" data-sort-key="effort" aria-sort="none">
+                <button class="sort-button" type="button" data-sort-key="effort">
+                  Effort <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                </button>
+              </th>
+              <th class="numeric" scope="col" data-sort-key="score" aria-sort="descending">
+                <button class="sort-button" type="button" data-sort-key="score">
+                  Score <span class="sort-indicator" aria-hidden="true">&#8595;</span>
+                </button>
+              </th>
+              <th class="numeric" scope="col" data-sort-key="tokens" aria-sort="none">
+                <button class="sort-button" type="button" data-sort-key="tokens">
+                  Tokens <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                </button>
+              </th>
+              <th class="numeric" scope="col" data-sort-key="cost" aria-sort="none">
+                <button class="sort-button" type="button" data-sort-key="cost">
+                  Co&ucirc;t API <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                </button>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="data-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="notes">
+      <p>Les niveaux d'effort suivent les libell&eacute;s du graphique source.</p>
+      <p>GPT-5.6 Sol ne pr&eacute;sente pas de configuration &laquo;&nbsp;none&nbsp;&raquo;.</p>
+    </div>
+  </main>
+
+  <div class="tooltip" id="tooltip" role="status" aria-hidden="true"></div>
+
+  <script>
+    const groups = [
+      {
+        model: "GPT-5.6 Sol",
+        color: "#292b2f",
+        values: [
+          { effort: "low", score: 10.8, tokens: 2730.28, cost: 0.1316344135 },
+          { effort: "medium", score: 18.69, tokens: 5922.88, cost: 0.2857717135 },
+          { effort: "high", score: 25, tokens: 10874.7, cost: 0.561049995 },
+          { effort: "xhigh", score: 26.94, tokens: 17081.3, cost: 0.91966049 },
+          { effort: "max", score: 30.7, tokens: 30052.9, cost: 1.8920579 }
+        ]
+      },
+      {
+        model: "GPT-5.6 Terra",
+        color: "#3478d4",
+        values: [
+          { effort: "none", score: 2.18, tokens: 1460.18, cost: 0.04492556775 },
+          { effort: "low", score: 5.83, tokens: 2889.14, cost: 0.0713171555 },
+          { effort: "medium", score: 8.5, tokens: 6004.66, cost: 0.149891155 },
+          { effort: "high", score: 16.14, tokens: 13381.4, cost: 0.354855315 },
+          { effort: "xhigh", score: 17.23, tokens: 19227.5, cost: 0.5309134475 },
+          { effort: "max", score: 28.4, tokens: 49177, cost: 1.737853125 }
+        ]
+      },
+      {
+        model: "GPT-5.6 Luna",
+        color: "#188b62",
+        values: [
+          { effort: "none", score: 1.58, tokens: 1387.22, cost: 0.0150492587 },
+          { effort: "low", score: 2.55, tokens: 2905.24, cost: 0.0237151579 },
+          { effort: "medium", score: 4.85, tokens: 5419.33, cost: 0.054262233 },
+          { effort: "high", score: 9.47, tokens: 20285.1, cost: 0.209136542 },
+          { effort: "xhigh", score: 12.01, tokens: 36832, cost: 0.44215253 },
+          { effort: "max", score: 14.44, tokens: 56335, cost: 0.86915091 }
+        ]
+      },
+      {
+        model: "GPT-5.5",
+        color: "#d85f8c",
+        values: [
+          { effort: "none", score: 2.31, tokens: 937.907767, cost: 0.0438308805 },
+          { effort: "low", score: 4.25, tokens: 2348.837379, cost: 0.1013761511 },
+          { effort: "medium", score: 15.29, tokens: 8654.881068, cost: 0.387213022 },
+          { effort: "high", score: 19.42, tokens: 16842.776699, cost: 0.8057366783 },
+          { effort: "xhigh", score: 22.94, tokens: 24489.762136, cost: 1.23615549 }
+        ]
+      }
+    ];
+
+    const terminalData = [
+      { model: "GPT-5.6 Sol Ultra", reasoning: "ma_ultra", score: 91.9101, sourceLabel: "91.91%", color: "#17181a" },
+      { model: "GPT-5.6 Sol", reasoning: "max", score: 88.764, sourceLabel: "88.76%", color: "#4b4e54" },
+      { model: "Claude Mythos 5", reasoning: "n/a", score: 88, sourceLabel: "88%", color: "#a6532d" },
+      { model: "Claude Fable 5", reasoning: "max", score: 84.3, sourceLabel: "84.3%", color: "#cf7747" },
+      { model: "GPT-5.6 Terra", reasoning: "max", score: 84.2697, sourceLabel: "84.27%", color: "#3478d4" },
+      { model: "GPT-5.5", reasoning: "xhigh", score: 83.4, sourceLabel: "83.4%", color: "#d85f8c" },
+      { model: "GPT-5.6 Luna", reasoning: "max", score: 82.4719, sourceLabel: "82.47%", color: "#188b62" },
+      { model: "Claude Opus 4.8", reasoning: "max", score: 78.9, sourceLabel: "78.9%", color: "#e3a078" },
+      { model: "Gemini 3.1 Pro Preview", reasoning: "n/a", score: 70.7, sourceLabel: "70.7%", color: "#7256c8" }
+    ];
+
+    const integerFormatter = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 });
+    const metrics = {
+      score: {
+        key: "score",
+        axis: "Score",
+        description: "Score pass@1",
+        max: 35,
+        step: 5,
+        formatTick: (value) => `${value}%`,
+        formatValue: (value) => `${Number.isInteger(value) ? value : String(value).replace(/0$/, "")}%`
+      },
+      tokens: {
+        key: "tokens",
+        axis: "Tokens de sortie",
+        description: "Tokens de sortie",
+        max: 60000,
+        step: 10000,
+        formatTick: (value) => value === 0 ? "0" : `${value / 1000}k`,
+        formatValue: (value) => integerFormatter.format(value)
+      },
+      cost: {
+        key: "cost",
+        axis: "Co\u00fbt API (USD)",
+        description: "Co\u00fbt API estim\u00e9",
+        max: 2,
+        step: 0.5,
+        formatTick: (value) => `$${value.toFixed(1)}`,
+        formatValue: (value) => `$${value.toFixed(2)}`
+      }
+    };
+
+    const selectedModels = new Set(groups.map((group) => group.model));
+    const svg = document.getElementById("chart");
+    const chartScroll = document.getElementById("chart-scroll");
+    const tooltip = document.getElementById("tooltip");
+    const count = document.getElementById("count");
+    const filters = document.getElementById("filters");
+    const metricSelect = document.getElementById("metric-select");
+    const metricDescription = document.getElementById("metric-description");
+    const terminalSvg = document.getElementById("terminal-chart");
+    const terminalChartWrap = document.getElementById("terminal-chart-wrap");
+    const geneScatterSvg = document.getElementById("gene-scatter");
+    const geneScatterScroll = document.getElementById("gene-scatter-scroll");
+    const scatterCount = document.getElementById("scatter-count");
+    const tableBody = document.getElementById("data-table-body");
+    const sortStatus = document.getElementById("sort-status");
+    const tableSort = { key: "score", direction: "desc" };
+    const ns = "http://www.w3.org/2000/svg";
+
+    function svgNode(name, attributes = {}, text = "") {
+      const node = document.createElementNS(ns, name);
+      Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, value));
+      if (text) node.textContent = text;
+      return node;
+    }
+
+    function buildFilters() {
+      groups.forEach((group) => {
+        const label = document.createElement("label");
+        label.className = "filter";
+        label.style.setProperty("--filter-color", group.color);
+        label.innerHTML = `
+          <input type="checkbox" value="${group.model}" checked>
+          <span class="check" aria-hidden="true"></span>
+          <span class="swatch" aria-hidden="true"></span>
+          <span>${group.model}</span>
+        `;
+        label.querySelector("input").addEventListener("change", (event) => {
+          if (event.target.checked) {
+            selectedModels.add(group.model);
+          } else if (selectedModels.size > 1) {
+            selectedModels.delete(group.model);
+          } else {
+            event.target.checked = true;
+          }
+          renderChart();
+          renderGeneScatter();
+          renderTable();
+        });
+        filters.appendChild(label);
+      });
+    }
+
+    function visiblePoints() {
+      return groups
+        .filter((group) => selectedModels.has(group.model))
+        .flatMap((group) => group.values.map((value) => ({ group, ...value })));
+    }
+
+    function showTooltip(event, group, effort, value, metric) {
+      tooltip.innerHTML = `<strong>${group.model}</strong>Effort : ${effort}<br>${metric.axis} : ${metric.formatValue(value)}`;
+      tooltip.style.left = `${event.clientX}px`;
+      tooltip.style.top = `${event.clientY}px`;
+      tooltip.classList.add("visible");
+      tooltip.setAttribute("aria-hidden", "false");
+    }
+
+    function showKeyboardTooltip(element, group, effort, value, metric) {
+      const rect = element.getBoundingClientRect();
+      showTooltip(
+        { clientX: rect.left + rect.width / 2, clientY: rect.top },
+        group,
+        effort,
+        value,
+        metric
+      );
+    }
+
+    function hideTooltip() {
+      tooltip.classList.remove("visible");
+      tooltip.setAttribute("aria-hidden", "true");
+    }
+
+    function showTerminalTooltip(event, item) {
+      tooltip.innerHTML = `<strong>${item.model}</strong>Raisonnement : ${item.reasoning}<br>Score : ${item.sourceLabel}`;
+      tooltip.style.left = `${event.clientX}px`;
+      tooltip.style.top = `${event.clientY}px`;
+      tooltip.classList.add("visible");
+      tooltip.setAttribute("aria-hidden", "false");
+    }
+
+    function showScatterTooltip(event, point) {
+      tooltip.innerHTML = `<strong>${point.group.model}</strong>Effort : ${point.effort}<br>Score : ${metrics.score.formatValue(point.score)}<br>Co\u00fbt API : ${metrics.cost.formatValue(point.cost)}`;
+      tooltip.style.left = `${event.clientX}px`;
+      tooltip.style.top = `${event.clientY}px`;
+      tooltip.classList.add("visible");
+      tooltip.setAttribute("aria-hidden", "false");
+    }
+
+    function renderChart() {
+      const metric = metrics[metricSelect.value];
+      const points = visiblePoints()
+        .sort((a, b) => a[metric.key] - b[metric.key] || a.group.model.localeCompare(b.group.model));
+      const margins = { top: 54, right: 28, bottom: 158, left: 68 };
+      const chartHeight = 650;
+      const plotHeight = chartHeight - margins.top - margins.bottom;
+      const itemWidth = 55;
+      const contentWidth = margins.left + points.length * itemWidth + margins.right;
+      const width = Math.max(chartScroll.clientWidth, contentWidth);
+      const extraWidth = width - contentWidth;
+      const xOffset = Math.max(0, extraWidth / 2);
+      const plotBottom = margins.top + plotHeight;
+      const maxValue = metric.max;
+
+      svg.replaceChildren();
+      svg.setAttribute("viewBox", `0 0 ${width} ${chartHeight}`);
+      svg.style.width = `${width}px`;
+      metricDescription.textContent = `${metric.description} \u00b7 ordre croissant`;
+
+      svg.append(
+        svgNode("title", { id: "chart-title" }, `${metric.axis} GeneBench v1 par modele et niveau d'effort`),
+        svgNode("desc", { id: "chart-description" }, `Diagramme en barres trie par ${metric.axis.toLowerCase()} croissant. Chaque categorie de l'axe horizontal correspond a un modele et un niveau d'effort.`)
+      );
+
+      for (let tick = 0; tick <= maxValue + metric.step / 10; tick += metric.step) {
+        const y = plotBottom - (tick / maxValue) * plotHeight;
+        svg.append(
+          svgNode("line", {
+            x1: margins.left,
+            x2: width - margins.right,
+            y1: y,
+            y2: y,
+            stroke: tick === 0 ? "#aeb2b9" : "#e7e9ed",
+            "stroke-width": tick === 0 ? 1.2 : 1
+          }),
+          svgNode("text", {
+            x: margins.left - 14,
+            y: y + 4,
+            fill: "#656970",
+            "font-size": 12,
+            "font-variant-numeric": "tabular-nums",
+            "text-anchor": "end"
+          }, metric.formatTick(tick))
+        );
+      }
+
+      svg.appendChild(svgNode("text", {
+        x: 20,
+        y: margins.top + plotHeight / 2,
+        fill: "#34363a",
+        "font-size": 13,
+        "font-weight": 650,
+        "text-anchor": "middle",
+        transform: `rotate(-90 20 ${margins.top + plotHeight / 2})`
+      }, metric.axis));
+
+      points.forEach(({ group, effort, ...values }, index) => {
+        const value = values[metric.key];
+        const x = margins.left + index * itemWidth + itemWidth / 2 + xOffset;
+        const barHeight = (value / maxValue) * plotHeight;
+        const y = plotBottom - barHeight;
+        const bar = svgNode("rect", {
+          x: x - 15,
+          y,
+          width: 30,
+          height: barHeight,
+          rx: 2,
+          fill: group.color,
+          tabindex: 0,
+          role: "graphics-symbol",
+          "aria-label": `${group.model}, effort ${effort}, ${metric.axis} ${metric.formatValue(value)}`
+        });
+
+        bar.addEventListener("pointerenter", (event) => showTooltip(event, group, effort, value, metric));
+        bar.addEventListener("pointermove", (event) => showTooltip(event, group, effort, value, metric));
+        bar.addEventListener("pointerleave", hideTooltip);
+        bar.addEventListener("focus", () => showKeyboardTooltip(bar, group, effort, value, metric));
+        bar.addEventListener("blur", hideTooltip);
+
+        svg.append(
+          bar,
+          svgNode("text", {
+            x,
+            y: y - 9,
+            fill: "#34363a",
+            "font-size": 11,
+            "font-weight": 650,
+            "font-variant-numeric": "tabular-nums",
+            "text-anchor": "middle"
+          }, metric.formatValue(value)),
+          svgNode("text", {
+            x,
+            y: plotBottom + 24,
+            fill: group.color,
+            "font-size": 11,
+            "font-weight": 650,
+            "text-anchor": "end",
+            transform: `rotate(-48 ${x} ${plotBottom + 24})`
+          }, `${group.model} / ${effort}`)
+        );
+      });
+
+      count.textContent = `${points.length} configuration${points.length > 1 ? "s" : ""}`;
+    }
+
+    function renderGeneScatter() {
+      const points = visiblePoints();
+      const width = Math.max(geneScatterScroll.clientWidth, 900);
+      const chartHeight = 560;
+      const margins = { top: 38, right: 128, bottom: 68, left: 70 };
+      const plotWidth = width - margins.left - margins.right;
+      const plotHeight = chartHeight - margins.top - margins.bottom;
+      const plotBottom = margins.top + plotHeight;
+      const xMin = 0.01;
+      const xMax = 2.5;
+      const xTicks = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2];
+      const logMin = Math.log10(xMin);
+      const logRange = Math.log10(xMax) - logMin;
+      const labelOffsets = {
+        "GPT-5.6 Sol|low": { dy: -10 },
+        "GPT-5.6 Sol|medium": { dy: -10 },
+        "GPT-5.6 Sol|high": { dx: -10, dy: -10, anchor: "end" },
+        "GPT-5.6 Sol|xhigh": { dx: 10, dy: 15, anchor: "start" },
+        "GPT-5.6 Sol|max": { dy: -10 },
+        "GPT-5.6 Terra|none": { dy: 15 },
+        "GPT-5.6 Terra|low": { dy: -10 },
+        "GPT-5.6 Terra|medium": { dy: 15 },
+        "GPT-5.6 Terra|high": { dy: -10 },
+        "GPT-5.6 Terra|xhigh": { dy: 15 },
+        "GPT-5.6 Terra|max": { dy: 15 },
+        "GPT-5.6 Luna|none": { dy: 15 },
+        "GPT-5.6 Luna|low": { dx: -10, dy: -10, anchor: "end" },
+        "GPT-5.6 Luna|medium": { dy: -10 },
+        "GPT-5.6 Luna|high": { dy: -10 },
+        "GPT-5.6 Luna|xhigh": { dy: 15 },
+        "GPT-5.6 Luna|max": { dy: 15 },
+        "GPT-5.5|none": { dx: -10, dy: -10, anchor: "end" },
+        "GPT-5.5|low": { dy: 15 },
+        "GPT-5.5|medium": { dx: -10, dy: 15, anchor: "end" },
+        "GPT-5.5|high": { dy: 15 },
+        "GPT-5.5|xhigh": { dy: -10 }
+      };
+      const shortNames = {
+        "GPT-5.6 Sol": "Sol",
+        "GPT-5.6 Terra": "Terra",
+        "GPT-5.6 Luna": "Luna",
+        "GPT-5.5": "GPT-5.5"
+      };
+      const xPosition = (value) => margins.left + ((Math.log10(value) - logMin) / logRange) * plotWidth;
+      const yPosition = (value) => plotBottom - (value / 35) * plotHeight;
+      const formatCostTick = (value) => {
+        if (value < 0.1) return `$${value.toFixed(2)}`;
+        if (value < 1) return `$${value.toFixed(1)}`;
+        return `$${value.toFixed(0)}`;
+      };
+
+      geneScatterSvg.replaceChildren();
+      geneScatterSvg.setAttribute("viewBox", `0 0 ${width} ${chartHeight}`);
+      geneScatterSvg.style.width = `${width}px`;
+      geneScatterSvg.append(
+        svgNode("title", { id: "gene-scatter-svg-title" }, "GeneBench v1 : cout API et score"),
+        svgNode("desc", { id: "gene-scatter-description" }, "Nuage de points avec le cout API sur une echelle logarithmique en abscisse et le score en ordonnee.")
+      );
+
+      for (let tick = 0; tick <= 35; tick += 5) {
+        const y = yPosition(tick);
+        geneScatterSvg.append(
+          svgNode("line", {
+            x1: margins.left,
+            x2: width - margins.right,
+            y1: y,
+            y2: y,
+            stroke: tick === 0 ? "#aeb2b9" : "#e7e9ed",
+            "stroke-width": tick === 0 ? 1.2 : 1
+          }),
+          svgNode("text", {
+            x: margins.left - 14,
+            y: y + 4,
+            fill: "#656970",
+            "font-size": 12,
+            "text-anchor": "end"
+          }, `${tick}%`)
+        );
+      }
+
+      xTicks.forEach((tick) => {
+        const x = xPosition(tick);
+        geneScatterSvg.append(
+          svgNode("line", {
+            x1: x,
+            x2: x,
+            y1: margins.top,
+            y2: plotBottom,
+            stroke: "#eef0f2",
+            "stroke-width": 1
+          }),
+          svgNode("text", {
+            x,
+            y: plotBottom + 25,
+            fill: "#656970",
+            "font-size": 12,
+            "font-variant-numeric": "tabular-nums",
+            "text-anchor": "middle"
+          }, formatCostTick(tick))
+        );
+      });
+
+      geneScatterSvg.append(
+        svgNode("text", {
+          x: 20,
+          y: margins.top + plotHeight / 2,
+          fill: "#34363a",
+          "font-size": 13,
+          "font-weight": 650,
+          "text-anchor": "middle",
+          transform: `rotate(-90 20 ${margins.top + plotHeight / 2})`
+        }, "Score"),
+        svgNode("text", {
+          x: margins.left + plotWidth / 2,
+          y: chartHeight - 10,
+          fill: "#34363a",
+          "font-size": 13,
+          "font-weight": 650,
+          "text-anchor": "middle"
+        }, "Co\u00fbt API (USD, \u00e9chelle logarithmique)")
+      );
+
+      points.forEach((point) => {
+        const x = xPosition(point.cost);
+        const y = yPosition(point.score);
+        const key = `${point.group.model}|${point.effort}`;
+        const defaultAnchor = x > margins.left + plotWidth * 0.76 ? "end" : "start";
+        const override = labelOffsets[key] || {};
+        const anchor = override.anchor || defaultAnchor;
+        const dx = override.dx ?? (anchor === "end" ? -10 : 10);
+        const dy = override.dy ?? -10;
+        const circle = svgNode("circle", {
+          cx: x,
+          cy: y,
+          r: 6,
+          fill: point.group.color,
+          stroke: "#ffffff",
+          "stroke-width": 2,
+          tabindex: 0,
+          role: "graphics-symbol",
+          "aria-label": `${point.group.model}, effort ${point.effort}, cout API ${metrics.cost.formatValue(point.cost)}, score ${metrics.score.formatValue(point.score)}`
+        });
+
+        circle.addEventListener("pointerenter", (event) => showScatterTooltip(event, point));
+        circle.addEventListener("pointermove", (event) => showScatterTooltip(event, point));
+        circle.addEventListener("pointerleave", hideTooltip);
+        circle.addEventListener("focus", () => {
+          const rect = circle.getBoundingClientRect();
+          showScatterTooltip({ clientX: rect.left + rect.width / 2, clientY: rect.top }, point);
+        });
+        circle.addEventListener("blur", hideTooltip);
+
+        geneScatterSvg.append(
+          circle,
+          svgNode("text", {
+            x: x + dx,
+            y: y + dy,
+            fill: "#34363a",
+            "font-size": 10,
+            "font-weight": 650,
+            "text-anchor": anchor,
+            "pointer-events": "none",
+            style: "paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round"
+          }, `${shortNames[point.group.model]} / ${point.effort}`)
+        );
+      });
+
+      scatterCount.textContent = `${points.length} point${points.length > 1 ? "s" : ""}`;
+    }
+
+    function renderTerminalChart() {
+      const width = Math.max(terminalChartWrap.clientWidth - 36, 316);
+      const mobile = width < 620;
+      const margins = {
+        top: 30,
+        right: 62,
+        bottom: 48,
+        left: mobile ? 166 : 220
+      };
+      const rowHeight = 52;
+      const barHeight = 26;
+      const plotHeight = terminalData.length * rowHeight;
+      const plotWidth = Math.max(88, width - margins.left - margins.right);
+      const chartHeight = margins.top + plotHeight + margins.bottom;
+      const plotBottom = margins.top + plotHeight;
+      const minScore = 50;
+      const tickStep = 25;
+
+      terminalSvg.replaceChildren();
+      terminalSvg.setAttribute("viewBox", `0 0 ${width} ${chartHeight}`);
+      terminalSvg.style.height = `${chartHeight}px`;
+      terminalSvg.append(
+        svgNode("title", { id: "terminal-chart-title" }, "Scores TerminalBench 2.1 par modele"),
+        svgNode("desc", { id: "terminal-chart-description" }, "Diagramme en barres horizontales trie par score decroissant, avec un axe allant de 50 a 100 pour cent.")
+      );
+
+      for (let tick = minScore; tick <= 100; tick += tickStep) {
+        const x = margins.left + ((tick - minScore) / (100 - minScore)) * plotWidth;
+        terminalSvg.append(
+          svgNode("line", {
+            x1: x,
+            x2: x,
+            y1: margins.top,
+            y2: plotBottom,
+            stroke: tick === minScore ? "#aeb2b9" : "#e7e9ed",
+            "stroke-width": tick === minScore ? 1.2 : 1
+          }),
+          svgNode("text", {
+            x,
+            y: plotBottom + 24,
+            fill: "#656970",
+            "font-size": 12,
+            "font-variant-numeric": "tabular-nums",
+            "text-anchor": "middle"
+          }, `${tick}%`)
+        );
+      }
+
+      terminalData
+        .slice()
+        .sort((a, b) => b.score - a.score)
+        .forEach((item, index) => {
+          const rowY = margins.top + index * rowHeight;
+          const y = rowY + (rowHeight - barHeight) / 2;
+          const valueWidth = ((item.score - minScore) / (100 - minScore)) * plotWidth;
+          const bar = svgNode("rect", {
+            x: margins.left,
+            y,
+            width: valueWidth,
+            height: barHeight,
+            rx: 2,
+            fill: item.color,
+            tabindex: 0,
+            role: "graphics-symbol",
+            "aria-label": `${item.model}, raisonnement ${item.reasoning}, score ${item.sourceLabel}`
+          });
+
+          bar.addEventListener("pointerenter", (event) => showTerminalTooltip(event, item));
+          bar.addEventListener("pointermove", (event) => showTerminalTooltip(event, item));
+          bar.addEventListener("pointerleave", hideTooltip);
+          bar.addEventListener("focus", () => {
+            const rect = bar.getBoundingClientRect();
+            showTerminalTooltip({ clientX: rect.right, clientY: rect.top }, item);
+          });
+          bar.addEventListener("blur", hideTooltip);
+
+          terminalSvg.append(
+            svgNode("text", {
+              x: margins.left - 14,
+              y: rowY + 21,
+              fill: "#34363a",
+              "font-size": mobile ? 11 : 13,
+              "font-weight": 650,
+              "text-anchor": "end"
+            }, item.model),
+            svgNode("text", {
+              x: margins.left - 14,
+              y: rowY + 37,
+              fill: "#7a7e85",
+              "font-size": 10,
+              "font-family": "SFMono-Regular, Consolas, Liberation Mono, monospace",
+              "text-anchor": "end"
+            }, `raisonnement: ${item.reasoning}`),
+            bar,
+            svgNode("text", {
+              x: margins.left + valueWidth + 8,
+              y: rowY + rowHeight / 2 + 4,
+              fill: "#34363a",
+              "font-size": 12,
+              "font-weight": 700,
+              "font-variant-numeric": "tabular-nums"
+            }, `${item.score.toFixed(1)}%`)
+          );
+        });
+
+      terminalSvg.appendChild(svgNode("text", {
+        x: margins.left + plotWidth / 2,
+        y: chartHeight - 8,
+        fill: "#34363a",
+        "font-size": 13,
+        "font-weight": 650,
+        "text-anchor": "middle"
+      }, "Score"));
+    }
+
+    function renderTable() {
+      const direction = tableSort.direction === "asc" ? 1 : -1;
+      const points = visiblePoints().sort((a, b) => {
+        const aValue = tableSort.key === "model" ? a.group.model : a[tableSort.key];
+        const bValue = tableSort.key === "model" ? b.group.model : b[tableSort.key];
+        const comparison = typeof aValue === "string"
+          ? aValue.localeCompare(bValue)
+          : aValue - bValue;
+        return comparison * direction || b.score - a.score;
+      });
+
+      tableBody.replaceChildren();
+      points.forEach(({ group, effort, score, tokens, cost }) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>
+            <span class="model-cell">
+              <span class="model-dot" style="--model-color:${group.color}" aria-hidden="true"></span>
+              ${group.model}
+            </span>
+          </td>
+          <td class="effort-cell">${effort}</td>
+          <td class="numeric">${metrics.score.formatValue(score)}</td>
+          <td class="numeric">${metrics.tokens.formatValue(tokens)}</td>
+          <td class="numeric">${metrics.cost.formatValue(cost)}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      const sortNames = {
+        model: "mod\u00e8le",
+        effort: "effort",
+        score: "score",
+        tokens: "tokens",
+        cost: "co\u00fbt"
+      };
+      sortStatus.textContent = `Tri : ${sortNames[tableSort.key]} ${tableSort.direction === "asc" ? "croissant" : "d\u00e9croissant"}`;
+
+      document.querySelectorAll("th[data-sort-key]").forEach((header) => {
+        const active = header.dataset.sortKey === tableSort.key;
+        header.setAttribute("aria-sort", active ? (tableSort.direction === "asc" ? "ascending" : "descending") : "none");
+        header.querySelector(".sort-indicator").textContent = active
+          ? (tableSort.direction === "asc" ? "\u2191" : "\u2193")
+          : "\u2195";
+      });
+    }
+
+    document.querySelectorAll(".sort-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        const key = button.dataset.sortKey;
+        if (tableSort.key === key) {
+          tableSort.direction = tableSort.direction === "asc" ? "desc" : "asc";
+        } else {
+          tableSort.key = key;
+          tableSort.direction = ["model", "effort"].includes(key) ? "asc" : "desc";
+        }
+        renderTable();
+      });
+    });
+
+    buildFilters();
+    metricSelect.addEventListener("change", renderChart);
+    renderChart();
+    renderGeneScatter();
+    renderTerminalChart();
+    renderTable();
+    window.addEventListener("resize", () => {
+      renderChart();
+      renderGeneScatter();
+      renderTerminalChart();
+    });
+    chartScroll.addEventListener("scroll", hideTooltip);
+  </script>
+</body>
+</html>
