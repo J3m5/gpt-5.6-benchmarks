@@ -1,0 +1,68 @@
+name: Update benchmark data
+
+on:
+  schedule:
+    - cron: "17 7 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: benchmark-data-update
+
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: jdx/mise-action@v2
+        with:
+          install: true
+          cache: true
+      - id: update
+        run: |
+          mise run data:update | tee /tmp/benchmark-update.txt
+          if git diff --quiet -- data; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - run: mise run test
+      - if: steps.update.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          branch="automation/update-benchmark-data"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin "refs/heads/$branch:refs/remotes/origin/$branch" || true
+          git switch -C "$branch"
+          git add data
+          git commit -m "data: refresh benchmark results"
+          git push --force-with-lease origin "$branch"
+
+          {
+            echo "Automated refresh from the Vega-Lite data embedded in the OpenAI source article."
+            echo
+            echo "Workflow run:"
+            echo "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo
+            echo '```text'
+            cat /tmp/benchmark-update.txt
+            echo '```'
+          } > /tmp/pull-request-body.md
+
+          number="$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number')"
+          if [ -n "$number" ]; then
+            gh pr edit "$number" --body-file /tmp/pull-request-body.md
+          else
+            gh pr create \
+              --base main \
+              --head "$branch" \
+              --title "data: refresh benchmark results" \
+              --body-file /tmp/pull-request-body.md
+          fi

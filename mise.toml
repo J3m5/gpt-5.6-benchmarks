@@ -1,0 +1,24 @@
+[tools]
+python = "3.12.13"
+
+[settings]
+lockfile = true
+locked = false
+lockfile_platforms = ["linux-x64"]
+
+[tasks."data:update"]
+description = "Fetch, validate, and regenerate benchmark data"
+run = "python scripts/update_benchmarks.py update"
+
+[tasks."data:verify"]
+description = "Validate committed data without network access"
+run = "python scripts/update_benchmarks.py verify"
+
+[tasks."data:check-upstream"]
+description = "Check whether OpenAI's embedded benchmark data changed"
+run = "python scripts/update_benchmarks.py check-upstream"
+
+[tasks.test]
+description = "Run data validation and unit tests"
+depends = ["data:verify"]
+run = "python -m unittest discover -s tests -v"

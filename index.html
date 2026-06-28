@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Benchmarks - GeneBench v1 et TerminalBench 2.1</title>
+  <title>Benchmarks - GeneBench v1, ExploitGym et TerminalBench 2.1</title>
   <style>
     :root {
       color-scheme: light;
@@ -165,6 +165,267 @@
       outline-offset: 2px;
     }
 
+    .multi-select-trigger {
+      display: inline-flex;
+      height: 38px;
+      min-width: 260px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border: 1px solid #aeb2b9;
+      border-radius: 4px;
+      background: var(--surface);
+      color: var(--ink);
+      font: inherit;
+      padding: 0 12px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .multi-select-trigger::after {
+      width: 7px;
+      height: 7px;
+      flex: none;
+      border-right: 2px solid #656970;
+      border-bottom: 2px solid #656970;
+      content: "";
+      transform: translateY(-2px) rotate(45deg);
+      transition: transform 120ms ease;
+    }
+
+    .multi-select-trigger[aria-expanded="true"]::after {
+      transform: translateY(2px) rotate(225deg);
+    }
+
+    .multi-select-trigger:focus-visible {
+      outline: 2px solid var(--ink);
+      outline-offset: 2px;
+    }
+
+    .multi-select-panel {
+      position: fixed;
+      z-index: 30;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      overflow: hidden;
+      border: 1px solid #bfc3ca;
+      border-radius: 6px;
+      background: var(--surface);
+      box-shadow: 0 12px 34px rgb(23 24 26 / 18%);
+    }
+
+    .multi-select-panel[hidden] {
+      display: none;
+    }
+
+    .selection-list {
+      min-height: 0;
+      overflow-y: auto;
+      padding: 8px;
+      scrollbar-color: #aeb2b9 transparent;
+    }
+
+    .selection-group + .selection-group {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid var(--grid);
+    }
+
+    .selection-group-title {
+      margin: 0;
+      padding: 6px 8px 4px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .selection-option {
+      display: grid;
+      min-height: 38px;
+      grid-template-columns: 18px 9px minmax(0, 1fr);
+      align-items: center;
+      gap: 9px;
+      border-radius: 4px;
+      padding: 6px 8px;
+      color: #34363a;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .selection-option:hover {
+      background: #f2f3f5;
+    }
+
+    .selection-option.is-disabled {
+      color: #92969d;
+      cursor: not-allowed;
+    }
+
+    .selection-option.is-disabled:hover {
+      background: transparent;
+    }
+
+    .selection-option input {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      accent-color: var(--option-color);
+    }
+
+    .selection-option .swatch {
+      background: var(--option-color);
+    }
+
+    .selection-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid var(--line);
+      padding: 8px;
+    }
+
+    .selection-action {
+      min-height: 38px;
+      border: 0;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .selection-action:hover:not(:disabled) {
+      background: #f2f3f5;
+    }
+
+    .selection-action:focus-visible {
+      outline: 2px solid var(--ink);
+      outline-offset: -2px;
+    }
+
+    .selection-action:disabled {
+      color: #a0a4aa;
+      cursor: default;
+    }
+
+    .pareto-toggle {
+      position: relative;
+      display: inline-flex;
+      flex: none;
+      min-height: 38px;
+      align-items: center;
+      gap: 9px;
+      color: #34363a;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .pareto-toggle input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      opacity: 0;
+    }
+
+    .toggle-track {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      flex: none;
+      border: 1px solid #aeb2b9;
+      border-radius: 10px;
+      background: #e4e6e9;
+      transition: background 120ms ease, border-color 120ms ease;
+    }
+
+    .toggle-track::after {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgb(23 24 26 / 25%);
+      content: "";
+      transition: transform 120ms ease;
+    }
+
+    .pareto-toggle input:checked + .toggle-track {
+      border-color: #292b2f;
+      background: #292b2f;
+    }
+
+    .pareto-toggle input:checked + .toggle-track::after {
+      transform: translateX(16px);
+    }
+
+    .pareto-toggle input:focus-visible + .toggle-track {
+      outline: 2px solid var(--ink);
+      outline-offset: 3px;
+    }
+
+    .duration-picker {
+      display: inline-flex;
+      flex: none;
+      align-items: center;
+      gap: 9px;
+      color: #34363a;
+      font-size: 13px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .segmented-control {
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+      border: 1px solid #aeb2b9;
+      border-radius: 4px;
+      background: #f2f3f5;
+    }
+
+    .segment {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .segment + .segment {
+      border-left: 1px solid #aeb2b9;
+    }
+
+    .segment input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      opacity: 0;
+    }
+
+    .segment span {
+      display: grid;
+      min-width: 48px;
+      min-height: 36px;
+      place-items: center;
+      padding: 0 10px;
+    }
+
+    .segment input:checked + span {
+      background: #292b2f;
+      color: #ffffff;
+    }
+
+    .segment input:focus-visible + span {
+      outline: 2px solid var(--ink);
+      outline-offset: -3px;
+    }
+
     .toolbar-divider {
       flex: none;
       width: 1px;
@@ -289,7 +550,7 @@
       scrollbar-color: #aeb2b9 transparent;
     }
 
-    #gene-scatter {
+    .cost-score-chart {
       display: block;
       height: 560px;
       min-width: 900px;
@@ -501,6 +762,28 @@
         margin-top: 14px;
       }
 
+      .scatter-picker {
+        width: 100%;
+        align-items: stretch;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .scatter-toolbar {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        overflow-x: visible;
+      }
+
+      .scatter-toolbar .toolbar-divider {
+        display: none;
+      }
+
+      .multi-select-trigger {
+        width: 100%;
+        min-width: 0;
+      }
+
       .table-heading {
         display: block;
       }
@@ -533,7 +816,7 @@
     <section class="intro" aria-labelledby="page-title">
       <div>
         <h1 id="page-title">Comparaison des benchmarks</h1>
-        <p class="metric">GeneBench v1 &middot; TerminalBench 2.1</p>
+        <p class="metric">GeneBench v1 &middot; ExploitGym &middot; TerminalBench 2.1</p>
       </div>
     </section>
 
@@ -576,6 +859,28 @@
         <div class="count" id="scatter-count">22 points</div>
       </div>
       <div class="chart-panel" aria-label="Nuage de points GeneBench cout et score">
+        <div class="toolbar scatter-toolbar">
+          <div class="metric-picker scatter-picker">
+            <span id="scatter-selection-label">Mod&egrave;les / efforts</span>
+            <button
+              class="multi-select-trigger"
+              id="scatter-selection-trigger"
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded="false"
+              aria-controls="scatter-selection-panel"
+              aria-labelledby="scatter-selection-label scatter-selection-summary"
+            >
+              <span id="scatter-selection-summary">22 sur 22 configurations</span>
+            </button>
+          </div>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <label class="pareto-toggle">
+            <input id="pareto-toggle" type="checkbox">
+            <span class="toggle-track" aria-hidden="true"></span>
+            <span>Fronti&egrave;re de Pareto</span>
+          </label>
+        </div>
         <div class="scatter-legend" aria-label="Legende des modeles">
           <span class="legend-item"><span class="legend-dot" style="--legend-color:#292b2f"></span>GPT-5.6 Sol</span>
           <span class="legend-item"><span class="legend-dot" style="--legend-color:#3478d4"></span>GPT-5.6 Terra</span>
@@ -583,9 +888,69 @@
           <span class="legend-item"><span class="legend-dot" style="--legend-color:#d85f8c"></span>GPT-5.5</span>
         </div>
         <div class="scatter-scroll" id="gene-scatter-scroll">
-          <svg id="gene-scatter" role="img" aria-labelledby="gene-scatter-svg-title gene-scatter-description">
+          <svg class="cost-score-chart" id="gene-scatter" role="img" aria-labelledby="gene-scatter-svg-title gene-scatter-description">
             <title id="gene-scatter-svg-title">GeneBench v1 : cout API et score</title>
             <desc id="gene-scatter-description">Nuage de points avec le cout API sur une echelle logarithmique en abscisse et le score en ordonnee.</desc>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="benchmark-section" aria-labelledby="exploitgym-scatter-title">
+      <div class="benchmark-heading">
+        <div>
+          <h2 id="exploitgym-scatter-title">ExploitGym : co&ucirc;t et score</h2>
+          <p class="metric">Co&ucirc;t API en USD, &eacute;chelle logarithmique &middot; taux d'exploits intentionnels</p>
+        </div>
+        <div class="count" id="exploitgym-scatter-count">17 points &middot; limite 2 h</div>
+      </div>
+      <div class="chart-panel" aria-label="Nuage de points ExploitGym cout et score">
+        <div class="toolbar scatter-toolbar">
+          <div class="metric-picker scatter-picker">
+            <span id="exploitgym-selection-label">Mod&egrave;les / efforts</span>
+            <button
+              class="multi-select-trigger"
+              id="exploitgym-selection-trigger"
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded="false"
+              aria-labelledby="exploitgym-selection-label exploitgym-selection-summary"
+            >
+              <span id="exploitgym-selection-summary">17 sur 17 configurations</span>
+            </button>
+          </div>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <div class="duration-picker">
+            <span>Limite</span>
+            <div class="segmented-control" role="radiogroup" aria-label="Limite de temps ExploitGym">
+              <label class="segment">
+                <input type="radio" name="exploitgym-duration" value="2h" checked>
+                <span>2 h</span>
+              </label>
+              <label class="segment">
+                <input type="radio" name="exploitgym-duration" value="6h">
+                <span>6 h</span>
+              </label>
+            </div>
+          </div>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <label class="pareto-toggle">
+            <input id="exploitgym-pareto-toggle" type="checkbox">
+            <span class="toggle-track" aria-hidden="true"></span>
+            <span>Fronti&egrave;re de Pareto</span>
+          </label>
+        </div>
+        <div class="scatter-legend" aria-label="Legende ExploitGym">
+          <span class="legend-item"><span class="legend-dot" style="--legend-color:#292b2f"></span>GPT-5.6 Sol</span>
+          <span class="legend-item"><span class="legend-dot" style="--legend-color:#3478d4"></span>GPT-5.6 Terra</span>
+          <span class="legend-item"><span class="legend-dot" style="--legend-color:#188b62"></span>GPT-5.6 Luna</span>
+          <span class="legend-item"><span class="legend-dot" style="--legend-color:#d85f8c"></span>GPT-5.5</span>
+          <span class="legend-item"><span class="legend-dot" style="--legend-color:#7d5db3"></span>GPT-5.4</span>
+        </div>
+        <div class="scatter-scroll" id="exploitgym-scatter-scroll">
+          <svg class="cost-score-chart" id="exploitgym-scatter" role="img" aria-labelledby="exploitgym-scatter-svg-title exploitgym-scatter-description">
+            <title id="exploitgym-scatter-svg-title">ExploitGym : cout API et taux d'exploits intentionnels</title>
+            <desc id="exploitgym-scatter-description">Nuage de points avec le cout API sur une echelle logarithmique en abscisse et le taux d'exploits intentionnels en ordonnee.</desc>
           </svg>
         </div>
       </div>
@@ -658,67 +1023,63 @@
 
   <div class="tooltip" id="tooltip" role="status" aria-hidden="true"></div>
 
+  <script src="data/benchmarks.generated.js"></script>
   <script>
-    const groups = [
-      {
-        model: "GPT-5.6 Sol",
-        color: "#292b2f",
-        values: [
-          { effort: "low", score: 10.8, tokens: 2730.28, cost: 0.1316344135 },
-          { effort: "medium", score: 18.69, tokens: 5922.88, cost: 0.2857717135 },
-          { effort: "high", score: 25, tokens: 10874.7, cost: 0.561049995 },
-          { effort: "xhigh", score: 26.94, tokens: 17081.3, cost: 0.91966049 },
-          { effort: "max", score: 30.7, tokens: 30052.9, cost: 1.8920579 }
-        ]
-      },
-      {
-        model: "GPT-5.6 Terra",
-        color: "#3478d4",
-        values: [
-          { effort: "none", score: 2.18, tokens: 1460.18, cost: 0.04492556775 },
-          { effort: "low", score: 5.83, tokens: 2889.14, cost: 0.0713171555 },
-          { effort: "medium", score: 8.5, tokens: 6004.66, cost: 0.149891155 },
-          { effort: "high", score: 16.14, tokens: 13381.4, cost: 0.354855315 },
-          { effort: "xhigh", score: 17.23, tokens: 19227.5, cost: 0.5309134475 },
-          { effort: "max", score: 28.4, tokens: 49177, cost: 1.737853125 }
-        ]
-      },
-      {
-        model: "GPT-5.6 Luna",
-        color: "#188b62",
-        values: [
-          { effort: "none", score: 1.58, tokens: 1387.22, cost: 0.0150492587 },
-          { effort: "low", score: 2.55, tokens: 2905.24, cost: 0.0237151579 },
-          { effort: "medium", score: 4.85, tokens: 5419.33, cost: 0.054262233 },
-          { effort: "high", score: 9.47, tokens: 20285.1, cost: 0.209136542 },
-          { effort: "xhigh", score: 12.01, tokens: 36832, cost: 0.44215253 },
-          { effort: "max", score: 14.44, tokens: 56335, cost: 0.86915091 }
-        ]
-      },
-      {
-        model: "GPT-5.5",
-        color: "#d85f8c",
-        values: [
-          { effort: "none", score: 2.31, tokens: 937.907767, cost: 0.0438308805 },
-          { effort: "low", score: 4.25, tokens: 2348.837379, cost: 0.1013761511 },
-          { effort: "medium", score: 15.29, tokens: 8654.881068, cost: 0.387213022 },
-          { effort: "high", score: 19.42, tokens: 16842.776699, cost: 0.8057366783 },
-          { effort: "xhigh", score: 22.94, tokens: 24489.762136, cost: 1.23615549 }
-        ]
-      }
-    ];
+    const benchmarkData = window.BENCHMARK_DATA;
+    if (!benchmarkData) {
+      throw new Error("Benchmark data could not be loaded.");
+    }
 
-    const terminalData = [
-      { model: "GPT-5.6 Sol Ultra", reasoning: "ma_ultra", score: 91.9101, sourceLabel: "91.91%", color: "#17181a" },
-      { model: "GPT-5.6 Sol", reasoning: "max", score: 88.764, sourceLabel: "88.76%", color: "#4b4e54" },
-      { model: "Claude Mythos 5", reasoning: "n/a", score: 88, sourceLabel: "88%", color: "#a6532d" },
-      { model: "Claude Fable 5", reasoning: "max", score: 84.3, sourceLabel: "84.3%", color: "#cf7747" },
-      { model: "GPT-5.6 Terra", reasoning: "max", score: 84.2697, sourceLabel: "84.27%", color: "#3478d4" },
-      { model: "GPT-5.5", reasoning: "xhigh", score: 83.4, sourceLabel: "83.4%", color: "#d85f8c" },
-      { model: "GPT-5.6 Luna", reasoning: "max", score: 82.4719, sourceLabel: "82.47%", color: "#188b62" },
-      { model: "Claude Opus 4.8", reasoning: "max", score: 78.9, sourceLabel: "78.9%", color: "#e3a078" },
-      { model: "Gemini 3.1 Pro Preview", reasoning: "n/a", score: 70.7, sourceLabel: "70.7%", color: "#7256c8" }
+    const familyColors = {
+      "GPT-5.6 Sol": "#292b2f",
+      "GPT-5.6 Terra": "#3478d4",
+      "GPT-5.6 Luna": "#188b62",
+      "GPT-5.5": "#d85f8c",
+      "GPT-5.4": "#7d5db3"
+    };
+    const terminalColors = {
+      "GPT-5.6 Sol Ultra": "#17181a",
+      "GPT-5.6 Sol": "#4b4e54",
+      "Claude Mythos 5": "#a6532d",
+      "Claude Fable 5": "#cf7747",
+      "GPT-5.6 Terra": "#3478d4",
+      "GPT-5.5": "#d85f8c",
+      "GPT-5.6 Luna": "#188b62",
+      "Claude Opus 4.8": "#e3a078",
+      "Gemini 3.1 Pro Preview": "#7256c8"
+    };
+    const groups = [
+      ...benchmarkData.geneBench.reduce((byModel, row) => {
+        if (!byModel.has(row.model)) {
+          byModel.set(row.model, {
+            model: row.model,
+            color: familyColors[row.model] || "#656970",
+            values: []
+          });
+        }
+        byModel.get(row.model).values.push({
+          effort: row.effort,
+          score: row.scorePercent,
+          tokens: row.outputTokens,
+          cost: row.apiCostUsd
+        });
+        return byModel;
+      }, new Map()).values()
     ];
+    const exploitGymRuns = benchmarkData.exploitGym.map((row) => ({
+      family: row.model,
+      duration: row.duration,
+      effort: row.effort,
+      cost: row.apiCostUsd,
+      score: row.scorePercent
+    }));
+    const terminalData = benchmarkData.terminalBench.map((row) => ({
+      model: row.model,
+      reasoning: row.reasoning,
+      score: row.scoreFraction * 100,
+      sourceLabel: row.scoreLabel,
+      color: terminalColors[row.model] || "#656970"
+    }));
 
     const integerFormatter = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 });
     const metrics = {
@@ -752,6 +1113,45 @@
     };
 
     const selectedModels = new Set(groups.map((group) => group.model));
+    const shortFamilyNames = {
+      "GPT-5.6 Sol": "Sol",
+      "GPT-5.6 Terra": "Terra",
+      "GPT-5.6 Luna": "Luna",
+      "GPT-5.5": "GPT-5.5",
+      "GPT-5.4": "GPT-5.4"
+    };
+    const effortOrder = ["none", "low", "medium", "high", "xhigh", "max"];
+    const familyOrder = ["GPT-5.6 Sol", "GPT-5.6 Terra", "GPT-5.6 Luna", "GPT-5.5", "GPT-5.4"];
+    const geneScatterPoints = groups.flatMap((group) =>
+      group.values.map((value) => ({
+        id: `${group.model}|${value.effort}`,
+        family: group.model,
+        effort: value.effort,
+        cost: value.cost,
+        score: value.score,
+        color: group.color,
+        selectionGroup: group.model,
+        selectionLabel: `${group.model} / ${value.effort}`,
+        label: `${shortFamilyNames[group.model]} / ${value.effort}`,
+        shape: "circle"
+      }))
+    );
+    const exploitGymPoints = exploitGymRuns
+      .map((run) => ({
+        ...run,
+        id: `${run.family}|${run.duration}|${run.effort}`,
+        selectionId: `${run.family}|${run.effort}`,
+        color: familyColors[run.family],
+        selectionGroup: run.family,
+        selectionLabel: `${run.family} / ${run.effort}`,
+        label: `${shortFamilyNames[run.family]} / ${run.effort}`,
+        shape: "circle"
+      }))
+      .sort((a, b) =>
+        familyOrder.indexOf(a.family) - familyOrder.indexOf(b.family)
+        || a.duration.localeCompare(b.duration)
+        || effortOrder.indexOf(a.effort) - effortOrder.indexOf(b.effort)
+      );
     const svg = document.getElementById("chart");
     const chartScroll = document.getElementById("chart-scroll");
     const tooltip = document.getElementById("tooltip");
@@ -761,13 +1161,13 @@
     const metricDescription = document.getElementById("metric-description");
     const terminalSvg = document.getElementById("terminal-chart");
     const terminalChartWrap = document.getElementById("terminal-chart-wrap");
-    const geneScatterSvg = document.getElementById("gene-scatter");
-    const geneScatterScroll = document.getElementById("gene-scatter-scroll");
-    const scatterCount = document.getElementById("scatter-count");
     const tableBody = document.getElementById("data-table-body");
     const sortStatus = document.getElementById("sort-status");
     const tableSort = { key: "score", direction: "desc" };
     const ns = "http://www.w3.org/2000/svg";
+    let geneCostScoreChart;
+    let exploitGymCostScoreChart;
+    let exploitGymDuration = "2h";
 
     function svgNode(name, attributes = {}, text = "") {
       const node = document.createElementNS(ns, name);
@@ -795,8 +1195,8 @@
           } else {
             event.target.checked = true;
           }
+          geneCostScoreChart.refreshVisibility();
           renderChart();
-          renderGeneScatter();
           renderTable();
         });
         filters.appendChild(label);
@@ -835,14 +1235,6 @@
 
     function showTerminalTooltip(event, item) {
       tooltip.innerHTML = `<strong>${item.model}</strong>Raisonnement : ${item.reasoning}<br>Score : ${item.sourceLabel}`;
-      tooltip.style.left = `${event.clientX}px`;
-      tooltip.style.top = `${event.clientY}px`;
-      tooltip.classList.add("visible");
-      tooltip.setAttribute("aria-hidden", "false");
-    }
-
-    function showScatterTooltip(event, point) {
-      tooltip.innerHTML = `<strong>${point.group.model}</strong>Effort : ${point.effort}<br>Score : ${metrics.score.formatValue(point.score)}<br>Co\u00fbt API : ${metrics.cost.formatValue(point.cost)}`;
       tooltip.style.left = `${event.clientX}px`;
       tooltip.style.top = `${event.clientY}px`;
       tooltip.classList.add("visible");
@@ -955,174 +1347,522 @@
       count.textContent = `${points.length} configuration${points.length > 1 ? "s" : ""}`;
     }
 
-    function renderGeneScatter() {
-      const points = visiblePoints();
-      const width = Math.max(geneScatterScroll.clientWidth, 900);
-      const chartHeight = 560;
-      const margins = { top: 38, right: 128, bottom: 68, left: 70 };
-      const plotWidth = width - margins.left - margins.right;
-      const plotHeight = chartHeight - margins.top - margins.bottom;
-      const plotBottom = margins.top + plotHeight;
-      const xMin = 0.01;
-      const xMax = 2.5;
-      const xTicks = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2];
-      const logMin = Math.log10(xMin);
-      const logRange = Math.log10(xMax) - logMin;
-      const labelOffsets = {
-        "GPT-5.6 Sol|low": { dy: -10 },
-        "GPT-5.6 Sol|medium": { dy: -10 },
-        "GPT-5.6 Sol|high": { dx: -10, dy: -10, anchor: "end" },
-        "GPT-5.6 Sol|xhigh": { dx: 10, dy: 15, anchor: "start" },
-        "GPT-5.6 Sol|max": { dy: -10 },
-        "GPT-5.6 Terra|none": { dy: 15 },
-        "GPT-5.6 Terra|low": { dy: -10 },
-        "GPT-5.6 Terra|medium": { dy: 15 },
-        "GPT-5.6 Terra|high": { dy: -10 },
-        "GPT-5.6 Terra|xhigh": { dy: 15 },
-        "GPT-5.6 Terra|max": { dy: 15 },
-        "GPT-5.6 Luna|none": { dy: 15 },
-        "GPT-5.6 Luna|low": { dx: -10, dy: -10, anchor: "end" },
-        "GPT-5.6 Luna|medium": { dy: -10 },
-        "GPT-5.6 Luna|high": { dy: -10 },
-        "GPT-5.6 Luna|xhigh": { dy: 15 },
-        "GPT-5.6 Luna|max": { dy: 15 },
-        "GPT-5.5|none": { dx: -10, dy: -10, anchor: "end" },
-        "GPT-5.5|low": { dy: 15 },
-        "GPT-5.5|medium": { dx: -10, dy: 15, anchor: "end" },
-        "GPT-5.5|high": { dy: 15 },
-        "GPT-5.5|xhigh": { dy: -10 }
-      };
-      const shortNames = {
-        "GPT-5.6 Sol": "Sol",
-        "GPT-5.6 Terra": "Terra",
-        "GPT-5.6 Luna": "Luna",
-        "GPT-5.5": "GPT-5.5"
-      };
-      const xPosition = (value) => margins.left + ((Math.log10(value) - logMin) / logRange) * plotWidth;
-      const yPosition = (value) => plotBottom - (value / 35) * plotHeight;
-      const formatCostTick = (value) => {
-        if (value < 0.1) return `$${value.toFixed(2)}`;
-        if (value < 1) return `$${value.toFixed(1)}`;
-        return `$${value.toFixed(0)}`;
-      };
+    function cleanNumber(value) {
+      return Number(value.toPrecision(12));
+    }
 
-      geneScatterSvg.replaceChildren();
-      geneScatterSvg.setAttribute("viewBox", `0 0 ${width} ${chartHeight}`);
-      geneScatterSvg.style.width = `${width}px`;
-      geneScatterSvg.append(
-        svgNode("title", { id: "gene-scatter-svg-title" }, "GeneBench v1 : cout API et score"),
-        svgNode("desc", { id: "gene-scatter-description" }, "Nuage de points avec le cout API sur une echelle logarithmique en abscisse et le score en ordonnee.")
-      );
+    function niceStep(range, targetIntervals = 6) {
+      const roughStep = range / targetIntervals;
+      if (!(roughStep > 0)) {
+        return 1;
+      }
 
-      for (let tick = 0; tick <= 35; tick += 5) {
-        const y = yPosition(tick);
-        geneScatterSvg.append(
-          svgNode("line", {
-            x1: margins.left,
-            x2: width - margins.right,
-            y1: y,
-            y2: y,
-            stroke: tick === 0 ? "#aeb2b9" : "#e7e9ed",
-            "stroke-width": tick === 0 ? 1.2 : 1
-          }),
-          svgNode("text", {
-            x: margins.left - 14,
-            y: y + 4,
-            fill: "#656970",
-            "font-size": 12,
-            "text-anchor": "end"
-          }, `${tick}%`)
+      const power = 10 ** Math.floor(Math.log10(roughStep));
+      const error = roughStep / power;
+      const factor = error >= Math.sqrt(50)
+        ? 10
+        : error >= Math.sqrt(10)
+          ? 5
+          : error >= Math.sqrt(2)
+            ? 2
+            : 1;
+
+      return factor * power;
+    }
+
+    function ticksBetween(min, max, step) {
+      const ticks = [];
+      const first = Math.ceil((min - step * 1e-9) / step) * step;
+
+      for (let value = first; value <= max + step * 1e-9; value += step) {
+        ticks.push(cleanNumber(value));
+      }
+
+      return ticks;
+    }
+
+    function createLinearScale(values, fallbackMax, fallbackStep) {
+      if (values.length === 0) {
+        return {
+          min: 0,
+          max: fallbackMax,
+          ticks: ticksBetween(0, fallbackMax, fallbackStep)
+        };
+      }
+
+      const dataMin = Math.min(...values);
+      const dataMax = Math.max(...values);
+      const dataRange = dataMax - dataMin;
+      const padding = dataRange > 0
+        ? dataRange * 0.12
+        : Math.max(Math.abs(dataMax) * 0.08, 1);
+      const paddedMin = Math.max(0, dataMin - padding);
+      const paddedMax = Math.min(100, dataMax + padding);
+      const step = niceStep(paddedMax - paddedMin);
+      let min = Math.max(0, Math.floor(paddedMin / step) * step);
+      let max = Math.min(100, Math.ceil(paddedMax / step) * step);
+
+      if (max <= min) {
+        min = Math.max(0, min - step);
+        max = Math.min(100, max + step);
+      }
+
+      return {
+        min: cleanNumber(min),
+        max: cleanNumber(max),
+        ticks: ticksBetween(min, max, step)
+      };
+    }
+
+    function createLogScale(values, fallbackMin, fallbackMax, fallbackTicks) {
+      if (values.length === 0) {
+        return {
+          min: fallbackMin,
+          max: fallbackMax,
+          ticks: fallbackTicks
+        };
+      }
+
+      const logarithms = values.map((value) => Math.log10(value));
+      const dataMin = Math.min(...logarithms);
+      const dataMax = Math.max(...logarithms);
+      const dataRange = dataMax - dataMin;
+      const padding = dataRange > 0 ? Math.max(dataRange * 0.1, 0.04) : 0.3;
+      const minLog = dataMin - padding;
+      const maxLog = dataMax + padding;
+      const ticks = [];
+
+      for (
+        let exponent = Math.floor(minLog) - 1;
+        exponent <= Math.ceil(maxLog) + 1;
+        exponent += 1
+      ) {
+        [1, 2, 5].forEach((factor) => {
+          const value = factor * (10 ** exponent);
+          const logarithm = Math.log10(value);
+          if (logarithm >= minLog - 1e-9 && logarithm <= maxLog + 1e-9) {
+            ticks.push(cleanNumber(value));
+          }
+        });
+      }
+
+      if (ticks.length < 3) {
+        const step = niceStep(maxLog - minLog, 4);
+        ticks.splice(
+          0,
+          ticks.length,
+          ...ticksBetween(minLog, maxLog, step).map((value) =>
+            cleanNumber(10 ** value)
+          )
         );
       }
 
-      xTicks.forEach((tick) => {
-        const x = xPosition(tick);
-        geneScatterSvg.append(
-          svgNode("line", {
-            x1: x,
-            x2: x,
-            y1: margins.top,
-            y2: plotBottom,
-            stroke: "#eef0f2",
-            "stroke-width": 1
-          }),
-          svgNode("text", {
-            x,
-            y: plotBottom + 25,
-            fill: "#656970",
-            "font-size": 12,
-            "font-variant-numeric": "tabular-nums",
-            "text-anchor": "middle"
-          }, formatCostTick(tick))
-        );
+      return {
+        min: 10 ** minLog,
+        max: 10 ** maxLog,
+        ticks
+      };
+    }
+
+    function formatAxisCost(value) {
+      const decimals = value < 0.1 ? 3 : value < 1 ? 2 : value < 10 ? 1 : 0;
+      const formatted = value.toFixed(decimals);
+      return `$${decimals > 0 ? formatted.replace(/\.?0+$/, "") : formatted}`;
+    }
+
+    function formatAxisPercent(value) {
+      return `${Number.isInteger(value) ? value : value.toFixed(1)}%`;
+    }
+
+    function createCostScoreChart(config) {
+      const svg = document.getElementById(config.svgId);
+      const scrollContainer = document.getElementById(config.scrollId);
+      const count = document.getElementById(config.countId);
+      const trigger = document.getElementById(config.triggerId);
+      const summary = document.getElementById(config.summaryId);
+      const paretoToggle = document.getElementById(config.paretoId);
+      const selectionIdFor = (point) => point.selectionId || point.id;
+      const selectionItems = [
+        ...new Map(config.points.map((point) => [
+          selectionIdFor(point),
+          { ...point, id: selectionIdFor(point) }
+        ])).values()
+      ];
+      const selectedSelectionIds = new Set(selectionItems.map((item) => item.id));
+      const inputBySelectionId = new Map();
+      const panel = document.createElement("div");
+
+      panel.className = "multi-select-panel";
+      panel.id = `${config.id}-selection-panel`;
+      panel.setAttribute("role", "dialog");
+      panel.setAttribute("aria-label", config.selectionDialogLabel);
+      panel.hidden = true;
+      panel.innerHTML = `
+        <div class="selection-list"></div>
+        <div class="selection-actions">
+          <button class="selection-action" data-action="clear" type="button">Effacer</button>
+          <button class="selection-action" data-action="all" type="button">Tout s\u00e9lectionner</button>
+        </div>
+      `;
+      document.body.appendChild(panel);
+      trigger.setAttribute("aria-controls", panel.id);
+
+      const selectionList = panel.querySelector(".selection-list");
+      const clearButton = panel.querySelector('[data-action="clear"]');
+      const selectAllButton = panel.querySelector('[data-action="all"]');
+      const groupedSelectionItems = new Map();
+
+      selectionItems.forEach((item) => {
+        if (!groupedSelectionItems.has(item.selectionGroup)) {
+          groupedSelectionItems.set(item.selectionGroup, []);
+        }
+        groupedSelectionItems.get(item.selectionGroup).push(item);
       });
 
-      geneScatterSvg.append(
-        svgNode("text", {
-          x: 20,
-          y: margins.top + plotHeight / 2,
-          fill: "#34363a",
-          "font-size": 13,
-          "font-weight": 650,
-          "text-anchor": "middle",
-          transform: `rotate(-90 20 ${margins.top + plotHeight / 2})`
-        }, "Score"),
-        svgNode("text", {
-          x: margins.left + plotWidth / 2,
-          y: chartHeight - 10,
-          fill: "#34363a",
-          "font-size": 13,
-          "font-weight": 650,
-          "text-anchor": "middle"
-        }, "Co\u00fbt API (USD, \u00e9chelle logarithmique)")
-      );
+      groupedSelectionItems.forEach((items, groupName) => {
+        const section = document.createElement("section");
+        section.className = "selection-group";
+        section.innerHTML = `<h3 class="selection-group-title">${groupName}</h3>`;
 
-      points.forEach((point) => {
-        const x = xPosition(point.cost);
-        const y = yPosition(point.score);
-        const key = `${point.group.model}|${point.effort}`;
-        const defaultAnchor = x > margins.left + plotWidth * 0.76 ? "end" : "start";
-        const override = labelOffsets[key] || {};
-        const anchor = override.anchor || defaultAnchor;
-        const dx = override.dx ?? (anchor === "end" ? -10 : 10);
-        const dy = override.dy ?? -10;
-        const circle = svgNode("circle", {
-          cx: x,
-          cy: y,
-          r: 6,
-          fill: point.group.color,
-          stroke: "#ffffff",
-          "stroke-width": 2,
-          tabindex: 0,
-          role: "graphics-symbol",
-          "aria-label": `${point.group.model}, effort ${point.effort}, cout API ${metrics.cost.formatValue(point.cost)}, score ${metrics.score.formatValue(point.score)}`
+        items.forEach((item) => {
+          const label = document.createElement("label");
+          label.className = "selection-option";
+          label.style.setProperty("--option-color", item.color);
+          label.innerHTML = `
+            <input type="checkbox" value="${item.id}" checked>
+            <span class="swatch" aria-hidden="true"></span>
+            <span>${item.selectionLabel}</span>
+          `;
+          const input = label.querySelector("input");
+          inputBySelectionId.set(item.id, input);
+          input.addEventListener("change", () => {
+            if (input.checked) {
+              selectedSelectionIds.add(item.id);
+            } else {
+              selectedSelectionIds.delete(item.id);
+            }
+            refreshSelection();
+            render();
+          });
+          section.appendChild(label);
+        });
+        selectionList.appendChild(section);
+      });
+
+      function pointIsAvailable(point) {
+        return config.pointIsAvailable ? config.pointIsAvailable(point) : true;
+      }
+
+      function pointIsDisplayed(point) {
+        return config.pointIsDisplayed ? config.pointIsDisplayed(point) : true;
+      }
+
+      function selectionItemIsAvailable(item) {
+        return config.points.some((point) =>
+          selectionIdFor(point) === item.id
+          && pointIsAvailable(point)
+          && pointIsDisplayed(point)
+        );
+      }
+
+      function refreshSelection() {
+        const availableItems = selectionItems.filter(selectionItemIsAvailable);
+        selectionItems.forEach((item) => {
+          const input = inputBySelectionId.get(item.id);
+          const available = selectionItemIsAvailable(item);
+          input.disabled = !available;
+          input.checked = selectedSelectionIds.has(item.id);
+          input.closest(".selection-option").classList.toggle("is-disabled", !available);
+        });
+        const selectedAvailableCount = availableItems
+          .filter((item) => selectedSelectionIds.has(item.id))
+          .length;
+        summary.textContent = `${selectedAvailableCount} sur ${availableItems.length} configurations`;
+        clearButton.disabled = selectedSelectionIds.size === 0;
+        selectAllButton.disabled = selectedSelectionIds.size === selectionItems.length;
+      }
+
+      function positionPanel() {
+        const margin = 12;
+        const gap = 6;
+        const triggerRect = trigger.getBoundingClientRect();
+        const width = Math.min(360, window.innerWidth - margin * 2);
+
+        panel.style.width = `${width}px`;
+        panel.style.maxHeight = `${Math.min(520, window.innerHeight - margin * 2)}px`;
+
+        const panelHeight = panel.getBoundingClientRect().height;
+        const left = Math.max(margin, Math.min(triggerRect.left, window.innerWidth - width - margin));
+        let top = triggerRect.bottom + gap;
+
+        if (top + panelHeight > window.innerHeight - margin) {
+          const above = triggerRect.top - panelHeight - gap;
+          top = above >= margin ? above : Math.max(margin, window.innerHeight - panelHeight - margin);
+        }
+
+        panel.style.left = `${left}px`;
+        panel.style.top = `${top}px`;
+      }
+
+      function openPanel() {
+        panel.hidden = false;
+        trigger.setAttribute("aria-expanded", "true");
+        positionPanel();
+      }
+
+      function closePanel({ restoreFocus = false } = {}) {
+        panel.hidden = true;
+        trigger.setAttribute("aria-expanded", "false");
+        if (restoreFocus) {
+          trigger.focus();
+        }
+      }
+
+      function activePoints() {
+        const selected = config.points.filter((point) =>
+          selectedSelectionIds.has(selectionIdFor(point))
+          && pointIsAvailable(point)
+          && pointIsDisplayed(point)
+        );
+
+        if (!paretoToggle.checked) {
+          return selected;
+        }
+
+        const positiveScorePoints = selected.filter((point) => point.score > 0);
+
+        return positiveScorePoints.filter((candidate) =>
+          !positiveScorePoints.some((other) =>
+            other.score > candidate.score && other.cost < candidate.cost
+          )
+        );
+      }
+
+      function showPointTooltip(event, point) {
+        const duration = config.showDurationInTooltip && point.duration
+          ? `Limite : ${point.duration}<br>`
+          : "";
+        tooltip.innerHTML = `<strong>${point.family}</strong>${duration}Effort : ${point.effort}<br>${config.scoreTooltipLabel} : ${formatPercent(point.score)}<br>Co\u00fbt API : ${formatCost(point.cost)}`;
+        tooltip.style.left = `${event.clientX}px`;
+        tooltip.style.top = `${event.clientY}px`;
+        tooltip.classList.add("visible");
+        tooltip.setAttribute("aria-hidden", "false");
+      }
+
+      function render() {
+        const points = activePoints();
+        const width = Math.max(scrollContainer.clientWidth, 900);
+        const chartHeight = 560;
+        const margins = { top: 38, right: 128, bottom: 68, left: 70 };
+        const plotWidth = width - margins.left - margins.right;
+        const plotHeight = chartHeight - margins.top - margins.bottom;
+        const plotBottom = margins.top + plotHeight;
+        const xScale = createLogScale(
+          points.map((point) => point.cost),
+          config.xMin,
+          config.xMax,
+          config.xTicks
+        );
+        const yScale = createLinearScale(
+          points.map((point) => point.score),
+          config.yMax,
+          config.yStep
+        );
+        const logMin = Math.log10(xScale.min);
+        const logRange = Math.log10(xScale.max) - logMin;
+        const yRange = yScale.max - yScale.min;
+        const xPosition = (value) =>
+          margins.left + ((Math.log10(value) - logMin) / logRange) * plotWidth;
+        const yPosition = (value) =>
+          plotBottom - ((value - yScale.min) / yRange) * plotHeight;
+
+        svg.replaceChildren();
+        svg.setAttribute("viewBox", `0 0 ${width} ${chartHeight}`);
+        svg.style.width = `${width}px`;
+        svg.dataset.xMin = xScale.min;
+        svg.dataset.xMax = xScale.max;
+        svg.dataset.yMin = yScale.min;
+        svg.dataset.yMax = yScale.max;
+        svg.append(
+          svgNode("title", { id: config.svgTitleId }, config.svgTitle),
+          svgNode(
+            "desc",
+            { id: config.svgDescriptionId },
+            `${config.svgDescription} Les echelles sont ajustees aux points visibles.${paretoToggle.checked ? " Seules les configurations avec un score superieur a zero de la frontiere de Pareto de la selection active sont affichees." : ""}`
+          )
+        );
+
+        yScale.ticks.forEach((tick) => {
+          const y = yPosition(tick);
+          svg.append(
+            svgNode("line", {
+              x1: margins.left,
+              x2: width - margins.right,
+              y1: y,
+              y2: y,
+              stroke: tick === yScale.min ? "#aeb2b9" : "#e7e9ed",
+              "stroke-width": tick === yScale.min ? 1.2 : 1
+            }),
+            svgNode("text", {
+              x: margins.left - 14,
+              y: y + 4,
+              fill: "#656970",
+              "font-size": 12,
+              "text-anchor": "end",
+              "data-axis": "y",
+              "data-value": tick
+            }, formatAxisPercent(tick))
+          );
         });
 
-        circle.addEventListener("pointerenter", (event) => showScatterTooltip(event, point));
-        circle.addEventListener("pointermove", (event) => showScatterTooltip(event, point));
-        circle.addEventListener("pointerleave", hideTooltip);
-        circle.addEventListener("focus", () => {
-          const rect = circle.getBoundingClientRect();
-          showScatterTooltip({ clientX: rect.left + rect.width / 2, clientY: rect.top }, point);
+        xScale.ticks.forEach((tick) => {
+          const x = xPosition(tick);
+          svg.append(
+            svgNode("line", {
+              x1: x,
+              x2: x,
+              y1: margins.top,
+              y2: plotBottom,
+              stroke: "#eef0f2",
+              "stroke-width": 1
+            }),
+            svgNode("text", {
+              x,
+              y: plotBottom + 25,
+              fill: "#656970",
+              "font-size": 12,
+              "font-variant-numeric": "tabular-nums",
+              "text-anchor": "middle",
+              "data-axis": "x",
+              "data-value": tick
+            }, formatAxisCost(tick))
+          );
         });
-        circle.addEventListener("blur", hideTooltip);
 
-        geneScatterSvg.append(
-          circle,
+        svg.append(
           svgNode("text", {
-            x: x + dx,
-            y: y + dy,
+            x: 20,
+            y: margins.top + plotHeight / 2,
             fill: "#34363a",
-            "font-size": 10,
+            "font-size": 13,
             "font-weight": 650,
-            "text-anchor": anchor,
-            "pointer-events": "none",
-            style: "paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round"
-          }, `${shortNames[point.group.model]} / ${point.effort}`)
+            "text-anchor": "middle",
+            transform: `rotate(-90 20 ${margins.top + plotHeight / 2})`
+          }, config.yAxisTitle),
+          svgNode("text", {
+            x: margins.left + plotWidth / 2,
+            y: chartHeight - 10,
+            fill: "#34363a",
+            "font-size": 13,
+            "font-weight": 650,
+            "text-anchor": "middle"
+          }, "Co\u00fbt API (USD, \u00e9chelle logarithmique)")
         );
-      });
 
-      scatterCount.textContent = `${points.length} point${points.length > 1 ? "s" : ""}`;
+        points.forEach((point, index) => {
+          const positionOffset = config.getPointOffset?.(point) || {};
+          const x = xPosition(point.cost) + (positionOffset.dx || 0);
+          const y = yPosition(point.score) + (positionOffset.dy || 0);
+          const defaultAnchor = x > margins.left + plotWidth * 0.76 ? "end" : "start";
+          const override = config.labelOffsets?.[point.id]
+            || config.getLabelOffset?.(point, index)
+            || {};
+          const anchor = override.anchor || defaultAnchor;
+          const dx = override.dx ?? (anchor === "end" ? -10 : 10);
+          const dy = override.dy ?? -10;
+          const commonAttributes = {
+            fill: point.color,
+            stroke: "#ffffff",
+            "stroke-width": 2,
+            tabindex: 0,
+            role: "graphics-symbol",
+            "aria-label": config.ariaLabel(point)
+          };
+          const symbol = point.shape === "square"
+            ? svgNode("rect", { ...commonAttributes, x: x - 5, y: y - 5, width: 10, height: 10, rx: 2 })
+            : svgNode("circle", { ...commonAttributes, cx: x, cy: y, r: 6 });
+
+          symbol.addEventListener("pointerenter", (event) => showPointTooltip(event, point));
+          symbol.addEventListener("pointermove", (event) => showPointTooltip(event, point));
+          symbol.addEventListener("pointerleave", hideTooltip);
+          symbol.addEventListener("focus", () => {
+            const rect = symbol.getBoundingClientRect();
+            showPointTooltip({ clientX: rect.left + rect.width / 2, clientY: rect.top }, point);
+          });
+          symbol.addEventListener("blur", hideTooltip);
+
+          svg.append(
+            symbol,
+            svgNode("text", {
+              x: x + dx,
+              y: y + dy,
+              fill: "#34363a",
+              "font-size": 10,
+              "font-weight": 650,
+              "text-anchor": anchor,
+              "pointer-events": "none",
+              style: "paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round"
+            }, point.label)
+          );
+        });
+
+        count.textContent = `${points.length} point${points.length > 1 ? "s" : ""}${config.countSuffix ? ` \u00b7 ${config.countSuffix()}` : ""}${paretoToggle.checked ? " \u00b7 Pareto" : ""}`;
+      }
+
+      trigger.addEventListener("click", () => panel.hidden ? openPanel() : closePanel());
+      paretoToggle.addEventListener("change", render);
+      clearButton.addEventListener("click", () => {
+        selectedSelectionIds.clear();
+        refreshSelection();
+        render();
+      });
+      selectAllButton.addEventListener("click", () => {
+        selectionItems.forEach((item) => selectedSelectionIds.add(item.id));
+        refreshSelection();
+        render();
+      });
+      document.addEventListener("pointerdown", (event) => {
+        if (!panel.hidden && !panel.contains(event.target) && !trigger.contains(event.target)) {
+          closePanel();
+        }
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !panel.hidden) {
+          closePanel({ restoreFocus: true });
+        }
+      });
+      window.addEventListener("scroll", (event) => {
+        if (!panel.hidden && !panel.contains(event.target)) {
+          positionPanel();
+        }
+      }, true);
+      scrollContainer.addEventListener("scroll", hideTooltip);
+
+      refreshSelection();
+      render();
+
+      return {
+        render,
+        closePanel,
+        resize() {
+          render();
+          if (!panel.hidden) {
+            positionPanel();
+          }
+        },
+        refreshVisibility() {
+          refreshSelection();
+          render();
+        }
+      };
+    }
+
+    function formatCost(value) {
+      return `$${value.toFixed(2)}`;
+    }
+
+    function formatPercent(value) {
+      return `${Number.isInteger(value) ? value : value.toFixed(1)}%`;
     }
 
     function renderTerminalChart() {
@@ -1300,15 +2040,117 @@
       });
     });
 
+    const geneScatterLabelOffsets = {
+      "GPT-5.6 Sol|low": { dy: -10 },
+      "GPT-5.6 Sol|medium": { dy: -10 },
+      "GPT-5.6 Sol|high": { dx: -10, dy: -10, anchor: "end" },
+      "GPT-5.6 Sol|xhigh": { dx: 10, dy: 15, anchor: "start" },
+      "GPT-5.6 Sol|max": { dy: -10 },
+      "GPT-5.6 Terra|none": { dy: 15 },
+      "GPT-5.6 Terra|low": { dy: -10 },
+      "GPT-5.6 Terra|medium": { dy: 15 },
+      "GPT-5.6 Terra|high": { dy: -10 },
+      "GPT-5.6 Terra|xhigh": { dy: 15 },
+      "GPT-5.6 Terra|max": { dy: 15 },
+      "GPT-5.6 Luna|none": { dy: 15 },
+      "GPT-5.6 Luna|low": { dx: -10, dy: -10, anchor: "end" },
+      "GPT-5.6 Luna|medium": { dy: -10 },
+      "GPT-5.6 Luna|high": { dy: -10 },
+      "GPT-5.6 Luna|xhigh": { dy: 15 },
+      "GPT-5.6 Luna|max": { dy: 15 },
+      "GPT-5.5|none": { dx: -10, dy: -10, anchor: "end" },
+      "GPT-5.5|low": { dy: 15 },
+      "GPT-5.5|medium": { dx: -10, dy: 15, anchor: "end" },
+      "GPT-5.5|high": { dy: 15 },
+      "GPT-5.5|xhigh": { dy: -10 }
+    };
+    const exploitGymLabelOffsets = {
+      "GPT-5.6 Sol|2h|medium": { dx: -10, dy: -10, anchor: "end" },
+      "GPT-5.6 Sol|2h|high": { dx: -10, dy: -10, anchor: "end" },
+      "GPT-5.6 Sol|2h|xhigh": { dx: -10, dy: 16, anchor: "end" },
+      "GPT-5.6 Sol|2h|max": { dx: 10, dy: -10, anchor: "start" },
+      "GPT-5.6 Terra|2h|high": { dx: -10, dy: 16, anchor: "end" },
+      "GPT-5.6 Terra|2h|xhigh": { dx: -10, dy: 16, anchor: "end" },
+      "GPT-5.6 Terra|2h|max": { dx: 10, dy: -10, anchor: "start" },
+      "GPT-5.6 Luna|2h|xhigh": { dx: -10, dy: 16, anchor: "end" },
+      "GPT-5.6 Luna|2h|max": { dx: -10, dy: -10, anchor: "end" },
+      "GPT-5.5|2h|xhigh": { dx: 10, dy: 16, anchor: "start" },
+      "GPT-5.4|2h|xhigh": { dx: 10, dy: -10, anchor: "start" }
+    };
+
     buildFilters();
+    geneCostScoreChart = createCostScoreChart({
+      id: "gene-scatter",
+      points: geneScatterPoints,
+      svgId: "gene-scatter",
+      scrollId: "gene-scatter-scroll",
+      countId: "scatter-count",
+      triggerId: "scatter-selection-trigger",
+      summaryId: "scatter-selection-summary",
+      paretoId: "pareto-toggle",
+      selectionDialogLabel: "S\u00e9lection des configurations GeneBench",
+      pointIsAvailable: (point) => selectedModels.has(point.family),
+      xMin: 0.01,
+      xMax: 2.5,
+      xTicks: [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2],
+      yMax: 35,
+      yStep: 5,
+      yAxisTitle: "Score",
+      scoreTooltipLabel: "Score",
+      labelOffsets: geneScatterLabelOffsets,
+      svgTitleId: "gene-scatter-svg-title",
+      svgDescriptionId: "gene-scatter-description",
+      svgTitle: "GeneBench v1 : cout API et score",
+      svgDescription: "Nuage de points avec le cout API sur une echelle logarithmique en abscisse et le score en ordonnee.",
+      ariaLabel: (point) =>
+        `${point.family}, effort ${point.effort}, cout API ${formatCost(point.cost)}, score ${formatPercent(point.score)}`
+    });
+    exploitGymCostScoreChart = createCostScoreChart({
+      id: "exploitgym-scatter",
+      points: exploitGymPoints,
+      svgId: "exploitgym-scatter",
+      scrollId: "exploitgym-scatter-scroll",
+      countId: "exploitgym-scatter-count",
+      triggerId: "exploitgym-selection-trigger",
+      summaryId: "exploitgym-selection-summary",
+      paretoId: "exploitgym-pareto-toggle",
+      selectionDialogLabel: "S\u00e9lection des configurations ExploitGym",
+      pointIsDisplayed: (point) => point.duration === exploitGymDuration,
+      countSuffix: () => `limite ${exploitGymDuration.replace("h", " h")}`,
+      xMin: 0.1,
+      xMax: 200,
+      xTicks: [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100],
+      yMax: 40,
+      yStep: 10,
+      yAxisTitle: "Exploits intentionnels",
+      scoreTooltipLabel: "Exploits intentionnels",
+      labelOffsets: exploitGymLabelOffsets,
+      getLabelOffset: (point, index) => ({
+        dy: index % 2 === 0 ? -10 : 16
+      }),
+      svgTitleId: "exploitgym-scatter-svg-title",
+      svgDescriptionId: "exploitgym-scatter-description",
+      svgTitle: "ExploitGym : cout API et taux d'exploits intentionnels",
+      svgDescription: "Nuage de points avec le cout API sur une echelle logarithmique en abscisse et le taux d'exploits intentionnels en ordonnee.",
+      ariaLabel: (point) =>
+        `${point.family}, effort ${point.effort}, cout API ${formatCost(point.cost)}, exploits intentionnels ${formatPercent(point.score)}`
+    });
+    document.querySelectorAll('input[name="exploitgym-duration"]').forEach((input) => {
+      input.addEventListener("change", () => {
+        if (input.checked) {
+          exploitGymDuration = input.value;
+          exploitGymCostScoreChart.refreshVisibility();
+        }
+      });
+    });
     metricSelect.addEventListener("change", renderChart);
     renderChart();
-    renderGeneScatter();
     renderTerminalChart();
     renderTable();
     window.addEventListener("resize", () => {
       renderChart();
-      renderGeneScatter();
+      geneCostScoreChart.resize();
+      exploitGymCostScoreChart.resize();
       renderTerminalChart();
     });
     chartScroll.addEventListener("scroll", hideTooltip);
