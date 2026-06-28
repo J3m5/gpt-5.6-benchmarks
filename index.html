@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Benchmarks - GeneBench v1, ExploitGym et TerminalBench 2.1</title>
+  <title>GPT-5.6 Benchmark Comparison</title>
   <style>
     :root {
       color-scheme: light;
@@ -807,7 +807,7 @@
     <div class="header-inner">
       <div class="brand">Benchmarks</div>
       <a class="source" href="https://openai.com/index/previewing-gpt-5-6-sol/" target="_blank" rel="noreferrer">
-        Source : OpenAI
+        Source: OpenAI
       </a>
     </div>
   </header>
@@ -815,7 +815,7 @@
   <main>
     <section class="intro" aria-labelledby="page-title">
       <div>
-        <h1 id="page-title">Comparaison des benchmarks</h1>
+        <h1 id="page-title">GPT-5.6 benchmark comparison</h1>
         <p class="metric">GeneBench v1 &middot; ExploitGym &middot; TerminalBench 2.1</p>
       </div>
     </section>
@@ -824,27 +824,27 @@
       <div class="benchmark-heading">
         <div>
           <h2 id="genebench-title">GeneBench v1</h2>
-          <p class="metric" id="metric-description">Score pass@1 &middot; ordre croissant</p>
+          <p class="metric" id="metric-description">Pass@1 score &middot; ascending</p>
         </div>
         <div class="count" id="count" aria-live="polite"></div>
       </div>
-      <div class="chart-panel" aria-label="Graphique comparatif GeneBench v1">
+      <div class="chart-panel" aria-label="GeneBench v1 comparison chart">
         <div class="toolbar">
           <label class="metric-picker" for="metric-select">
-            <span>Mesure</span>
+            <span>Metric</span>
             <select id="metric-select">
               <option value="score">Score</option>
-              <option value="tokens">Tokens</option>
-              <option value="cost">Co&ucirc;t</option>
+              <option value="tokens">Output tokens</option>
+              <option value="cost">API cost</option>
             </select>
           </label>
           <span class="toolbar-divider" aria-hidden="true"></span>
-          <div class="model-filters" id="filters" aria-label="Modeles affiches"></div>
+          <div class="model-filters" id="filters" aria-label="Displayed models"></div>
         </div>
         <div class="chart-scroll" id="chart-scroll">
           <svg id="chart" role="img" aria-labelledby="chart-title chart-description">
-            <title id="chart-title">Scores GeneBench v1 par modele et niveau d'effort</title>
-            <desc id="chart-description">Diagramme en barres trie par score croissant. L'axe vertical indique le score en pourcentage. Chaque categorie de l'axe horizontal correspond a un modele et un niveau d'effort.</desc>
+            <title id="chart-title">GeneBench v1 scores by model and reasoning effort</title>
+            <desc id="chart-description">Bar chart sorted by score in ascending order. The vertical axis shows the score as a percentage. Each horizontal-axis category represents one model and reasoning effort level.</desc>
           </svg>
         </div>
       </div>
@@ -853,15 +853,15 @@
     <section class="benchmark-section" aria-labelledby="gene-scatter-title">
       <div class="benchmark-heading">
         <div>
-          <h2 id="gene-scatter-title">GeneBench v1 : co&ucirc;t et score</h2>
-          <p class="metric">Co&ucirc;t API en USD, &eacute;chelle logarithmique &middot; score pass@1</p>
+          <h2 id="gene-scatter-title">GeneBench v1: API cost vs. score</h2>
+          <p class="metric">API cost (USD), logarithmic scale &middot; pass@1 score</p>
         </div>
         <div class="count" id="scatter-count">22 points</div>
       </div>
-      <div class="chart-panel" aria-label="Nuage de points GeneBench cout et score">
+      <div class="chart-panel" aria-label="GeneBench API cost and score scatter plot">
         <div class="toolbar scatter-toolbar">
           <div class="metric-picker scatter-picker">
-            <span id="scatter-selection-label">Mod&egrave;les / efforts</span>
+            <span id="scatter-selection-label">Model / reasoning effort</span>
             <button
               class="multi-select-trigger"
               id="scatter-selection-trigger"
@@ -871,17 +871,17 @@
               aria-controls="scatter-selection-panel"
               aria-labelledby="scatter-selection-label scatter-selection-summary"
             >
-              <span id="scatter-selection-summary">22 sur 22 configurations</span>
+              <span id="scatter-selection-summary">22 of 22 configurations</span>
             </button>
           </div>
           <span class="toolbar-divider" aria-hidden="true"></span>
           <label class="pareto-toggle">
             <input id="pareto-toggle" type="checkbox">
             <span class="toggle-track" aria-hidden="true"></span>
-            <span>Fronti&egrave;re de Pareto</span>
+            <span>Pareto frontier</span>
           </label>
         </div>
-        <div class="scatter-legend" aria-label="Legende des modeles">
+        <div class="scatter-legend" aria-label="Model legend">
           <span class="legend-item"><span class="legend-dot" style="--legend-color:#292b2f"></span>GPT-5.6 Sol</span>
           <span class="legend-item"><span class="legend-dot" style="--legend-color:#3478d4"></span>GPT-5.6 Terra</span>
           <span class="legend-item"><span class="legend-dot" style="--legend-color:#188b62"></span>GPT-5.6 Luna</span>
@@ -889,8 +889,8 @@
         </div>
         <div class="scatter-scroll" id="gene-scatter-scroll">
           <svg class="cost-score-chart" id="gene-scatter" role="img" aria-labelledby="gene-scatter-svg-title gene-scatter-description">
-            <title id="gene-scatter-svg-title">GeneBench v1 : cout API et score</title>
-            <desc id="gene-scatter-description">Nuage de points avec le cout API sur une echelle logarithmique en abscisse et le score en ordonnee.</desc>
+            <title id="gene-scatter-svg-title">GeneBench v1 API cost and score</title>
+            <desc id="gene-scatter-description">Scatter plot with API cost on a logarithmic horizontal axis and pass@1 score on the vertical axis.</desc>
           </svg>
         </div>
       </div>
@@ -899,15 +899,15 @@
     <section class="benchmark-section" aria-labelledby="exploitgym-scatter-title">
       <div class="benchmark-heading">
         <div>
-          <h2 id="exploitgym-scatter-title">ExploitGym : co&ucirc;t et score</h2>
-          <p class="metric">Co&ucirc;t API en USD, &eacute;chelle logarithmique &middot; taux d'exploits intentionnels</p>
+          <h2 id="exploitgym-scatter-title">ExploitGym: API cost vs. intended exploit rate</h2>
+          <p class="metric">API cost (USD), logarithmic scale &middot; intended exploit rate</p>
         </div>
-        <div class="count" id="exploitgym-scatter-count">17 points &middot; limite 2 h</div>
+        <div class="count" id="exploitgym-scatter-count">17 points &middot; 2 h limit</div>
       </div>
-      <div class="chart-panel" aria-label="Nuage de points ExploitGym cout et score">
+      <div class="chart-panel" aria-label="ExploitGym API cost and intended exploit rate scatter plot">
         <div class="toolbar scatter-toolbar">
           <div class="metric-picker scatter-picker">
-            <span id="exploitgym-selection-label">Mod&egrave;les / efforts</span>
+            <span id="exploitgym-selection-label">Model / reasoning effort</span>
             <button
               class="multi-select-trigger"
               id="exploitgym-selection-trigger"
@@ -916,13 +916,13 @@
               aria-expanded="false"
               aria-labelledby="exploitgym-selection-label exploitgym-selection-summary"
             >
-              <span id="exploitgym-selection-summary">17 sur 17 configurations</span>
+              <span id="exploitgym-selection-summary">17 of 17 configurations</span>
             </button>
           </div>
           <span class="toolbar-divider" aria-hidden="true"></span>
           <div class="duration-picker">
-            <span>Limite</span>
-            <div class="segmented-control" role="radiogroup" aria-label="Limite de temps ExploitGym">
+            <span>Time limit</span>
+            <div class="segmented-control" role="radiogroup" aria-label="ExploitGym time limit">
               <label class="segment">
                 <input type="radio" name="exploitgym-duration" value="2h" checked>
                 <span>2 h</span>
@@ -937,10 +937,10 @@
           <label class="pareto-toggle">
             <input id="exploitgym-pareto-toggle" type="checkbox">
             <span class="toggle-track" aria-hidden="true"></span>
-            <span>Fronti&egrave;re de Pareto</span>
+            <span>Pareto frontier</span>
           </label>
         </div>
-        <div class="scatter-legend" aria-label="Legende ExploitGym">
+        <div class="scatter-legend" aria-label="ExploitGym model legend">
           <span class="legend-item"><span class="legend-dot" style="--legend-color:#292b2f"></span>GPT-5.6 Sol</span>
           <span class="legend-item"><span class="legend-dot" style="--legend-color:#3478d4"></span>GPT-5.6 Terra</span>
           <span class="legend-item"><span class="legend-dot" style="--legend-color:#188b62"></span>GPT-5.6 Luna</span>
@@ -949,8 +949,8 @@
         </div>
         <div class="scatter-scroll" id="exploitgym-scatter-scroll">
           <svg class="cost-score-chart" id="exploitgym-scatter" role="img" aria-labelledby="exploitgym-scatter-svg-title exploitgym-scatter-description">
-            <title id="exploitgym-scatter-svg-title">ExploitGym : cout API et taux d'exploits intentionnels</title>
-            <desc id="exploitgym-scatter-description">Nuage de points avec le cout API sur une echelle logarithmique en abscisse et le taux d'exploits intentionnels en ordonnee.</desc>
+            <title id="exploitgym-scatter-svg-title">ExploitGym API cost and intended exploit rate</title>
+            <desc id="exploitgym-scatter-description">Scatter plot with API cost on a logarithmic horizontal axis and intended exploit rate on the vertical axis.</desc>
           </svg>
         </div>
       </div>
@@ -960,15 +960,15 @@
       <div class="benchmark-heading">
         <div>
           <h2 id="terminalbench-title">TerminalBench 2.1</h2>
-          <p class="metric">Coding &middot; score d&eacute;croissant &middot; axe 50&ndash;100&nbsp;%</p>
+          <p class="metric">Coding &middot; sorted by score (descending) &middot; 50&ndash;100% axis</p>
         </div>
-        <div class="count">9 mod&egrave;les</div>
+        <div class="count">9 models</div>
       </div>
-      <div class="chart-panel" aria-label="Graphique comparatif TerminalBench 2.1">
+      <div class="chart-panel" aria-label="TerminalBench 2.1 comparison chart">
         <div class="terminal-chart-wrap" id="terminal-chart-wrap">
           <svg id="terminal-chart" role="img" aria-labelledby="terminal-chart-title terminal-chart-description">
-            <title id="terminal-chart-title">Scores TerminalBench 2.1 par modele</title>
-            <desc id="terminal-chart-description">Diagramme en barres horizontales trie par score decroissant.</desc>
+            <title id="terminal-chart-title">TerminalBench 2.1 scores by model</title>
+            <desc id="terminal-chart-description">Horizontal bar chart sorted by score in descending order.</desc>
           </svg>
         </div>
       </div>
@@ -976,8 +976,8 @@
 
     <section class="data-section" aria-labelledby="table-title">
       <div class="table-heading">
-        <h2 id="table-title">Donn&eacute;es GeneBench v1</h2>
-        <p class="sort-status" id="sort-status" aria-live="polite">Tri : score d&eacute;croissant</p>
+        <h2 id="table-title">GeneBench v1 data</h2>
+        <p class="sort-status" id="sort-status" aria-live="polite">Sorted by score, descending</p>
       </div>
       <div class="table-frame">
         <table>
@@ -985,12 +985,12 @@
             <tr>
               <th scope="col" data-sort-key="model" aria-sort="none">
                 <button class="sort-button" type="button" data-sort-key="model">
-                  Mod&egrave;le <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                  Model <span class="sort-indicator" aria-hidden="true">&#8597;</span>
                 </button>
               </th>
               <th scope="col" data-sort-key="effort" aria-sort="none">
                 <button class="sort-button" type="button" data-sort-key="effort">
-                  Effort <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                  Reasoning effort <span class="sort-indicator" aria-hidden="true">&#8597;</span>
                 </button>
               </th>
               <th class="numeric" scope="col" data-sort-key="score" aria-sort="descending">
@@ -1000,12 +1000,12 @@
               </th>
               <th class="numeric" scope="col" data-sort-key="tokens" aria-sort="none">
                 <button class="sort-button" type="button" data-sort-key="tokens">
-                  Tokens <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                  Output tokens <span class="sort-indicator" aria-hidden="true">&#8597;</span>
                 </button>
               </th>
               <th class="numeric" scope="col" data-sort-key="cost" aria-sort="none">
                 <button class="sort-button" type="button" data-sort-key="cost">
-                  Co&ucirc;t API <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                  API cost <span class="sort-indicator" aria-hidden="true">&#8597;</span>
                 </button>
               </th>
             </tr>
@@ -1016,8 +1016,8 @@
     </section>
 
     <div class="notes">
-      <p>Les niveaux d'effort suivent les libell&eacute;s du graphique source.</p>
-      <p>GPT-5.6 Sol ne pr&eacute;sente pas de configuration &laquo;&nbsp;none&nbsp;&raquo;.</p>
+      <p>Reasoning effort levels follow the labels used in the source chart.</p>
+      <p>GPT-5.6 Sol has no &ldquo;none&rdquo; configuration.</p>
     </div>
   </main>
 
@@ -1081,12 +1081,12 @@
       color: terminalColors[row.model] || "#656970"
     }));
 
-    const integerFormatter = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 });
+    const integerFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
     const metrics = {
       score: {
         key: "score",
         axis: "Score",
-        description: "Score pass@1",
+        description: "Pass@1 score",
         max: 35,
         step: 5,
         formatTick: (value) => `${value}%`,
@@ -1094,8 +1094,8 @@
       },
       tokens: {
         key: "tokens",
-        axis: "Tokens de sortie",
-        description: "Tokens de sortie",
+        axis: "Output tokens",
+        description: "Output tokens",
         max: 60000,
         step: 10000,
         formatTick: (value) => value === 0 ? "0" : `${value / 1000}k`,
@@ -1103,8 +1103,8 @@
       },
       cost: {
         key: "cost",
-        axis: "Co\u00fbt API (USD)",
-        description: "Co\u00fbt API estim\u00e9",
+        axis: "API cost (USD)",
+        description: "Estimated API cost",
         max: 2,
         step: 0.5,
         formatTick: (value) => `$${value.toFixed(1)}`,
@@ -1210,7 +1210,7 @@
     }
 
     function showTooltip(event, group, effort, value, metric) {
-      tooltip.innerHTML = `<strong>${group.model}</strong>Effort : ${effort}<br>${metric.axis} : ${metric.formatValue(value)}`;
+      tooltip.innerHTML = `<strong>${group.model}</strong>Reasoning effort: ${effort}<br>${metric.axis}: ${metric.formatValue(value)}`;
       tooltip.style.left = `${event.clientX}px`;
       tooltip.style.top = `${event.clientY}px`;
       tooltip.classList.add("visible");
@@ -1234,7 +1234,7 @@
     }
 
     function showTerminalTooltip(event, item) {
-      tooltip.innerHTML = `<strong>${item.model}</strong>Raisonnement : ${item.reasoning}<br>Score : ${item.sourceLabel}`;
+      tooltip.innerHTML = `<strong>${item.model}</strong>Reasoning: ${item.reasoning}<br>Score: ${item.sourceLabel}`;
       tooltip.style.left = `${event.clientX}px`;
       tooltip.style.top = `${event.clientY}px`;
       tooltip.classList.add("visible");
@@ -1259,11 +1259,11 @@
       svg.replaceChildren();
       svg.setAttribute("viewBox", `0 0 ${width} ${chartHeight}`);
       svg.style.width = `${width}px`;
-      metricDescription.textContent = `${metric.description} \u00b7 ordre croissant`;
+      metricDescription.textContent = `${metric.description} \u00b7 ascending`;
 
       svg.append(
-        svgNode("title", { id: "chart-title" }, `${metric.axis} GeneBench v1 par modele et niveau d'effort`),
-        svgNode("desc", { id: "chart-description" }, `Diagramme en barres trie par ${metric.axis.toLowerCase()} croissant. Chaque categorie de l'axe horizontal correspond a un modele et un niveau d'effort.`)
+        svgNode("title", { id: "chart-title" }, `GeneBench v1 ${metric.axis.toLowerCase()} by model and reasoning effort`),
+        svgNode("desc", { id: "chart-description" }, `Bar chart sorted by ${metric.axis.toLowerCase()} in ascending order. Each horizontal-axis category represents one model and reasoning effort level.`)
       );
 
       for (let tick = 0; tick <= maxValue + metric.step / 10; tick += metric.step) {
@@ -1344,7 +1344,7 @@
         );
       });
 
-      count.textContent = `${points.length} configuration${points.length > 1 ? "s" : ""}`;
+      count.textContent = `${points.length} configuration${points.length === 1 ? "" : "s"}`;
     }
 
     function cleanNumber(value) {
@@ -1500,8 +1500,8 @@
       panel.innerHTML = `
         <div class="selection-list"></div>
         <div class="selection-actions">
-          <button class="selection-action" data-action="clear" type="button">Effacer</button>
-          <button class="selection-action" data-action="all" type="button">Tout s\u00e9lectionner</button>
+          <button class="selection-action" data-action="clear" type="button">Clear</button>
+          <button class="selection-action" data-action="all" type="button">Select all</button>
         </div>
       `;
       document.body.appendChild(panel);
@@ -1577,7 +1577,7 @@
         const selectedAvailableCount = availableItems
           .filter((item) => selectedSelectionIds.has(item.id))
           .length;
-        summary.textContent = `${selectedAvailableCount} sur ${availableItems.length} configurations`;
+        summary.textContent = `${selectedAvailableCount} of ${availableItems.length} configurations`;
         clearButton.disabled = selectedSelectionIds.size === 0;
         selectAllButton.disabled = selectedSelectionIds.size === selectionItems.length;
       }
@@ -1640,9 +1640,9 @@
 
       function showPointTooltip(event, point) {
         const duration = config.showDurationInTooltip && point.duration
-          ? `Limite : ${point.duration}<br>`
+          ? `Time limit: ${point.duration}<br>`
           : "";
-        tooltip.innerHTML = `<strong>${point.family}</strong>${duration}Effort : ${point.effort}<br>${config.scoreTooltipLabel} : ${formatPercent(point.score)}<br>Co\u00fbt API : ${formatCost(point.cost)}`;
+        tooltip.innerHTML = `<strong>${point.family}</strong>${duration}Reasoning effort: ${point.effort}<br>${config.scoreTooltipLabel}: ${formatPercent(point.score)}<br>API cost: ${formatCost(point.cost)}`;
         tooltip.style.left = `${event.clientX}px`;
         tooltip.style.top = `${event.clientY}px`;
         tooltip.classList.add("visible");
@@ -1688,7 +1688,7 @@
           svgNode(
             "desc",
             { id: config.svgDescriptionId },
-            `${config.svgDescription} Les echelles sont ajustees aux points visibles.${paretoToggle.checked ? " Seules les configurations avec un score superieur a zero de la frontiere de Pareto de la selection active sont affichees." : ""}`
+            `${config.svgDescription} Axes adjust to the visible points.${paretoToggle.checked ? " Pareto mode shows selected configurations with a score above zero that are not strictly dominated by a lower-cost, higher-scoring configuration." : ""}`
           )
         );
 
@@ -1756,7 +1756,7 @@
             "font-size": 13,
             "font-weight": 650,
             "text-anchor": "middle"
-          }, "Co\u00fbt API (USD, \u00e9chelle logarithmique)")
+          }, "API cost (USD, logarithmic scale)")
         );
 
         points.forEach((point, index) => {
@@ -1806,7 +1806,7 @@
           );
         });
 
-        count.textContent = `${points.length} point${points.length > 1 ? "s" : ""}${config.countSuffix ? ` \u00b7 ${config.countSuffix()}` : ""}${paretoToggle.checked ? " \u00b7 Pareto" : ""}`;
+        count.textContent = `${points.length} point${points.length === 1 ? "" : "s"}${config.countSuffix ? ` \u00b7 ${config.countSuffix()}` : ""}${paretoToggle.checked ? " \u00b7 Pareto" : ""}`;
       }
 
       trigger.addEventListener("click", () => panel.hidden ? openPanel() : closePanel());
@@ -1887,8 +1887,8 @@
       terminalSvg.setAttribute("viewBox", `0 0 ${width} ${chartHeight}`);
       terminalSvg.style.height = `${chartHeight}px`;
       terminalSvg.append(
-        svgNode("title", { id: "terminal-chart-title" }, "Scores TerminalBench 2.1 par modele"),
-        svgNode("desc", { id: "terminal-chart-description" }, "Diagramme en barres horizontales trie par score decroissant, avec un axe allant de 50 a 100 pour cent.")
+        svgNode("title", { id: "terminal-chart-title" }, "TerminalBench 2.1 scores by model"),
+        svgNode("desc", { id: "terminal-chart-description" }, "Horizontal bar chart sorted by score in descending order, with an axis ranging from 50 to 100 percent.")
       );
 
       for (let tick = minScore; tick <= 100; tick += tickStep) {
@@ -1929,7 +1929,7 @@
             fill: item.color,
             tabindex: 0,
             role: "graphics-symbol",
-            "aria-label": `${item.model}, raisonnement ${item.reasoning}, score ${item.sourceLabel}`
+            "aria-label": `${item.model}, reasoning ${item.reasoning}, score ${item.sourceLabel}`
           });
 
           bar.addEventListener("pointerenter", (event) => showTerminalTooltip(event, item));
@@ -1957,7 +1957,7 @@
               "font-size": 10,
               "font-family": "SFMono-Regular, Consolas, Liberation Mono, monospace",
               "text-anchor": "end"
-            }, `raisonnement: ${item.reasoning}`),
+            }, `reasoning: ${item.reasoning}`),
             bar,
             svgNode("text", {
               x: margins.left + valueWidth + 8,
@@ -2010,13 +2010,13 @@
       });
 
       const sortNames = {
-        model: "mod\u00e8le",
-        effort: "effort",
+        model: "model",
+        effort: "reasoning effort",
         score: "score",
         tokens: "tokens",
-        cost: "co\u00fbt"
+        cost: "API cost"
       };
-      sortStatus.textContent = `Tri : ${sortNames[tableSort.key]} ${tableSort.direction === "asc" ? "croissant" : "d\u00e9croissant"}`;
+      sortStatus.textContent = `Sorted by ${sortNames[tableSort.key]}, ${tableSort.direction === "asc" ? "ascending" : "descending"}`;
 
       document.querySelectorAll("th[data-sort-key]").forEach((header) => {
         const active = header.dataset.sortKey === tableSort.key;
@@ -2088,7 +2088,7 @@
       triggerId: "scatter-selection-trigger",
       summaryId: "scatter-selection-summary",
       paretoId: "pareto-toggle",
-      selectionDialogLabel: "S\u00e9lection des configurations GeneBench",
+      selectionDialogLabel: "Select GeneBench configurations",
       pointIsAvailable: (point) => selectedModels.has(point.family),
       xMin: 0.01,
       xMax: 2.5,
@@ -2100,10 +2100,10 @@
       labelOffsets: geneScatterLabelOffsets,
       svgTitleId: "gene-scatter-svg-title",
       svgDescriptionId: "gene-scatter-description",
-      svgTitle: "GeneBench v1 : cout API et score",
-      svgDescription: "Nuage de points avec le cout API sur une echelle logarithmique en abscisse et le score en ordonnee.",
+      svgTitle: "GeneBench v1 API cost and score",
+      svgDescription: "Scatter plot with API cost on a logarithmic horizontal axis and pass@1 score on the vertical axis.",
       ariaLabel: (point) =>
-        `${point.family}, effort ${point.effort}, cout API ${formatCost(point.cost)}, score ${formatPercent(point.score)}`
+        `${point.family}, reasoning effort ${point.effort}, API cost ${formatCost(point.cost)}, score ${formatPercent(point.score)}`
     });
     exploitGymCostScoreChart = createCostScoreChart({
       id: "exploitgym-scatter",
@@ -2114,26 +2114,26 @@
       triggerId: "exploitgym-selection-trigger",
       summaryId: "exploitgym-selection-summary",
       paretoId: "exploitgym-pareto-toggle",
-      selectionDialogLabel: "S\u00e9lection des configurations ExploitGym",
+      selectionDialogLabel: "Select ExploitGym configurations",
       pointIsDisplayed: (point) => point.duration === exploitGymDuration,
-      countSuffix: () => `limite ${exploitGymDuration.replace("h", " h")}`,
+      countSuffix: () => `${exploitGymDuration.replace("h", " h")} limit`,
       xMin: 0.1,
       xMax: 200,
       xTicks: [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100],
       yMax: 40,
       yStep: 10,
-      yAxisTitle: "Exploits intentionnels",
-      scoreTooltipLabel: "Exploits intentionnels",
+      yAxisTitle: "Intended exploit rate",
+      scoreTooltipLabel: "Intended exploit rate",
       labelOffsets: exploitGymLabelOffsets,
       getLabelOffset: (point, index) => ({
         dy: index % 2 === 0 ? -10 : 16
       }),
       svgTitleId: "exploitgym-scatter-svg-title",
       svgDescriptionId: "exploitgym-scatter-description",
-      svgTitle: "ExploitGym : cout API et taux d'exploits intentionnels",
-      svgDescription: "Nuage de points avec le cout API sur une echelle logarithmique en abscisse et le taux d'exploits intentionnels en ordonnee.",
+      svgTitle: "ExploitGym API cost and intended exploit rate",
+      svgDescription: "Scatter plot with API cost on a logarithmic horizontal axis and intended exploit rate on the vertical axis.",
       ariaLabel: (point) =>
-        `${point.family}, effort ${point.effort}, cout API ${formatCost(point.cost)}, exploits intentionnels ${formatPercent(point.score)}`
+        `${point.family}, reasoning effort ${point.effort}, API cost ${formatCost(point.cost)}, intended exploit rate ${formatPercent(point.score)}`
     });
     document.querySelectorAll('input[name="exploitgym-duration"]').forEach((input) => {
       input.addEventListener("change", () => {
