@@ -1,0 +1,11 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": [
+    ".ruff_cache/**",
+    "aube-lock.yaml",
+    "data/**",
+    "dist/**",
+    "mise.lock",
+    "node_modules/**"
+  ]
+}

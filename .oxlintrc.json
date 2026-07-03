@@ -1,0 +1,77 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "vitest", "import"],
+  "options": {
+    "typeAware": true
+  },
+  "ignorePatterns": [".agents/**", ".ruff_cache/**", "data/**", "dist/**", "node_modules/**"],
+  "env": {
+    "builtin": true,
+    "browser": true
+  },
+  "categories": {
+    "correctness": "error",
+    "perf": "error",
+    "suspicious": "error"
+  },
+  "rules": {
+    "no-unused-vars": "error",
+    "typescript/consistent-type-assertions": [
+      "error",
+      {
+        "assertionStyle": "never"
+      }
+    ],
+    "typescript/await-thenable": "error",
+    "typescript/consistent-type-exports": "error",
+    "typescript/consistent-type-imports": "error",
+    "typescript/no-array-delete": "error",
+    "typescript/no-confusing-void-expression": "error",
+    "typescript/no-deprecated": "error",
+    "typescript/no-duplicate-type-constituents": "error",
+    "typescript/no-dynamic-delete": "error",
+    "typescript/no-floating-promises": "error",
+    "typescript/no-for-in-array": "error",
+    "typescript/no-implied-eval": "error",
+    "typescript/no-import-type-side-effects": "error",
+    "typescript/no-invalid-void-type": "error",
+    "typescript/no-meaningless-void-operator": "error",
+    "typescript/no-misused-promises": "error",
+    "typescript/no-misused-spread": "error",
+    "typescript/no-non-null-assertion": "error",
+    "typescript/no-redundant-type-constituents": "error",
+    "typescript/no-unnecessary-boolean-literal-compare": "error",
+    "typescript/no-unnecessary-condition": "error",
+    "typescript/no-unnecessary-qualifier": "error",
+    "typescript/no-unnecessary-type-constraint": "error",
+    "typescript/no-unnecessary-template-expression": "error",
+    "typescript/no-unnecessary-type-arguments": "error",
+    "typescript/no-unnecessary-type-assertion": "error",
+    "typescript/no-unnecessary-type-conversion": "error",
+    "typescript/no-unnecessary-type-parameters": "error",
+    "typescript/no-useless-default-assignment": "error",
+    "typescript/no-wrapper-object-types": "error",
+    "typescript/non-nullable-type-assertion-style": "error",
+    "typescript/prefer-nullish-coalescing": "error",
+    "typescript/prefer-promise-reject-errors": "error",
+    "typescript/prefer-optional-chain": "error",
+    "typescript/require-array-sort-compare": "error",
+    "typescript/switch-exhaustiveness-check": "error"
+  },
+  "overrides": [
+    {
+      "files": ["tests/**/*.test.ts"],
+      "env": {
+        "vitest": true
+      },
+      "rules": {
+        "typescript/consistent-type-assertions": "error",
+        "typescript/no-non-null-assertion": "error",
+        "typescript/no-unnecessary-type-parameters": "off",
+        "typescript/no-unsafe-type-assertion": "off",
+        "vitest/no-disabled-tests": "off",
+        "vitest/no-standalone-expect": "off"
+      }
+    }
+  ]
+}

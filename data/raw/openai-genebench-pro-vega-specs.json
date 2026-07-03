@@ -1,0 +1,927 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "format": "nextjs-react-flight-inline-vega-lite",
+    "specSha256": "18ab3a5e05d7a3ffccb0c60c52c8b6d994abf7cb0b26db88fb3c20d16b7aa5c5",
+    "url": "https://openai.com/index/introducing-genebench-pro/"
+  },
+  "specs": {
+    "GeneBench-Pro: Model passrates at max reasoning": {
+      "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+      "data": {
+        "values": [
+          {
+            "group": "GPT",
+            "model": "GPT-5.2 (xhigh)",
+            "order": 1,
+            "passrate": 0.0488372093023255
+          },
+          {
+            "group": "GPT",
+            "model": "GPT-5.4 (xhigh)",
+            "order": 2,
+            "passrate": 0.0887166236003445
+          },
+          {
+            "group": "GPT",
+            "model": "GPT-5.5 (xhigh)",
+            "order": 3,
+            "passrate": 0.1196382428940568
+          },
+          {
+            "group": "GPT",
+            "model": "GPT-5.6 Luna (max)",
+            "order": 4,
+            "passrate": 0.1647471391657438
+          },
+          {
+            "group": "GPT",
+            "model": "GPT-5.6 Terra (max)",
+            "order": 5,
+            "passrate": 0.2333333333333333
+          },
+          {
+            "group": "GPT",
+            "model": "GPT-5.6 Sol (max)",
+            "order": 6,
+            "passrate": 0.2873385012919897
+          },
+          {
+            "group": "GPT Pro",
+            "model": "GPT-5.2 (Pro)",
+            "order": 7,
+            "passrate": 0.0852713178294573
+          },
+          {
+            "group": "GPT Pro",
+            "model": "GPT-5.4 (Pro)",
+            "order": 8,
+            "passrate": 0.1627906976744186
+          },
+          {
+            "group": "GPT Pro",
+            "model": "GPT-5.5 (Pro)",
+            "order": 9,
+            "passrate": 0.2046511627906977
+          },
+          {
+            "group": "GPT Pro",
+            "model": "GPT-5.6 Luna (Pro)",
+            "order": 10,
+            "passrate": 0.2356589147286821
+          },
+          {
+            "group": "GPT Pro",
+            "model": "GPT-5.6 Terra (Pro)",
+            "order": 11,
+            "passrate": 0.2852713178294573
+          },
+          {
+            "group": "GPT Pro",
+            "model": "GPT-5.6 Sol (Pro)",
+            "order": 12,
+            "passrate": 0.3147286821705427
+          },
+          {
+            "group": "Other models",
+            "model": "Opus 4.8",
+            "order": 13,
+            "passrate": 0.1596899224806201
+          },
+          {
+            "group": "Other models",
+            "model": "Gemini 3.5 Flash",
+            "order": 14,
+            "passrate": 0.0813953488372093
+          },
+          {
+            "group": "Other models",
+            "model": "Gemini 3.1 Pro",
+            "order": 15,
+            "passrate": 0.0310077519379844
+          },
+          {
+            "group": "Other models",
+            "model": "Grok 4.3",
+            "order": 16,
+            "passrate": 0.0147286821705426
+          },
+          {
+            "group": "Other models",
+            "model": "GLM 5.2",
+            "order": 17,
+            "passrate": 0.0463608957795004
+          },
+          {
+            "group": "Other models",
+            "model": "DeepSeek V4 Pro",
+            "order": 18,
+            "passrate": 0.0242032730404823
+          }
+        ]
+      },
+      "description": "{genebench.description}",
+      "layer": [
+        {
+          "encoding": {
+            "color": {
+              "field": "groupDisplay",
+              "legend": {
+                "title": null
+              },
+              "scale": {
+                "domain": [
+                  "GPT",
+                  "GPT Pro",
+                  "Other models"
+                ],
+                "range": [
+                  "theme1",
+                  "theme2",
+                  "theme3"
+                ]
+              },
+              "type": "nominal"
+            },
+            "tooltip": [
+              {
+                "field": "groupDisplay",
+                "title": "Model group",
+                "type": "nominal"
+              },
+              {
+                "field": "model",
+                "title": "Model",
+                "type": "nominal"
+              },
+              {
+                "field": "passrate",
+                "format": ".1%",
+                "title": "Passrate",
+                "type": "quantitative"
+              }
+            ],
+            "x": {
+              "axis": {
+                "grid": false,
+                "labelAngle": -45,
+                "labelExpr": "datum.value === 1 ? 'GPT-5.2 (xhigh)' : datum.value === 1.6 ? 'GPT-5.4 (xhigh)' : datum.value === 2.2 ? 'GPT-5.5 (xhigh)' : datum.value === 2.8 ? 'GPT-5.6 Luna (max)' : datum.value === 3.4 ? 'GPT-5.6 Terra (max)' : datum.value === 4 ? 'GPT-5.6 Sol (max)' : datum.value === 4.65 ? 'GPT-5.2 (Pro)' : datum.value === 5.25 ? 'GPT-5.4 (Pro)' : datum.value === 5.85 ? 'GPT-5.5 (Pro)' : datum.value === 6.45 ? 'GPT-5.6 Luna (Pro)' : datum.value === 7.05 ? 'GPT-5.6 Terra (Pro)' : datum.value === 7.65 ? 'GPT-5.6 Sol (Pro)' : datum.value === 8.3 ? 'Opus 4.8' : datum.value === 8.9 ? 'Gemini 3.5 Flash' : datum.value === 9.5 ? 'Gemini 3.1 Pro' : datum.value === 10.1 ? 'Grok 4.3' : datum.value === 10.7 ? 'GLM 5.2' : datum.value === 11.3 ? 'DeepSeek V4 Pro' : ''",
+                "labelOverlap": false,
+                "title": null,
+                "values": [
+                  1,
+                  1.6,
+                  2.2,
+                  2.8,
+                  3.4,
+                  4,
+                  4.65,
+                  5.25,
+                  5.85,
+                  6.45,
+                  7.05,
+                  7.65,
+                  8.3,
+                  8.9,
+                  9.5,
+                  10.1,
+                  10.7,
+                  11.3
+                ]
+              },
+              "field": "groupedOrder",
+              "scale": {
+                "domain": [
+                  0.5,
+                  11.8
+                ],
+                "nice": false
+              },
+              "type": "quantitative"
+            },
+            "y": {
+              "axis": {
+                "format": ".0%",
+                "grid": false,
+                "labelExpr": "format(datum.value, '.0%')",
+                "title": "Passrate",
+                "values": [
+                  0,
+                  0.05,
+                  0.1,
+                  0.15,
+                  0.2,
+                  0.25,
+                  0.3,
+                  0.35
+                ]
+              },
+              "field": "passrate",
+              "scale": {
+                "domain": [
+                  0,
+                  0.37
+                ],
+                "nice": false
+              },
+              "type": "quantitative"
+            }
+          },
+          "mark": {
+            "type": "bar",
+            "width": 30
+          },
+          "name": "passrate_bars"
+        },
+        {
+          "encoding": {
+            "text": {
+              "field": "passrate",
+              "format": ".1%",
+              "type": "quantitative"
+            },
+            "x": {
+              "field": "groupedOrder",
+              "scale": {
+                "domain": [
+                  0.5,
+                  11.8
+                ],
+                "nice": false
+              },
+              "type": "quantitative"
+            },
+            "y": {
+              "field": "passrate",
+              "scale": {
+                "domain": [
+                  0,
+                  0.37
+                ],
+                "nice": false
+              },
+              "type": "quantitative"
+            }
+          },
+          "mark": {
+            "baseline": "bottom",
+            "dy": -7,
+            "type": "text"
+          },
+          "name": "value_labels"
+        }
+      ],
+      "title": "GeneBench-Pro: Model passrates at max reasoning",
+      "transform": [
+        {
+          "as": "groupedOrder",
+          "calculate": "datum.order <= 6 ? 1 + (datum.order - 1) * 0.6 : datum.order <= 12 ? 4.65 + (datum.order - 7) * 0.6 : 8.3 + (datum.order - 13) * 0.6"
+        },
+        {
+          "as": "groupDisplay",
+          "calculate": "datum.group === 'Other models' ? 'Other models' : datum.group"
+        }
+      ]
+    },
+    "GeneBench-Pro: Test-time compute scaling on GPT models": {
+      "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+      "data": {
+        "values": [
+          {
+            "juice": 0,
+            "model": "GPT-5.2",
+            "nonmaskedSollen": 1059.4824289405683,
+            "passrate": 0.0054263565891472,
+            "passratePct": 0.54263565891472,
+            "pointOrder": 1,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "none",
+            "sourceExperimentIds": "ajh-gb10-h52-peaval",
+            "validCompletedSamples": 1289,
+            "validSamplesWithNonmaskedSollen": 1289
+          },
+          {
+            "juice": 16,
+            "model": "GPT-5.2",
+            "nonmaskedSollen": 6954.703186907838,
+            "passrate": 0.0108527131782945,
+            "passratePct": 1.08527131782945,
+            "pointOrder": 2,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "low",
+            "sourceExperimentIds": "ajh-gb10-h52-peaval",
+            "validCompletedSamples": 1286,
+            "validSamplesWithNonmaskedSollen": 1286
+          },
+          {
+            "juice": 64,
+            "model": "GPT-5.2",
+            "nonmaskedSollen": 18136.79147286822,
+            "passrate": 0.0242894056847545,
+            "passratePct": 2.42894056847545,
+            "pointOrder": 3,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "medium",
+            "sourceExperimentIds": "ajh-gb10-h52-peaval",
+            "validCompletedSamples": 1287,
+            "validSamplesWithNonmaskedSollen": 1287
+          },
+          {
+            "juice": 256,
+            "model": "GPT-5.2",
+            "nonmaskedSollen": 23157.85607235142,
+            "passrate": 0.0347975882859603,
+            "passratePct": 3.4797588285960304,
+            "pointOrder": 4,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "high",
+            "sourceExperimentIds": "ajh-gb10-h52-peaval",
+            "validCompletedSamples": 1283,
+            "validSamplesWithNonmaskedSollen": 1283
+          },
+          {
+            "juice": 768,
+            "model": "GPT-5.2",
+            "nonmaskedSollen": 51982.74849267873,
+            "passrate": 0.0488372093023255,
+            "passratePct": 4.88372093023255,
+            "pointOrder": 5,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "xhigh",
+            "sourceExperimentIds": "ajh-gb10-h52i-clef-peaval",
+            "validCompletedSamples": 1283,
+            "validSamplesWithNonmaskedSollen": 1283
+          },
+          {
+            "juice": 0,
+            "model": "GPT-5.4",
+            "nonmaskedSollen": 2101.107407407407,
+            "passrate": 0.0085271317829457,
+            "passratePct": 0.8527131782945699,
+            "pointOrder": 1,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "none",
+            "sourceExperimentIds": "ajh-gb10-h54-peaval",
+            "validCompletedSamples": 1288,
+            "validSamplesWithNonmaskedSollen": 1288
+          },
+          {
+            "juice": 16,
+            "model": "GPT-5.4",
+            "nonmaskedSollen": 8229.975538329027,
+            "passrate": 0.0304048234280792,
+            "passratePct": 3.04048234280792,
+            "pointOrder": 2,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "low",
+            "sourceExperimentIds": "ajh-gb10-h54-peaval",
+            "validCompletedSamples": 1285,
+            "validSamplesWithNonmaskedSollen": 1285
+          },
+          {
+            "juice": 48,
+            "model": "GPT-5.4",
+            "nonmaskedSollen": 18589.573815676144,
+            "passrate": 0.0496124031007751,
+            "passratePct": 4.96124031007751,
+            "pointOrder": 3,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "medium",
+            "sourceExperimentIds": "ajh-gb10-h54-peaval",
+            "validCompletedSamples": 1288,
+            "validSamplesWithNonmaskedSollen": 1288
+          },
+          {
+            "juice": 128,
+            "model": "GPT-5.4",
+            "nonmaskedSollen": 27261.694142980192,
+            "passrate": 0.0698535745047373,
+            "passratePct": 6.98535745047373,
+            "pointOrder": 4,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "high",
+            "sourceExperimentIds": "ajh-gb10-h54-peaval",
+            "validCompletedSamples": 1286,
+            "validSamplesWithNonmaskedSollen": 1286
+          },
+          {
+            "juice": 768,
+            "model": "GPT-5.4",
+            "nonmaskedSollen": 44661.20163652024,
+            "passrate": 0.0887166236003445,
+            "passratePct": 8.87166236003445,
+            "pointOrder": 5,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "xhigh",
+            "sourceExperimentIds": "ajh-gb10-h54-peaval",
+            "validCompletedSamples": 1287,
+            "validSamplesWithNonmaskedSollen": 1287
+          },
+          {
+            "juice": 0,
+            "model": "GPT-5.5",
+            "nonmaskedSollen": 1138.4491817398794,
+            "passrate": 0.0077519379844961,
+            "passratePct": 0.77519379844961,
+            "pointOrder": 1,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "none",
+            "sourceExperimentIds": "ajh-gb10-h55-peaval",
+            "validCompletedSamples": 1289,
+            "validSamplesWithNonmaskedSollen": 1289
+          },
+          {
+            "juice": 12,
+            "model": "GPT-5.5",
+            "nonmaskedSollen": 2768.1770671834624,
+            "passrate": 0.0241171403962101,
+            "passratePct": 2.4117140396210104,
+            "pointOrder": 2,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "low",
+            "sourceExperimentIds": "ajh-gb10-h55-peaval",
+            "validCompletedSamples": 1283,
+            "validSamplesWithNonmaskedSollen": 1283
+          },
+          {
+            "juice": 48,
+            "model": "GPT-5.5",
+            "nonmaskedSollen": 10575.419896640828,
+            "passrate": 0.0589147286821705,
+            "passratePct": 5.89147286821705,
+            "pointOrder": 3,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "medium",
+            "sourceExperimentIds": "ajh-gb10-h55-peaval",
+            "validCompletedSamples": 1288,
+            "validSamplesWithNonmaskedSollen": 1288
+          },
+          {
+            "juice": 128,
+            "model": "GPT-5.5",
+            "nonmaskedSollen": 19822.15443583118,
+            "passrate": 0.0927648578811369,
+            "passratePct": 9.27648578811369,
+            "pointOrder": 4,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "high",
+            "sourceExperimentIds": "ajh-gb10-h55-peaval",
+            "validCompletedSamples": 1287,
+            "validSamplesWithNonmaskedSollen": 1287
+          },
+          {
+            "juice": 768,
+            "model": "GPT-5.5",
+            "nonmaskedSollen": 28721.099397071488,
+            "passrate": 0.1196382428940568,
+            "passratePct": 11.96382428940568,
+            "pointOrder": 5,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "xhigh",
+            "sourceExperimentIds": "ajh-gb10-h55-peaval",
+            "validCompletedSamples": 1284,
+            "validSamplesWithNonmaskedSollen": 1284
+          },
+          {
+            "juice": 0,
+            "model": "GPT-5.6 Luna",
+            "nonmaskedSollen": 975.0365202411714,
+            "passrate": 0.0077519379844961,
+            "passratePct": 0.77519379844961,
+            "pointOrder": 1,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "none",
+            "sourceExperimentIds": "ajh-gb10-fin-j5-s10-c64-u626a-peaval",
+            "validCompletedSamples": 1288,
+            "validSamplesWithNonmaskedSollen": 1288
+          },
+          {
+            "juice": 12,
+            "model": "GPT-5.6 Luna",
+            "nonmaskedSollen": 3573.5069767441864,
+            "passrate": 0.0232558139534883,
+            "passratePct": 2.32558139534883,
+            "pointOrder": 2,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "low",
+            "sourceExperimentIds": "ajh-gb10-fin-j5-s10-c64-u626a-peaval",
+            "validCompletedSamples": 1290,
+            "validSamplesWithNonmaskedSollen": 1290
+          },
+          {
+            "juice": 48,
+            "model": "GPT-5.6 Luna",
+            "nonmaskedSollen": 15578.568389319553,
+            "passrate": 0.0470284237726098,
+            "passratePct": 4.70284237726098,
+            "pointOrder": 3,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "medium",
+            "sourceExperimentIds": "ajh-gb10-fin-j5-s10-c64-u626a-peaval",
+            "validCompletedSamples": 1277,
+            "validSamplesWithNonmaskedSollen": 1277
+          },
+          {
+            "juice": 128,
+            "model": "GPT-5.6 Luna",
+            "nonmaskedSollen": 32292.837581518394,
+            "passrate": 0.0803832902670111,
+            "passratePct": 8.03832902670111,
+            "pointOrder": 4,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "high",
+            "sourceExperimentIds": "ajh-gb10-fin-j5-s10-c64-u626a-peaval",
+            "validCompletedSamples": 1262,
+            "validSamplesWithNonmaskedSollen": 1262
+          },
+          {
+            "juice": 768,
+            "model": "GPT-5.6 Luna",
+            "nonmaskedSollen": 53052.624910791186,
+            "passrate": 0.10770887166236,
+            "passratePct": 10.770887166236,
+            "pointOrder": 5,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "xhigh",
+            "sourceExperimentIds": "ajh-gb10-fin-j5-s10-c64-u626a-peaval",
+            "validCompletedSamples": 1261,
+            "validSamplesWithNonmaskedSollen": 1261
+          },
+          {
+            "juice": 960,
+            "model": "GPT-5.6 Luna",
+            "nonmaskedSollen": 118181.85107358189,
+            "passrate": 0.1647471391657438,
+            "passratePct": 16.47471391657438,
+            "pointOrder": 6,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "max",
+            "sourceExperimentIds": "ajh-gb10-fin-j960-s10-c128-u626c-peaval",
+            "validCompletedSamples": 1234,
+            "validSamplesWithNonmaskedSollen": 1234
+          },
+          {
+            "juice": 0,
+            "model": "GPT-5.6 Terra",
+            "nonmaskedSollen": 929.9038759689925,
+            "passrate": 0.0100775193798449,
+            "passratePct": 1.0077519379844901,
+            "pointOrder": 1,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "none",
+            "sourceExperimentIds": "ajh-gb10-gar-j5-s10-c64-u626a-peaval",
+            "validCompletedSamples": 1290,
+            "validSamplesWithNonmaskedSollen": 1290
+          },
+          {
+            "juice": 12,
+            "model": "GPT-5.6 Terra",
+            "nonmaskedSollen": 5509.23608957795,
+            "passrate": 0.0652885443583118,
+            "passratePct": 6.52885443583118,
+            "pointOrder": 2,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "low",
+            "sourceExperimentIds": "ajh-gb10-gar-j5-s10-c64-u626a-peaval",
+            "validCompletedSamples": 1289,
+            "validSamplesWithNonmaskedSollen": 1289
+          },
+          {
+            "juice": 48,
+            "model": "GPT-5.6 Terra",
+            "nonmaskedSollen": 15934.603100775194,
+            "passrate": 0.1356589147286821,
+            "passratePct": 13.565891472868211,
+            "pointOrder": 3,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "medium",
+            "sourceExperimentIds": "ajh-gb10-gar-j5-s10-c64-u626a-peaval",
+            "validCompletedSamples": 1290,
+            "validSamplesWithNonmaskedSollen": 1290
+          },
+          {
+            "juice": 128,
+            "model": "GPT-5.6 Terra",
+            "nonmaskedSollen": 22175.09336778639,
+            "passrate": 0.1620155038759689,
+            "passratePct": 16.201550387596892,
+            "pointOrder": 4,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "high",
+            "sourceExperimentIds": "ajh-gb10-gar-j5-s10-c64-u626a-peaval",
+            "validCompletedSamples": 1288,
+            "validSamplesWithNonmaskedSollen": 1288
+          },
+          {
+            "juice": 768,
+            "model": "GPT-5.6 Terra",
+            "nonmaskedSollen": 31054.386563307493,
+            "passrate": 0.1883720930232558,
+            "passratePct": 18.83720930232558,
+            "pointOrder": 5,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "xhigh",
+            "sourceExperimentIds": "ajh-gb10-gar-j5-s10-c64-u626a-peaval",
+            "validCompletedSamples": 1288,
+            "validSamplesWithNonmaskedSollen": 1288
+          },
+          {
+            "juice": 960,
+            "model": "GPT-5.6 Terra",
+            "nonmaskedSollen": 54267.267441860466,
+            "passrate": 0.2333333333333333,
+            "passratePct": 23.333333333333332,
+            "pointOrder": 6,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "max",
+            "sourceExperimentIds": "ajh-gb10-gar-j960-s10-c128-u626b-peaval",
+            "validCompletedSamples": 1290,
+            "validSamplesWithNonmaskedSollen": 1290
+          },
+          {
+            "juice": 0,
+            "model": "GPT-5.6 Sol",
+            "nonmaskedSollen": 1400.2758828596038,
+            "passrate": 0.0372093023255813,
+            "passratePct": 3.7209302325581297,
+            "pointOrder": 1,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "none",
+            "sourceExperimentIds": "ajh-gb10-h56b-peaval",
+            "validCompletedSamples": 1286,
+            "validSamplesWithNonmaskedSollen": 1286
+          },
+          {
+            "juice": 12,
+            "model": "GPT-5.6 Sol",
+            "nonmaskedSollen": 5600.19293712317,
+            "passrate": 0.1444444444444444,
+            "passratePct": 14.444444444444441,
+            "pointOrder": 2,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "low",
+            "sourceExperimentIds": "ajh-gb10-h56b-peaval",
+            "validCompletedSamples": 1286,
+            "validSamplesWithNonmaskedSollen": 1286
+          },
+          {
+            "juice": 48,
+            "model": "GPT-5.6 Sol",
+            "nonmaskedSollen": 14439.71248923342,
+            "passrate": 0.2249784668389319,
+            "passratePct": 22.49784668389319,
+            "pointOrder": 3,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "medium",
+            "sourceExperimentIds": "ajh-gb10-h56b-peaval",
+            "validCompletedSamples": 1287,
+            "validSamplesWithNonmaskedSollen": 1287
+          },
+          {
+            "juice": 128,
+            "model": "GPT-5.6 Sol",
+            "nonmaskedSollen": 19535.336778639103,
+            "passrate": 0.2440999138673557,
+            "passratePct": 24.40999138673557,
+            "pointOrder": 4,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "high",
+            "sourceExperimentIds": "ajh-gb10-h56b-peaval",
+            "validCompletedSamples": 1285,
+            "validSamplesWithNonmaskedSollen": 1285
+          },
+          {
+            "juice": 768,
+            "model": "GPT-5.6 Sol",
+            "nonmaskedSollen": 25690.99767441861,
+            "passrate": 0.2684754521963824,
+            "passratePct": 26.847545219638242,
+            "pointOrder": 5,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "xhigh",
+            "sourceExperimentIds": "ajh-gb10-h56b-peaval",
+            "validCompletedSamples": 1281,
+            "validSamplesWithNonmaskedSollen": 1281
+          },
+          {
+            "juice": 960,
+            "model": "GPT-5.6 Sol",
+            "nonmaskedSollen": 33168.297416020665,
+            "passrate": 0.2873385012919897,
+            "passratePct": 28.733850129198967,
+            "pointOrder": 6,
+            "problemsWithNonmaskedSollen": 129,
+            "problemsWithValidSamples": 129,
+            "reasoning": "max",
+            "sourceExperimentIds": "ajh-gb10-h56b-peaval",
+            "validCompletedSamples": 1285,
+            "validSamplesWithNonmaskedSollen": 1285
+          }
+        ]
+      },
+      "description": "GeneBench v10 model passrate by mean nonmasked sollen from the latest supplied data.",
+      "encoding": {
+        "color": {
+          "field": "model",
+          "legend": {
+            "columns": 3,
+            "title": null
+          },
+          "scale": {
+            "domain": [
+              "GPT-5.2",
+              "GPT-5.4",
+              "GPT-5.5",
+              "GPT-5.6 Luna",
+              "GPT-5.6 Terra",
+              "GPT-5.6 Sol"
+            ],
+            "range": [
+              "theme1",
+              "theme2",
+              "theme3",
+              "theme4",
+              "theme1",
+              "theme2"
+            ]
+          },
+          "sort": [
+            "GPT-5.2",
+            "GPT-5.4",
+            "GPT-5.5",
+            "GPT-5.6 Luna",
+            "GPT-5.6 Terra",
+            "GPT-5.6 Sol"
+          ],
+          "type": "nominal"
+        },
+        "tooltip": [
+          {
+            "field": "model",
+            "title": "Model",
+            "type": "nominal"
+          },
+          {
+            "field": "reasoning",
+            "title": "Reasoning",
+            "type": "nominal"
+          },
+          {
+            "field": "nonmaskedSollen",
+            "format": ",.0f",
+            "title": "Tokens used",
+            "type": "quantitative"
+          },
+          {
+            "field": "passrate",
+            "format": ".1%",
+            "title": "Passrate",
+            "type": "quantitative"
+          }
+        ],
+        "x": {
+          "axis": {
+            "grid": false,
+            "labelExpr": "format(datum.value, ',')",
+            "title": "Tokens used",
+            "values": [
+              0,
+              20000,
+              40000,
+              60000,
+              80000,
+              100000,
+              120000
+            ]
+          },
+          "field": "nonmaskedSollen",
+          "scale": {
+            "domain": [
+              0,
+              120000
+            ]
+          },
+          "type": "quantitative"
+        },
+        "y": {
+          "axis": {
+            "grid": false,
+            "labelExpr": "format(datum.value, '.0%')",
+            "title": "Passrate",
+            "values": [
+              0,
+              0.05,
+              0.1,
+              0.15,
+              0.2,
+              0.25,
+              0.3
+            ]
+          },
+          "field": "passrate",
+          "scale": {
+            "domain": [
+              0,
+              0.3
+            ]
+          },
+          "type": "quantitative"
+        }
+      },
+      "layer": [
+        {
+          "encoding": {
+            "order": {
+              "field": "pointOrder",
+              "type": "ordinal"
+            }
+          },
+          "mark": {
+            "point": false,
+            "type": "line"
+          },
+          "name": "model_lines"
+        },
+        {
+          "encoding": {
+            "shape": {
+              "field": "model",
+              "legend": {
+                "columns": 3,
+                "title": null
+              },
+              "scale": {
+                "domain": [
+                  "GPT-5.2",
+                  "GPT-5.4",
+                  "GPT-5.5",
+                  "GPT-5.6 Luna",
+                  "GPT-5.6 Terra",
+                  "GPT-5.6 Sol"
+                ],
+                "range": [
+                  "circle",
+                  "square",
+                  "diamond",
+                  "triangle-up",
+                  "cross",
+                  "triangle-down"
+                ]
+              },
+              "sort": [
+                "GPT-5.2",
+                "GPT-5.4",
+                "GPT-5.5",
+                "GPT-5.6 Luna",
+                "GPT-5.6 Terra",
+                "GPT-5.6 Sol"
+              ],
+              "type": "nominal"
+            }
+          },
+          "mark": {
+            "filled": true,
+            "size": 80,
+            "type": "point"
+          },
+          "name": "model_points"
+        }
+      ],
+      "title": [
+        "GeneBench-Pro: Test-time compute scaling on GPT models"
+      ]
+    }
+  }
+}

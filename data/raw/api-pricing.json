@@ -1,0 +1,173 @@
+{
+  "basis": "standard-api-token-pricing",
+  "currency": "USD",
+  "estimateBasis": "generated-output-tokens-only",
+  "models": [
+    {
+      "cacheWriteTtlMinutes": 30,
+      "cacheWriteUsdPerMillionTokens": 6.25,
+      "cachedInputUsdPerMillionTokens": 0.5,
+      "inputUsdPerMillionTokens": 5.0,
+      "longContextPricing": null,
+      "model": "GPT-5.6 Sol Ultra",
+      "outputUsdPerMillionTokens": 30.0,
+      "pricingModel": "GPT-5.6 Sol",
+      "provider": "OpenAI",
+      "source": "openai",
+      "sourceModelId": "gpt-5.6-sol"
+    },
+    {
+      "cacheWriteTtlMinutes": 30,
+      "cacheWriteUsdPerMillionTokens": 6.25,
+      "cachedInputUsdPerMillionTokens": 0.5,
+      "inputUsdPerMillionTokens": 5.0,
+      "longContextPricing": null,
+      "model": "GPT-5.6 Sol",
+      "outputUsdPerMillionTokens": 30.0,
+      "pricingModel": null,
+      "provider": "OpenAI",
+      "source": "openai",
+      "sourceModelId": "gpt-5.6-sol"
+    },
+    {
+      "cacheWriteTtlMinutes": 30,
+      "cacheWriteUsdPerMillionTokens": 3.125,
+      "cachedInputUsdPerMillionTokens": 0.25,
+      "inputUsdPerMillionTokens": 2.5,
+      "longContextPricing": null,
+      "model": "GPT-5.6 Terra",
+      "outputUsdPerMillionTokens": 15.0,
+      "pricingModel": null,
+      "provider": "OpenAI",
+      "source": "openai",
+      "sourceModelId": "gpt-5.6-terra"
+    },
+    {
+      "cacheWriteTtlMinutes": 30,
+      "cacheWriteUsdPerMillionTokens": 1.25,
+      "cachedInputUsdPerMillionTokens": 0.1,
+      "inputUsdPerMillionTokens": 1.0,
+      "longContextPricing": null,
+      "model": "GPT-5.6 Luna",
+      "outputUsdPerMillionTokens": 6.0,
+      "pricingModel": null,
+      "provider": "OpenAI",
+      "source": "openai",
+      "sourceModelId": "gpt-5.6-luna"
+    },
+    {
+      "cacheWriteTtlMinutes": null,
+      "cacheWriteUsdPerMillionTokens": null,
+      "cachedInputUsdPerMillionTokens": 0.5,
+      "inputUsdPerMillionTokens": 5.0,
+      "longContextPricing": null,
+      "model": "GPT-5.5",
+      "outputUsdPerMillionTokens": 30.0,
+      "pricingModel": null,
+      "provider": "OpenAI",
+      "source": "litellm",
+      "sourceModelId": "gpt-5.5"
+    },
+    {
+      "cacheWriteTtlMinutes": null,
+      "cacheWriteUsdPerMillionTokens": null,
+      "cachedInputUsdPerMillionTokens": 0.25,
+      "inputUsdPerMillionTokens": 2.5,
+      "longContextPricing": null,
+      "model": "GPT-5.4",
+      "outputUsdPerMillionTokens": 15.0,
+      "pricingModel": null,
+      "provider": "OpenAI",
+      "source": "litellm",
+      "sourceModelId": "gpt-5.4"
+    },
+    {
+      "cacheWriteTtlMinutes": null,
+      "cacheWriteUsdPerMillionTokens": null,
+      "cachedInputUsdPerMillionTokens": 0.175,
+      "inputUsdPerMillionTokens": 1.75,
+      "longContextPricing": null,
+      "model": "GPT-5.2",
+      "outputUsdPerMillionTokens": 14.0,
+      "pricingModel": null,
+      "provider": "OpenAI",
+      "source": "litellm",
+      "sourceModelId": "gpt-5.2"
+    },
+    {
+      "cacheWriteTtlMinutes": 5,
+      "cacheWriteUsdPerMillionTokens": 12.5,
+      "cachedInputUsdPerMillionTokens": 1.0,
+      "inputUsdPerMillionTokens": 10.0,
+      "longContextPricing": null,
+      "model": "Claude Mythos 5",
+      "outputUsdPerMillionTokens": 50.0,
+      "pricingModel": null,
+      "provider": "Anthropic",
+      "source": "anthropic",
+      "sourceModelId": null
+    },
+    {
+      "cacheWriteTtlMinutes": 5,
+      "cacheWriteUsdPerMillionTokens": 12.5,
+      "cachedInputUsdPerMillionTokens": 1.0,
+      "inputUsdPerMillionTokens": 10.0,
+      "longContextPricing": null,
+      "model": "Claude Fable 5",
+      "outputUsdPerMillionTokens": 50.0,
+      "pricingModel": null,
+      "provider": "Anthropic",
+      "source": "litellm",
+      "sourceModelId": "claude-fable-5"
+    },
+    {
+      "cacheWriteTtlMinutes": 5,
+      "cacheWriteUsdPerMillionTokens": 6.25,
+      "cachedInputUsdPerMillionTokens": 0.5,
+      "inputUsdPerMillionTokens": 5.0,
+      "longContextPricing": null,
+      "model": "Claude Opus 4.8",
+      "outputUsdPerMillionTokens": 25.0,
+      "pricingModel": null,
+      "provider": "Anthropic",
+      "source": "litellm",
+      "sourceModelId": "claude-opus-4-8"
+    },
+    {
+      "cacheWriteTtlMinutes": null,
+      "cacheWriteUsdPerMillionTokens": null,
+      "cachedInputUsdPerMillionTokens": 0.2,
+      "inputUsdPerMillionTokens": 2.0,
+      "longContextPricing": {
+        "cachedInputUsdPerMillionTokens": 0.4,
+        "inputUsdPerMillionTokens": 4.0,
+        "outputUsdPerMillionTokens": 18.0,
+        "thresholdTokens": 200000
+      },
+      "model": "Gemini 3.1 Pro Preview",
+      "outputUsdPerMillionTokens": 12.0,
+      "pricingModel": null,
+      "provider": "Google",
+      "source": "litellm",
+      "sourceModelId": "gemini/gemini-3.1-pro-preview"
+    }
+  ],
+  "schemaVersion": 2,
+  "sources": {
+    "anthropic": {
+      "cacheUrl": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching",
+      "url": "https://www.anthropic.com/news/claude-fable-5-mythos-5"
+    },
+    "google": {
+      "url": "https://ai.google.dev/gemini-api/docs/pricing"
+    },
+    "litellm": {
+      "pricingSha256": "83026efefa18747a423c031dbf97553d703499ba83e44c2a80ebc966a6dd0b45",
+      "url": "https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json"
+    },
+    "openai": {
+      "url": "https://openai.com/index/previewing-gpt-5-6-sol/"
+    }
+  },
+  "unitTokens": 1000000
+}

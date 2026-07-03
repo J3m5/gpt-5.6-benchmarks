@@ -1,4 +1,176 @@
 {
+  "apiPricing": {
+    "basis": "standard-api-token-pricing",
+    "currency": "USD",
+    "estimateBasis": "generated-output-tokens-only",
+    "models": [
+      {
+        "cacheWriteTtlMinutes": 30,
+        "cacheWriteUsdPerMillionTokens": 6.25,
+        "cachedInputUsdPerMillionTokens": 0.5,
+        "inputUsdPerMillionTokens": 5.0,
+        "longContextPricing": null,
+        "model": "GPT-5.6 Sol Ultra",
+        "outputUsdPerMillionTokens": 30.0,
+        "pricingModel": "GPT-5.6 Sol",
+        "provider": "OpenAI",
+        "source": "openai",
+        "sourceModelId": "gpt-5.6-sol"
+      },
+      {
+        "cacheWriteTtlMinutes": 30,
+        "cacheWriteUsdPerMillionTokens": 6.25,
+        "cachedInputUsdPerMillionTokens": 0.5,
+        "inputUsdPerMillionTokens": 5.0,
+        "longContextPricing": null,
+        "model": "GPT-5.6 Sol",
+        "outputUsdPerMillionTokens": 30.0,
+        "pricingModel": null,
+        "provider": "OpenAI",
+        "source": "openai",
+        "sourceModelId": "gpt-5.6-sol"
+      },
+      {
+        "cacheWriteTtlMinutes": 30,
+        "cacheWriteUsdPerMillionTokens": 3.125,
+        "cachedInputUsdPerMillionTokens": 0.25,
+        "inputUsdPerMillionTokens": 2.5,
+        "longContextPricing": null,
+        "model": "GPT-5.6 Terra",
+        "outputUsdPerMillionTokens": 15.0,
+        "pricingModel": null,
+        "provider": "OpenAI",
+        "source": "openai",
+        "sourceModelId": "gpt-5.6-terra"
+      },
+      {
+        "cacheWriteTtlMinutes": 30,
+        "cacheWriteUsdPerMillionTokens": 1.25,
+        "cachedInputUsdPerMillionTokens": 0.1,
+        "inputUsdPerMillionTokens": 1.0,
+        "longContextPricing": null,
+        "model": "GPT-5.6 Luna",
+        "outputUsdPerMillionTokens": 6.0,
+        "pricingModel": null,
+        "provider": "OpenAI",
+        "source": "openai",
+        "sourceModelId": "gpt-5.6-luna"
+      },
+      {
+        "cacheWriteTtlMinutes": null,
+        "cacheWriteUsdPerMillionTokens": null,
+        "cachedInputUsdPerMillionTokens": 0.5,
+        "inputUsdPerMillionTokens": 5.0,
+        "longContextPricing": null,
+        "model": "GPT-5.5",
+        "outputUsdPerMillionTokens": 30.0,
+        "pricingModel": null,
+        "provider": "OpenAI",
+        "source": "litellm",
+        "sourceModelId": "gpt-5.5"
+      },
+      {
+        "cacheWriteTtlMinutes": null,
+        "cacheWriteUsdPerMillionTokens": null,
+        "cachedInputUsdPerMillionTokens": 0.25,
+        "inputUsdPerMillionTokens": 2.5,
+        "longContextPricing": null,
+        "model": "GPT-5.4",
+        "outputUsdPerMillionTokens": 15.0,
+        "pricingModel": null,
+        "provider": "OpenAI",
+        "source": "litellm",
+        "sourceModelId": "gpt-5.4"
+      },
+      {
+        "cacheWriteTtlMinutes": null,
+        "cacheWriteUsdPerMillionTokens": null,
+        "cachedInputUsdPerMillionTokens": 0.175,
+        "inputUsdPerMillionTokens": 1.75,
+        "longContextPricing": null,
+        "model": "GPT-5.2",
+        "outputUsdPerMillionTokens": 14.0,
+        "pricingModel": null,
+        "provider": "OpenAI",
+        "source": "litellm",
+        "sourceModelId": "gpt-5.2"
+      },
+      {
+        "cacheWriteTtlMinutes": 5,
+        "cacheWriteUsdPerMillionTokens": 12.5,
+        "cachedInputUsdPerMillionTokens": 1.0,
+        "inputUsdPerMillionTokens": 10.0,
+        "longContextPricing": null,
+        "model": "Claude Mythos 5",
+        "outputUsdPerMillionTokens": 50.0,
+        "pricingModel": null,
+        "provider": "Anthropic",
+        "source": "anthropic",
+        "sourceModelId": null
+      },
+      {
+        "cacheWriteTtlMinutes": 5,
+        "cacheWriteUsdPerMillionTokens": 12.5,
+        "cachedInputUsdPerMillionTokens": 1.0,
+        "inputUsdPerMillionTokens": 10.0,
+        "longContextPricing": null,
+        "model": "Claude Fable 5",
+        "outputUsdPerMillionTokens": 50.0,
+        "pricingModel": null,
+        "provider": "Anthropic",
+        "source": "litellm",
+        "sourceModelId": "claude-fable-5"
+      },
+      {
+        "cacheWriteTtlMinutes": 5,
+        "cacheWriteUsdPerMillionTokens": 6.25,
+        "cachedInputUsdPerMillionTokens": 0.5,
+        "inputUsdPerMillionTokens": 5.0,
+        "longContextPricing": null,
+        "model": "Claude Opus 4.8",
+        "outputUsdPerMillionTokens": 25.0,
+        "pricingModel": null,
+        "provider": "Anthropic",
+        "source": "litellm",
+        "sourceModelId": "claude-opus-4-8"
+      },
+      {
+        "cacheWriteTtlMinutes": null,
+        "cacheWriteUsdPerMillionTokens": null,
+        "cachedInputUsdPerMillionTokens": 0.2,
+        "inputUsdPerMillionTokens": 2.0,
+        "longContextPricing": {
+          "cachedInputUsdPerMillionTokens": 0.4,
+          "inputUsdPerMillionTokens": 4.0,
+          "outputUsdPerMillionTokens": 18.0,
+          "thresholdTokens": 200000
+        },
+        "model": "Gemini 3.1 Pro Preview",
+        "outputUsdPerMillionTokens": 12.0,
+        "pricingModel": null,
+        "provider": "Google",
+        "source": "litellm",
+        "sourceModelId": "gemini/gemini-3.1-pro-preview"
+      }
+    ],
+    "sources": {
+      "anthropic": {
+        "cacheUrl": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching",
+        "url": "https://www.anthropic.com/news/claude-fable-5-mythos-5"
+      },
+      "google": {
+        "url": "https://ai.google.dev/gemini-api/docs/pricing"
+      },
+      "litellm": {
+        "pricingSha256": "83026efefa18747a423c031dbf97553d703499ba83e44c2a80ebc966a6dd0b45",
+        "url": "https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json"
+      },
+      "openai": {
+        "url": "https://openai.com/index/previewing-gpt-5-6-sol/"
+      }
+    },
+    "unitTokens": 1000000
+  },
   "exploitGym": [
     {
       "apiCostUsd": 4.367289759999999,
@@ -661,10 +833,608 @@
       "scoreUnit": "pass@1"
     }
   ],
-  "schemaVersion": 1,
-  "source": {
-    "specSha256": "1b6dad66f06da97ba84ac0ebcf9f227c697298ebe3feac4771128e8fcabffe42",
-    "url": "https://openai.com/index/previewing-gpt-5-6-sol/"
+  "geneBenchProMaxReasoning": [
+    {
+      "group": "GPT",
+      "model": "GPT-5.2 (xhigh)",
+      "order": 1,
+      "passrateFraction": 0.0488372093023255,
+      "passratePercent": 4.88372093023255
+    },
+    {
+      "group": "GPT",
+      "model": "GPT-5.4 (xhigh)",
+      "order": 2,
+      "passrateFraction": 0.0887166236003445,
+      "passratePercent": 8.87166236003445
+    },
+    {
+      "group": "GPT",
+      "model": "GPT-5.5 (xhigh)",
+      "order": 3,
+      "passrateFraction": 0.1196382428940568,
+      "passratePercent": 11.96382428940568
+    },
+    {
+      "group": "GPT",
+      "model": "GPT-5.6 Luna (max)",
+      "order": 4,
+      "passrateFraction": 0.1647471391657438,
+      "passratePercent": 16.47471391657438
+    },
+    {
+      "group": "GPT",
+      "model": "GPT-5.6 Terra (max)",
+      "order": 5,
+      "passrateFraction": 0.2333333333333333,
+      "passratePercent": 23.333333333333332
+    },
+    {
+      "group": "GPT",
+      "model": "GPT-5.6 Sol (max)",
+      "order": 6,
+      "passrateFraction": 0.2873385012919897,
+      "passratePercent": 28.733850129198967
+    },
+    {
+      "group": "GPT Pro",
+      "model": "GPT-5.2 (Pro)",
+      "order": 7,
+      "passrateFraction": 0.0852713178294573,
+      "passratePercent": 8.52713178294573
+    },
+    {
+      "group": "GPT Pro",
+      "model": "GPT-5.4 (Pro)",
+      "order": 8,
+      "passrateFraction": 0.1627906976744186,
+      "passratePercent": 16.279069767441857
+    },
+    {
+      "group": "GPT Pro",
+      "model": "GPT-5.5 (Pro)",
+      "order": 9,
+      "passrateFraction": 0.2046511627906977,
+      "passratePercent": 20.46511627906977
+    },
+    {
+      "group": "GPT Pro",
+      "model": "GPT-5.6 Luna (Pro)",
+      "order": 10,
+      "passrateFraction": 0.2356589147286821,
+      "passratePercent": 23.565891472868213
+    },
+    {
+      "group": "GPT Pro",
+      "model": "GPT-5.6 Terra (Pro)",
+      "order": 11,
+      "passrateFraction": 0.2852713178294573,
+      "passratePercent": 28.52713178294573
+    },
+    {
+      "group": "GPT Pro",
+      "model": "GPT-5.6 Sol (Pro)",
+      "order": 12,
+      "passrateFraction": 0.3147286821705427,
+      "passratePercent": 31.472868217054266
+    },
+    {
+      "group": "Other models",
+      "model": "Opus 4.8",
+      "order": 13,
+      "passrateFraction": 0.1596899224806201,
+      "passratePercent": 15.968992248062012
+    },
+    {
+      "group": "Other models",
+      "model": "Gemini 3.5 Flash",
+      "order": 14,
+      "passrateFraction": 0.0813953488372093,
+      "passratePercent": 8.139534883720929
+    },
+    {
+      "group": "Other models",
+      "model": "Gemini 3.1 Pro",
+      "order": 15,
+      "passrateFraction": 0.0310077519379844,
+      "passratePercent": 3.10077519379844
+    },
+    {
+      "group": "Other models",
+      "model": "Grok 4.3",
+      "order": 16,
+      "passrateFraction": 0.0147286821705426,
+      "passratePercent": 1.47286821705426
+    },
+    {
+      "group": "Other models",
+      "model": "GLM 5.2",
+      "order": 17,
+      "passrateFraction": 0.0463608957795004,
+      "passratePercent": 4.63608957795004
+    },
+    {
+      "group": "Other models",
+      "model": "DeepSeek V4 Pro",
+      "order": 18,
+      "passrateFraction": 0.0242032730404823,
+      "passratePercent": 2.42032730404823
+    }
+  ],
+  "geneBenchProScaling": [
+    {
+      "meanNonmaskedSollen": 1059.4824289405683,
+      "model": "GPT-5.2",
+      "passrateFraction": 0.0054263565891472,
+      "passratePercent": 0.54263565891472,
+      "pointOrder": 1,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "none",
+      "reasoningBudget": 0,
+      "sourceExperimentIds": "ajh-gb10-h52-peaval",
+      "validCompletedSamples": 1289,
+      "validSamplesWithNonmaskedSollen": 1289
+    },
+    {
+      "meanNonmaskedSollen": 6954.703186907838,
+      "model": "GPT-5.2",
+      "passrateFraction": 0.0108527131782945,
+      "passratePercent": 1.08527131782945,
+      "pointOrder": 2,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "low",
+      "reasoningBudget": 16,
+      "sourceExperimentIds": "ajh-gb10-h52-peaval",
+      "validCompletedSamples": 1286,
+      "validSamplesWithNonmaskedSollen": 1286
+    },
+    {
+      "meanNonmaskedSollen": 18136.79147286822,
+      "model": "GPT-5.2",
+      "passrateFraction": 0.0242894056847545,
+      "passratePercent": 2.42894056847545,
+      "pointOrder": 3,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "medium",
+      "reasoningBudget": 64,
+      "sourceExperimentIds": "ajh-gb10-h52-peaval",
+      "validCompletedSamples": 1287,
+      "validSamplesWithNonmaskedSollen": 1287
+    },
+    {
+      "meanNonmaskedSollen": 23157.85607235142,
+      "model": "GPT-5.2",
+      "passrateFraction": 0.0347975882859603,
+      "passratePercent": 3.4797588285960304,
+      "pointOrder": 4,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "high",
+      "reasoningBudget": 256,
+      "sourceExperimentIds": "ajh-gb10-h52-peaval",
+      "validCompletedSamples": 1283,
+      "validSamplesWithNonmaskedSollen": 1283
+    },
+    {
+      "meanNonmaskedSollen": 51982.74849267873,
+      "model": "GPT-5.2",
+      "passrateFraction": 0.0488372093023255,
+      "passratePercent": 4.88372093023255,
+      "pointOrder": 5,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "xhigh",
+      "reasoningBudget": 768,
+      "sourceExperimentIds": "ajh-gb10-h52i-clef-peaval",
+      "validCompletedSamples": 1283,
+      "validSamplesWithNonmaskedSollen": 1283
+    },
+    {
+      "meanNonmaskedSollen": 2101.107407407407,
+      "model": "GPT-5.4",
+      "passrateFraction": 0.0085271317829457,
+      "passratePercent": 0.8527131782945699,
+      "pointOrder": 1,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "none",
+      "reasoningBudget": 0,
+      "sourceExperimentIds": "ajh-gb10-h54-peaval",
+      "validCompletedSamples": 1288,
+      "validSamplesWithNonmaskedSollen": 1288
+    },
+    {
+      "meanNonmaskedSollen": 8229.975538329027,
+      "model": "GPT-5.4",
+      "passrateFraction": 0.0304048234280792,
+      "passratePercent": 3.04048234280792,
+      "pointOrder": 2,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "low",
+      "reasoningBudget": 16,
+      "sourceExperimentIds": "ajh-gb10-h54-peaval",
+      "validCompletedSamples": 1285,
+      "validSamplesWithNonmaskedSollen": 1285
+    },
+    {
+      "meanNonmaskedSollen": 18589.573815676144,
+      "model": "GPT-5.4",
+      "passrateFraction": 0.0496124031007751,
+      "passratePercent": 4.96124031007751,
+      "pointOrder": 3,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "medium",
+      "reasoningBudget": 48,
+      "sourceExperimentIds": "ajh-gb10-h54-peaval",
+      "validCompletedSamples": 1288,
+      "validSamplesWithNonmaskedSollen": 1288
+    },
+    {
+      "meanNonmaskedSollen": 27261.694142980192,
+      "model": "GPT-5.4",
+      "passrateFraction": 0.0698535745047373,
+      "passratePercent": 6.98535745047373,
+      "pointOrder": 4,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "high",
+      "reasoningBudget": 128,
+      "sourceExperimentIds": "ajh-gb10-h54-peaval",
+      "validCompletedSamples": 1286,
+      "validSamplesWithNonmaskedSollen": 1286
+    },
+    {
+      "meanNonmaskedSollen": 44661.20163652024,
+      "model": "GPT-5.4",
+      "passrateFraction": 0.0887166236003445,
+      "passratePercent": 8.87166236003445,
+      "pointOrder": 5,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "xhigh",
+      "reasoningBudget": 768,
+      "sourceExperimentIds": "ajh-gb10-h54-peaval",
+      "validCompletedSamples": 1287,
+      "validSamplesWithNonmaskedSollen": 1287
+    },
+    {
+      "meanNonmaskedSollen": 1138.4491817398794,
+      "model": "GPT-5.5",
+      "passrateFraction": 0.0077519379844961,
+      "passratePercent": 0.77519379844961,
+      "pointOrder": 1,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "none",
+      "reasoningBudget": 0,
+      "sourceExperimentIds": "ajh-gb10-h55-peaval",
+      "validCompletedSamples": 1289,
+      "validSamplesWithNonmaskedSollen": 1289
+    },
+    {
+      "meanNonmaskedSollen": 2768.1770671834624,
+      "model": "GPT-5.5",
+      "passrateFraction": 0.0241171403962101,
+      "passratePercent": 2.4117140396210104,
+      "pointOrder": 2,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "low",
+      "reasoningBudget": 12,
+      "sourceExperimentIds": "ajh-gb10-h55-peaval",
+      "validCompletedSamples": 1283,
+      "validSamplesWithNonmaskedSollen": 1283
+    },
+    {
+      "meanNonmaskedSollen": 10575.419896640828,
+      "model": "GPT-5.5",
+      "passrateFraction": 0.0589147286821705,
+      "passratePercent": 5.89147286821705,
+      "pointOrder": 3,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "medium",
+      "reasoningBudget": 48,
+      "sourceExperimentIds": "ajh-gb10-h55-peaval",
+      "validCompletedSamples": 1288,
+      "validSamplesWithNonmaskedSollen": 1288
+    },
+    {
+      "meanNonmaskedSollen": 19822.15443583118,
+      "model": "GPT-5.5",
+      "passrateFraction": 0.0927648578811369,
+      "passratePercent": 9.27648578811369,
+      "pointOrder": 4,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "high",
+      "reasoningBudget": 128,
+      "sourceExperimentIds": "ajh-gb10-h55-peaval",
+      "validCompletedSamples": 1287,
+      "validSamplesWithNonmaskedSollen": 1287
+    },
+    {
+      "meanNonmaskedSollen": 28721.099397071488,
+      "model": "GPT-5.5",
+      "passrateFraction": 0.1196382428940568,
+      "passratePercent": 11.96382428940568,
+      "pointOrder": 5,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "xhigh",
+      "reasoningBudget": 768,
+      "sourceExperimentIds": "ajh-gb10-h55-peaval",
+      "validCompletedSamples": 1284,
+      "validSamplesWithNonmaskedSollen": 1284
+    },
+    {
+      "meanNonmaskedSollen": 975.0365202411714,
+      "model": "GPT-5.6 Luna",
+      "passrateFraction": 0.0077519379844961,
+      "passratePercent": 0.77519379844961,
+      "pointOrder": 1,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "none",
+      "reasoningBudget": 0,
+      "sourceExperimentIds": "ajh-gb10-fin-j5-s10-c64-u626a-peaval",
+      "validCompletedSamples": 1288,
+      "validSamplesWithNonmaskedSollen": 1288
+    },
+    {
+      "meanNonmaskedSollen": 3573.5069767441864,
+      "model": "GPT-5.6 Luna",
+      "passrateFraction": 0.0232558139534883,
+      "passratePercent": 2.32558139534883,
+      "pointOrder": 2,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "low",
+      "reasoningBudget": 12,
+      "sourceExperimentIds": "ajh-gb10-fin-j5-s10-c64-u626a-peaval",
+      "validCompletedSamples": 1290,
+      "validSamplesWithNonmaskedSollen": 1290
+    },
+    {
+      "meanNonmaskedSollen": 15578.568389319553,
+      "model": "GPT-5.6 Luna",
+      "passrateFraction": 0.0470284237726098,
+      "passratePercent": 4.70284237726098,
+      "pointOrder": 3,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "medium",
+      "reasoningBudget": 48,
+      "sourceExperimentIds": "ajh-gb10-fin-j5-s10-c64-u626a-peaval",
+      "validCompletedSamples": 1277,
+      "validSamplesWithNonmaskedSollen": 1277
+    },
+    {
+      "meanNonmaskedSollen": 32292.837581518394,
+      "model": "GPT-5.6 Luna",
+      "passrateFraction": 0.0803832902670111,
+      "passratePercent": 8.03832902670111,
+      "pointOrder": 4,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "high",
+      "reasoningBudget": 128,
+      "sourceExperimentIds": "ajh-gb10-fin-j5-s10-c64-u626a-peaval",
+      "validCompletedSamples": 1262,
+      "validSamplesWithNonmaskedSollen": 1262
+    },
+    {
+      "meanNonmaskedSollen": 53052.624910791186,
+      "model": "GPT-5.6 Luna",
+      "passrateFraction": 0.10770887166236,
+      "passratePercent": 10.770887166236,
+      "pointOrder": 5,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "xhigh",
+      "reasoningBudget": 768,
+      "sourceExperimentIds": "ajh-gb10-fin-j5-s10-c64-u626a-peaval",
+      "validCompletedSamples": 1261,
+      "validSamplesWithNonmaskedSollen": 1261
+    },
+    {
+      "meanNonmaskedSollen": 118181.85107358189,
+      "model": "GPT-5.6 Luna",
+      "passrateFraction": 0.1647471391657438,
+      "passratePercent": 16.47471391657438,
+      "pointOrder": 6,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "max",
+      "reasoningBudget": 960,
+      "sourceExperimentIds": "ajh-gb10-fin-j960-s10-c128-u626c-peaval",
+      "validCompletedSamples": 1234,
+      "validSamplesWithNonmaskedSollen": 1234
+    },
+    {
+      "meanNonmaskedSollen": 929.9038759689925,
+      "model": "GPT-5.6 Terra",
+      "passrateFraction": 0.0100775193798449,
+      "passratePercent": 1.0077519379844901,
+      "pointOrder": 1,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "none",
+      "reasoningBudget": 0,
+      "sourceExperimentIds": "ajh-gb10-gar-j5-s10-c64-u626a-peaval",
+      "validCompletedSamples": 1290,
+      "validSamplesWithNonmaskedSollen": 1290
+    },
+    {
+      "meanNonmaskedSollen": 5509.23608957795,
+      "model": "GPT-5.6 Terra",
+      "passrateFraction": 0.0652885443583118,
+      "passratePercent": 6.52885443583118,
+      "pointOrder": 2,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "low",
+      "reasoningBudget": 12,
+      "sourceExperimentIds": "ajh-gb10-gar-j5-s10-c64-u626a-peaval",
+      "validCompletedSamples": 1289,
+      "validSamplesWithNonmaskedSollen": 1289
+    },
+    {
+      "meanNonmaskedSollen": 15934.603100775194,
+      "model": "GPT-5.6 Terra",
+      "passrateFraction": 0.1356589147286821,
+      "passratePercent": 13.565891472868211,
+      "pointOrder": 3,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "medium",
+      "reasoningBudget": 48,
+      "sourceExperimentIds": "ajh-gb10-gar-j5-s10-c64-u626a-peaval",
+      "validCompletedSamples": 1290,
+      "validSamplesWithNonmaskedSollen": 1290
+    },
+    {
+      "meanNonmaskedSollen": 22175.09336778639,
+      "model": "GPT-5.6 Terra",
+      "passrateFraction": 0.1620155038759689,
+      "passratePercent": 16.201550387596892,
+      "pointOrder": 4,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "high",
+      "reasoningBudget": 128,
+      "sourceExperimentIds": "ajh-gb10-gar-j5-s10-c64-u626a-peaval",
+      "validCompletedSamples": 1288,
+      "validSamplesWithNonmaskedSollen": 1288
+    },
+    {
+      "meanNonmaskedSollen": 31054.386563307493,
+      "model": "GPT-5.6 Terra",
+      "passrateFraction": 0.1883720930232558,
+      "passratePercent": 18.83720930232558,
+      "pointOrder": 5,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "xhigh",
+      "reasoningBudget": 768,
+      "sourceExperimentIds": "ajh-gb10-gar-j5-s10-c64-u626a-peaval",
+      "validCompletedSamples": 1288,
+      "validSamplesWithNonmaskedSollen": 1288
+    },
+    {
+      "meanNonmaskedSollen": 54267.267441860466,
+      "model": "GPT-5.6 Terra",
+      "passrateFraction": 0.2333333333333333,
+      "passratePercent": 23.333333333333332,
+      "pointOrder": 6,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "max",
+      "reasoningBudget": 960,
+      "sourceExperimentIds": "ajh-gb10-gar-j960-s10-c128-u626b-peaval",
+      "validCompletedSamples": 1290,
+      "validSamplesWithNonmaskedSollen": 1290
+    },
+    {
+      "meanNonmaskedSollen": 1400.2758828596038,
+      "model": "GPT-5.6 Sol",
+      "passrateFraction": 0.0372093023255813,
+      "passratePercent": 3.7209302325581297,
+      "pointOrder": 1,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "none",
+      "reasoningBudget": 0,
+      "sourceExperimentIds": "ajh-gb10-h56b-peaval",
+      "validCompletedSamples": 1286,
+      "validSamplesWithNonmaskedSollen": 1286
+    },
+    {
+      "meanNonmaskedSollen": 5600.19293712317,
+      "model": "GPT-5.6 Sol",
+      "passrateFraction": 0.1444444444444444,
+      "passratePercent": 14.444444444444441,
+      "pointOrder": 2,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "low",
+      "reasoningBudget": 12,
+      "sourceExperimentIds": "ajh-gb10-h56b-peaval",
+      "validCompletedSamples": 1286,
+      "validSamplesWithNonmaskedSollen": 1286
+    },
+    {
+      "meanNonmaskedSollen": 14439.71248923342,
+      "model": "GPT-5.6 Sol",
+      "passrateFraction": 0.2249784668389319,
+      "passratePercent": 22.49784668389319,
+      "pointOrder": 3,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "medium",
+      "reasoningBudget": 48,
+      "sourceExperimentIds": "ajh-gb10-h56b-peaval",
+      "validCompletedSamples": 1287,
+      "validSamplesWithNonmaskedSollen": 1287
+    },
+    {
+      "meanNonmaskedSollen": 19535.336778639103,
+      "model": "GPT-5.6 Sol",
+      "passrateFraction": 0.2440999138673557,
+      "passratePercent": 24.40999138673557,
+      "pointOrder": 4,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "high",
+      "reasoningBudget": 128,
+      "sourceExperimentIds": "ajh-gb10-h56b-peaval",
+      "validCompletedSamples": 1285,
+      "validSamplesWithNonmaskedSollen": 1285
+    },
+    {
+      "meanNonmaskedSollen": 25690.99767441861,
+      "model": "GPT-5.6 Sol",
+      "passrateFraction": 0.2684754521963824,
+      "passratePercent": 26.847545219638242,
+      "pointOrder": 5,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "xhigh",
+      "reasoningBudget": 768,
+      "sourceExperimentIds": "ajh-gb10-h56b-peaval",
+      "validCompletedSamples": 1281,
+      "validSamplesWithNonmaskedSollen": 1281
+    },
+    {
+      "meanNonmaskedSollen": 33168.297416020665,
+      "model": "GPT-5.6 Sol",
+      "passrateFraction": 0.2873385012919897,
+      "passratePercent": 28.733850129198967,
+      "pointOrder": 6,
+      "problemsWithNonmaskedSollen": 129,
+      "problemsWithValidSamples": 129,
+      "reasoning": "max",
+      "reasoningBudget": 960,
+      "sourceExperimentIds": "ajh-gb10-h56b-peaval",
+      "validCompletedSamples": 1285,
+      "validSamplesWithNonmaskedSollen": 1285
+    }
+  ],
+  "schemaVersion": 3,
+  "sources": {
+    "geneBenchPro": {
+      "specSha256": "18ab3a5e05d7a3ffccb0c60c52c8b6d994abf7cb0b26db88fb3c20d16b7aa5c5",
+      "url": "https://openai.com/index/introducing-genebench-pro/"
+    },
+    "gpt56SolPreview": {
+      "specSha256": "1b6dad66f06da97ba84ac0ebcf9f227c697298ebe3feac4771128e8fcabffe42",
+      "url": "https://openai.com/index/previewing-gpt-5-6-sol/"
+    }
   },
   "terminalBench": [
     {

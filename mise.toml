@@ -1,5 +1,9 @@
 [tools]
+aube = "1.25.0"
+node = "lts"
 python = "3.12.13"
+ruff = "0.15.20"
+ty = "0.0.56"
 
 [settings]
 lockfile = true
@@ -18,7 +22,93 @@ run = "python scripts/update_benchmarks.py verify"
 description = "Check whether OpenAI's embedded benchmark data changed"
 run = "python scripts/update_benchmarks.py check-upstream"
 
-[tasks.test]
-description = "Run data validation and unit tests"
-depends = ["data:verify"]
+[tasks.install]
+description = "Install frontend dependencies from the Aube lockfile"
+run = "aube install --frozen-lockfile"
+
+[tasks.dev]
+description = "Start the Vite development server"
+depends = ["install"]
+run = "aube run dev"
+
+[tasks.build]
+description = "Type-check and build the production site"
+depends = ["install", "typecheck"]
+run = "aube run build"
+
+[tasks.lint]
+description = "Lint TypeScript with Oxlint"
+depends = ["install"]
+run = "aube run lint"
+
+[tasks."lint:fix"]
+description = "Fix supported TypeScript lint violations with Oxlint"
+depends = ["install"]
+run = "aube run lint:fix"
+
+[tasks."lint:python"]
+description = "Lint Python with Ruff"
+run = "ruff check scripts tests"
+
+[tasks."lint:python:fix"]
+description = "Fix supported Python lint violations with Ruff"
+run = "ruff check --fix scripts tests"
+
+[tasks.typecheck]
+description = "Type-check the frontend with TypeScript"
+depends = ["install"]
+run = "aube run typecheck"
+
+[tasks."typecheck:python"]
+description = "Type-check Python with ty"
+run = "ty check"
+
+[tasks.format]
+description = "Format supported project files with Oxfmt"
+depends = ["install"]
+run = "aube run format"
+
+[tasks."format:check"]
+description = "Check formatting with Oxfmt"
+depends = ["install"]
+run = "aube run format:check"
+
+[tasks."format:python"]
+description = "Format Python with Ruff"
+run = "ruff format scripts tests"
+
+[tasks."format:python:check"]
+description = "Check Python formatting with Ruff"
+run = "ruff format --check scripts tests"
+
+[tasks."test:python"]
+description = "Run benchmark extraction unit tests"
 run = "python -m unittest discover -s tests -v"
+
+[tasks."test:frontend"]
+description = "Run frontend unit tests with Vitest"
+depends = ["install"]
+run = "aube run test"
+
+[tasks.qa]
+description = "Run all non-browser verification"
+depends = [
+  "build",
+  "data:verify",
+  "format:check",
+  "format:python:check",
+  "lint",
+  "lint:python",
+  "test:frontend",
+  "test:python",
+  "typecheck:python",
+]
+
+[tasks.test]
+description = "Run the complete non-browser QA suite"
+depends = ["qa"]
+
+[tasks."browser:test"]
+description = "Build and run browser assertions in Helium through browser-harness"
+depends = ["build"]
+run = "browser-harness --script tests/browser_verify.py"

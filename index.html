@@ -1,869 +1,135 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GPT-5.6 Benchmark Comparison</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --background: #f3f4f6;
-      --surface: #ffffff;
-      --ink: #17181a;
-      --muted: #656970;
-      --line: #d9dce1;
-      --grid: #e7e9ed;
-      --sol: #292b2f;
-      --terra: #3478d4;
-      --luna: #188b62;
-      --gpt55: #d85f8c;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-width: 320px;
-      background: var(--background);
-      color: var(--ink);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      letter-spacing: 0;
-    }
-
-    header {
-      border-bottom: 1px solid var(--line);
-      background: var(--surface);
-    }
-
-    .header-inner,
-    main {
-      width: min(1440px, 100%);
-      margin: 0 auto;
-      padding-inline: clamp(18px, 4vw, 56px);
-    }
-
-    .header-inner {
-      display: flex;
-      min-height: 76px;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-    }
-
-    .brand {
-      font-size: 18px;
-      font-weight: 720;
-    }
-
-    .source {
-      color: var(--muted);
-      font-size: 13px;
-      text-decoration: none;
-    }
-
-    .source:hover,
-    .source:focus-visible {
-      color: var(--ink);
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-
-    main {
-      padding-block: clamp(28px, 5vw, 56px);
-    }
-
-    .intro {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 32px;
-      margin-bottom: 40px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(30px, 4vw, 52px);
-      font-weight: 650;
-      line-height: 1.03;
-    }
-
-    .metric {
-      margin: 8px 0 0;
-      color: var(--muted);
-      font-size: 15px;
-    }
-
-    .count {
-      flex: none;
-      color: var(--muted);
-      font-size: 13px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .benchmark-section + .benchmark-section {
-      margin-top: clamp(40px, 6vw, 72px);
-    }
-
-    .benchmark-heading {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 24px;
-      margin-bottom: 16px;
-    }
-
-    .benchmark-heading h2 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: 680;
-    }
-
-    .chart-panel {
-      overflow: hidden;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--surface);
-    }
-
-    .toolbar {
-      display: flex;
-      min-height: 64px;
-      align-items: center;
-      gap: 16px;
-      overflow-x: auto;
-      border-bottom: 1px solid var(--line);
-      padding: 12px 18px;
-      scrollbar-width: thin;
-    }
-
-    .metric-picker {
-      display: inline-flex;
-      flex: none;
-      align-items: center;
-      gap: 9px;
-      color: #34363a;
-      font-size: 13px;
-      font-weight: 650;
-      white-space: nowrap;
-    }
-
-    .metric-picker select {
-      height: 38px;
-      min-width: 136px;
-      border: 1px solid #aeb2b9;
-      border-radius: 4px;
-      background: var(--surface);
-      color: var(--ink);
-      font: inherit;
-      padding: 0 32px 0 11px;
-    }
-
-    .metric-picker select:focus-visible {
-      outline: 2px solid var(--ink);
-      outline-offset: 2px;
-    }
-
-    .multi-select-trigger {
-      display: inline-flex;
-      height: 38px;
-      min-width: 260px;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      border: 1px solid #aeb2b9;
-      border-radius: 4px;
-      background: var(--surface);
-      color: var(--ink);
-      font: inherit;
-      padding: 0 12px;
-      text-align: left;
-      cursor: pointer;
-    }
-
-    .multi-select-trigger::after {
-      width: 7px;
-      height: 7px;
-      flex: none;
-      border-right: 2px solid #656970;
-      border-bottom: 2px solid #656970;
-      content: "";
-      transform: translateY(-2px) rotate(45deg);
-      transition: transform 120ms ease;
-    }
-
-    .multi-select-trigger[aria-expanded="true"]::after {
-      transform: translateY(2px) rotate(225deg);
-    }
-
-    .multi-select-trigger:focus-visible {
-      outline: 2px solid var(--ink);
-      outline-offset: 2px;
-    }
-
-    .multi-select-panel {
-      position: fixed;
-      z-index: 30;
-      display: grid;
-      grid-template-rows: minmax(0, 1fr) auto;
-      overflow: hidden;
-      border: 1px solid #bfc3ca;
-      border-radius: 6px;
-      background: var(--surface);
-      box-shadow: 0 12px 34px rgb(23 24 26 / 18%);
-    }
-
-    .multi-select-panel[hidden] {
-      display: none;
-    }
-
-    .selection-list {
-      min-height: 0;
-      overflow-y: auto;
-      padding: 8px;
-      scrollbar-color: #aeb2b9 transparent;
-    }
-
-    .selection-group + .selection-group {
-      margin-top: 6px;
-      padding-top: 6px;
-      border-top: 1px solid var(--grid);
-    }
-
-    .selection-group-title {
-      margin: 0;
-      padding: 6px 8px 4px;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-
-    .selection-option {
-      display: grid;
-      min-height: 38px;
-      grid-template-columns: 18px 9px minmax(0, 1fr);
-      align-items: center;
-      gap: 9px;
-      border-radius: 4px;
-      padding: 6px 8px;
-      color: #34363a;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .selection-option:hover {
-      background: #f2f3f5;
-    }
-
-    .selection-option.is-disabled {
-      color: #92969d;
-      cursor: not-allowed;
-    }
-
-    .selection-option.is-disabled:hover {
-      background: transparent;
-    }
-
-    .selection-option input {
-      width: 16px;
-      height: 16px;
-      margin: 0;
-      accent-color: var(--option-color);
-    }
-
-    .selection-option .swatch {
-      background: var(--option-color);
-    }
-
-    .selection-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      border-top: 1px solid var(--line);
-      padding: 8px;
-    }
-
-    .selection-action {
-      min-height: 38px;
-      border: 0;
-      border-radius: 4px;
-      background: transparent;
-      color: var(--ink);
-      cursor: pointer;
-      font: inherit;
-      font-size: 13px;
-      font-weight: 650;
-    }
-
-    .selection-action:hover:not(:disabled) {
-      background: #f2f3f5;
-    }
-
-    .selection-action:focus-visible {
-      outline: 2px solid var(--ink);
-      outline-offset: -2px;
-    }
-
-    .selection-action:disabled {
-      color: #a0a4aa;
-      cursor: default;
-    }
-
-    .pareto-toggle {
-      position: relative;
-      display: inline-flex;
-      flex: none;
-      min-height: 38px;
-      align-items: center;
-      gap: 9px;
-      color: #34363a;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 650;
-      white-space: nowrap;
-    }
-
-    .pareto-toggle input {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      opacity: 0;
-    }
-
-    .toggle-track {
-      position: relative;
-      width: 36px;
-      height: 20px;
-      flex: none;
-      border: 1px solid #aeb2b9;
-      border-radius: 10px;
-      background: #e4e6e9;
-      transition: background 120ms ease, border-color 120ms ease;
-    }
-
-    .toggle-track::after {
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: #ffffff;
-      box-shadow: 0 1px 3px rgb(23 24 26 / 25%);
-      content: "";
-      transition: transform 120ms ease;
-    }
-
-    .pareto-toggle input:checked + .toggle-track {
-      border-color: #292b2f;
-      background: #292b2f;
-    }
-
-    .pareto-toggle input:checked + .toggle-track::after {
-      transform: translateX(16px);
-    }
-
-    .pareto-toggle input:focus-visible + .toggle-track {
-      outline: 2px solid var(--ink);
-      outline-offset: 3px;
-    }
-
-    .duration-picker {
-      display: inline-flex;
-      flex: none;
-      align-items: center;
-      gap: 9px;
-      color: #34363a;
-      font-size: 13px;
-      font-weight: 650;
-      white-space: nowrap;
-    }
-
-    .segmented-control {
-      display: inline-grid;
-      grid-template-columns: 1fr 1fr;
-      overflow: hidden;
-      border: 1px solid #aeb2b9;
-      border-radius: 4px;
-      background: #f2f3f5;
-    }
-
-    .segment {
-      position: relative;
-      cursor: pointer;
-    }
-
-    .segment + .segment {
-      border-left: 1px solid #aeb2b9;
-    }
-
-    .segment input {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      opacity: 0;
-    }
-
-    .segment span {
-      display: grid;
-      min-width: 48px;
-      min-height: 36px;
-      place-items: center;
-      padding: 0 10px;
-    }
-
-    .segment input:checked + span {
-      background: #292b2f;
-      color: #ffffff;
-    }
-
-    .segment input:focus-visible + span {
-      outline: 2px solid var(--ink);
-      outline-offset: -3px;
-    }
-
-    .toolbar-divider {
-      flex: none;
-      width: 1px;
-      height: 28px;
-      background: var(--line);
-    }
-
-    .model-filters {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-    }
-
-    .filter {
-      position: relative;
-      display: inline-flex;
-      flex: none;
-      align-items: center;
-      gap: 8px;
-      min-height: 36px;
-      cursor: pointer;
-      color: #34363a;
-      font-size: 13px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    .filter input {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      opacity: 0;
-    }
-
-    .check {
-      display: grid;
-      width: 18px;
-      height: 18px;
-      place-items: center;
-      border: 1px solid #aeb2b9;
-      border-radius: 3px;
-      background: #fff;
-    }
-
-    .check::after {
-      width: 8px;
-      height: 4px;
-      border-bottom: 2px solid #fff;
-      border-left: 2px solid #fff;
-      content: "";
-      transform: translateY(-1px) rotate(-45deg);
-      opacity: 0;
-    }
-
-    .filter input:checked + .check {
-      border-color: var(--filter-color);
-      background: var(--filter-color);
-    }
-
-    .filter input:checked + .check::after {
-      opacity: 1;
-    }
-
-    .filter input:focus-visible + .check {
-      outline: 2px solid var(--ink);
-      outline-offset: 3px;
-    }
-
-    .swatch {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: var(--filter-color);
-    }
-
-    .chart-scroll {
-      position: relative;
-      min-height: 650px;
-      overflow-x: auto;
-      overflow-y: hidden;
-      scrollbar-color: #aeb2b9 transparent;
-    }
-
-    #chart {
-      display: block;
-      height: 650px;
-      min-width: 100%;
-    }
-
-    .scatter-legend {
-      display: flex;
-      min-height: 52px;
-      align-items: center;
-      gap: 20px;
-      overflow-x: auto;
-      border-bottom: 1px solid var(--line);
-      padding: 10px 18px;
-      scrollbar-width: thin;
-    }
-
-    .legend-item {
-      display: inline-flex;
-      flex: none;
-      align-items: center;
-      gap: 8px;
-      color: #34363a;
-      font-size: 13px;
-      font-weight: 650;
-      white-space: nowrap;
-    }
-
-    .legend-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--legend-color);
-    }
-
-    .scatter-scroll {
-      overflow-x: auto;
-      scrollbar-color: #aeb2b9 transparent;
-    }
-
-    .cost-score-chart {
-      display: block;
-      height: 560px;
-      min-width: 900px;
-    }
-
-    .terminal-chart-wrap {
-      width: 100%;
-      overflow: hidden;
-      padding: 14px 18px 8px;
-    }
-
-    #terminal-chart {
-      display: block;
-      width: 100%;
-    }
-
-    .tooltip {
-      position: fixed;
-      z-index: 10;
-      width: max-content;
-      max-width: min(240px, calc(100vw - 24px));
-      padding: 10px 12px;
-      border: 1px solid #34363a;
-      border-radius: 5px;
-      background: #17181a;
-      color: #fff;
-      font-size: 13px;
-      line-height: 1.45;
-      pointer-events: none;
-      transform: translate(-50%, calc(-100% - 12px));
-      opacity: 0;
-    }
-
-    .tooltip strong {
-      display: block;
-      margin-bottom: 2px;
-      font-size: 13px;
-    }
-
-    .tooltip.visible {
-      opacity: 1;
-    }
-
-    .data-section {
-      margin-top: clamp(36px, 5vw, 56px);
-    }
-
-    .table-heading {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 24px;
-      margin-bottom: 16px;
-    }
-
-    .table-heading h2 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: 680;
-    }
-
-    .sort-status {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .table-frame {
-      overflow-x: auto;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--surface);
-    }
-
-    table {
-      width: 100%;
-      min-width: 760px;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-
-    th {
-      height: 48px;
-      border-bottom: 1px solid var(--line);
-      background: #f7f8f9;
-      color: #4b4e54;
-      font-size: 12px;
-      font-weight: 680;
-      text-align: left;
-    }
-
-    th.numeric,
-    td.numeric {
-      text-align: right;
-    }
-
-    .sort-button {
-      display: inline-flex;
-      width: 100%;
-      height: 48px;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 7px;
-      border: 0;
-      background: transparent;
-      color: inherit;
-      cursor: pointer;
-      font: inherit;
-      padding: 0 16px;
-      text-align: inherit;
-    }
-
-    th.numeric .sort-button {
-      justify-content: flex-end;
-    }
-
-    .sort-button:hover {
-      color: var(--ink);
-    }
-
-    .sort-button:focus-visible {
-      outline: 2px solid var(--ink);
-      outline-offset: -3px;
-    }
-
-    .sort-indicator {
-      display: inline-block;
-      width: 12px;
-      color: #7a7e85;
-      font-size: 13px;
-      text-align: center;
-    }
-
-    th[aria-sort="ascending"] .sort-indicator,
-    th[aria-sort="descending"] .sort-indicator {
-      color: var(--ink);
-    }
-
-    td {
-      height: 48px;
-      border-bottom: 1px solid #eceef1;
-      padding: 0 16px;
-      color: #34363a;
-    }
-
-    tbody tr:last-child td {
-      border-bottom: 0;
-    }
-
-    tbody tr:hover {
-      background: #f7f8f9;
-    }
-
-    .model-cell {
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      font-weight: 650;
-      white-space: nowrap;
-    }
-
-    .model-dot {
-      width: 9px;
-      height: 9px;
-      flex: none;
-      border-radius: 50%;
-      background: var(--model-color);
-    }
-
-    .effort-cell {
-      color: #555960;
-      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-      font-size: 13px;
-    }
-
-    td.numeric {
-      font-variant-numeric: tabular-nums;
-      white-space: nowrap;
-    }
-
-    .notes {
-      display: flex;
-      justify-content: space-between;
-      gap: 24px;
-      margin-top: 14px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.5;
-    }
-
-    .notes p {
-      margin: 0;
-    }
-
-    @media (max-width: 700px) {
-      .header-inner {
-        min-height: 64px;
-      }
-
-      .intro {
-        display: block;
-      }
-
-      .benchmark-heading {
-        display: block;
-      }
-
-      .count {
-        margin-top: 14px;
-      }
-
-      .scatter-picker {
-        width: 100%;
-        align-items: stretch;
-        flex-direction: column;
-        gap: 6px;
-      }
-
-      .scatter-toolbar {
-        align-items: flex-start;
-        flex-wrap: wrap;
-        overflow-x: visible;
-      }
-
-      .scatter-toolbar .toolbar-divider {
-        display: none;
-      }
-
-      .multi-select-trigger {
-        width: 100%;
-        min-width: 0;
-      }
-
-      .table-heading {
-        display: block;
-      }
-
-      .sort-status {
-        margin-top: 8px;
-      }
-
-      .notes {
-        display: block;
-      }
-
-      .notes p + p {
-        margin-top: 5px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="header-inner">
-      <div class="brand">Benchmarks</div>
-      <a class="source" href="https://openai.com/index/previewing-gpt-5-6-sol/" target="_blank" rel="noreferrer">
-        Source: OpenAI
-      </a>
-    </div>
-  </header>
-
-  <main>
-    <section class="intro" aria-labelledby="page-title">
-      <div>
-        <h1 id="page-title">GPT-5.6 benchmark comparison</h1>
-        <p class="metric">GeneBench v1 &middot; ExploitGym &middot; TerminalBench 2.1</p>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GPT-5.6 Benchmark Comparison</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <header>
+      <div class="header-inner">
+        <div class="brand">Benchmarks</div>
+        <a
+          class="source"
+          href="https://openai.com/index/previewing-gpt-5-6-sol/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Source: OpenAI
+        </a>
       </div>
-    </section>
+    </header>
 
-    <section class="benchmark-section" aria-labelledby="genebench-title">
-      <div class="benchmark-heading">
+    <main>
+      <section class="intro" aria-labelledby="page-title">
         <div>
-          <h2 id="genebench-title">GeneBench v1</h2>
-          <p class="metric" id="metric-description">Pass@1 score &middot; ascending</p>
+          <h1 id="page-title">GPT-5.6 benchmark comparison</h1>
+          <p class="metric">
+            GeneBench v1 &middot; GeneBench-Pro &middot; ExploitGym &middot; TerminalBench 2.1
+          </p>
         </div>
-        <div class="count" id="count" aria-live="polite"></div>
-      </div>
-      <div class="chart-panel" aria-label="GeneBench v1 comparison chart">
-        <div class="toolbar">
-          <label class="metric-picker" for="metric-select">
-            <span>Metric</span>
-            <select id="metric-select">
-              <option value="score">Score</option>
-              <option value="tokens">Output tokens</option>
-              <option value="cost">API cost</option>
-            </select>
-          </label>
-          <span class="toolbar-divider" aria-hidden="true"></span>
-          <div class="model-filters" id="filters" aria-label="Displayed models"></div>
-        </div>
-        <div class="chart-scroll" id="chart-scroll">
-          <svg id="chart" role="img" aria-labelledby="chart-title chart-description">
-            <title id="chart-title">GeneBench v1 scores by model and reasoning effort</title>
-            <desc id="chart-description">Bar chart sorted by score in ascending order. The vertical axis shows the score as a percentage. Each horizontal-axis category represents one model and reasoning effort level.</desc>
-          </svg>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="benchmark-section" aria-labelledby="gene-scatter-title">
-      <div class="benchmark-heading">
-        <div>
-          <h2 id="gene-scatter-title">GeneBench v1: API cost vs. score</h2>
-          <p class="metric">API cost (USD), logarithmic scale &middot; pass@1 score</p>
+      <section class="pricing-section" aria-labelledby="api-pricing-title">
+        <div class="benchmark-heading">
+          <div>
+            <h2 id="api-pricing-title">API pricing</h2>
+            <p class="metric">Standard processing &middot; USD per 1M tokens</p>
+          </div>
         </div>
-        <div class="count" id="scatter-count">22 points</div>
-      </div>
-      <div class="chart-panel" aria-label="GeneBench API cost and score scatter plot">
-        <div class="toolbar scatter-toolbar">
-          <div class="metric-picker scatter-picker">
-            <span id="scatter-selection-label">Model / reasoning effort</span>
+        <div class="table-frame">
+          <table class="pricing-table">
+            <caption class="visually-hidden">
+              Standard API token pricing for every model displayed in the benchmark charts
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Model</th>
+                <th class="numeric" scope="col">Input</th>
+                <th class="numeric" scope="col">Cached input</th>
+                <th class="numeric" scope="col">Cache write</th>
+                <th class="numeric" scope="col">Output</th>
+              </tr>
+            </thead>
+            <tbody id="api-pricing-body"></tbody>
+          </table>
+        </div>
+        <div class="pricing-notes">
+          <p>
+            Gemini prices show the &le;200K and &gt;200K request tiers. Cache writes use
+            GPT-5.6&rsquo;s 30-minute minimum and Claude&rsquo;s 5-minute TTL; Google cache storage
+            is billed separately.
+          </p>
+          <p>
+            Sources: <span id="api-pricing-sources"></span>. GPT-5.6 Sol Ultra uses the Sol API
+            token rate.
+          </p>
+        </div>
+      </section>
+
+      <section class="benchmark-section" aria-labelledby="genebench-title">
+        <div class="benchmark-heading">
+          <div>
+            <h2 id="genebench-title">GeneBench v1</h2>
+            <p class="metric" id="metric-description">Pass@1 score &middot; ascending</p>
+          </div>
+          <div class="count" id="count" aria-live="polite"></div>
+        </div>
+        <div class="chart-panel" aria-label="GeneBench v1 comparison chart">
+          <div class="toolbar">
+            <label class="metric-picker" for="metric-select">
+              <span>Metric</span>
+              <span class="control-trigger select-trigger">
+                <select id="metric-select">
+                  <option value="score">Score</option>
+                  <option value="tokens">Output tokens</option>
+                  <option value="latency">Latency</option>
+                  <option value="cost">API cost</option>
+                </select>
+              </span>
+            </label>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <div class="model-filters" id="filters" aria-label="Displayed models"></div>
+          </div>
+          <div class="chart-scroll" id="chart-scroll">
+            <svg id="chart" role="img" aria-labelledby="chart-title chart-description">
+              <title id="chart-title">GeneBench v1 scores by model and reasoning effort</title>
+              <desc id="chart-description">
+                Bar chart sorted by score in ascending order. The vertical axis shows the score as a
+                percentage. Each horizontal-axis category represents one model and reasoning effort
+                level.
+              </desc>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <section class="benchmark-section" aria-labelledby="gene-scatter-title">
+        <div class="benchmark-heading">
+          <div>
+            <h2 id="gene-scatter-title">GeneBench v1: API cost vs. score</h2>
+            <p class="metric" id="gene-scatter-metric">
+              API cost (USD), logarithmic scale &middot; pass@1 score
+            </p>
+          </div>
+          <div class="count" id="scatter-count">22 points</div>
+        </div>
+        <div class="chart-panel" aria-label="GeneBench resource use and score scatter plot">
+          <div class="toolbar scatter-toolbar">
+            <label class="metric-picker" for="gene-scatter-metric-select">
+              <span>Horizontal axis</span>
+              <span class="control-trigger select-trigger">
+                <select id="gene-scatter-metric-select">
+                  <option value="cost">API cost</option>
+                  <option value="latency">Latency</option>
+                  <option value="tokens">Output tokens</option>
+                </select>
+              </span>
+            </label>
+            <span class="toolbar-divider" aria-hidden="true"></span>
             <button
-              class="multi-select-trigger"
+              class="control-trigger multi-select-trigger"
               id="scatter-selection-trigger"
               type="button"
               aria-haspopup="dialog"
@@ -871,1289 +137,390 @@
               aria-controls="scatter-selection-panel"
               aria-labelledby="scatter-selection-label scatter-selection-summary"
             >
-              <span id="scatter-selection-summary">22 of 22 configurations</span>
+              <span class="visually-hidden" id="scatter-selection-label"
+                >Models and reasoning efforts:</span
+              >
+              <span id="scatter-selection-summary">22 / 22 models/efforts</span>
             </button>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <label class="pareto-toggle">
+              <input id="gene-scatter-log-toggle" type="checkbox" checked />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span>Log scale</span>
+            </label>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <label class="pareto-toggle">
+              <input id="gene-scatter-labels-toggle" type="checkbox" checked />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span>Point labels</span>
+            </label>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <label class="pareto-toggle">
+              <input id="gene-scatter-family-lines-toggle" type="checkbox" />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span>Family lines</span>
+            </label>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <label class="pareto-toggle">
+              <input id="pareto-toggle" type="checkbox" />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span>Pareto frontier</span>
+            </label>
           </div>
-          <span class="toolbar-divider" aria-hidden="true"></span>
-          <label class="pareto-toggle">
-            <input id="pareto-toggle" type="checkbox">
-            <span class="toggle-track" aria-hidden="true"></span>
-            <span>Pareto frontier</span>
-          </label>
+          <div class="scatter-legend" aria-label="GeneBench chart legend">
+            <span class="legend-item quadrant-legend"
+              ><span class="quadrant-swatch" aria-hidden="true"></span>Most attractive
+              quadrant</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #292b2f"></span>GPT-5.6 Sol</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #3478d4"></span>GPT-5.6 Terra</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #188b62"></span>GPT-5.6 Luna</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #d85f8c"></span>GPT-5.5</span
+            >
+          </div>
+          <div class="scatter-scroll" id="gene-scatter-scroll">
+            <svg
+              class="resource-score-chart"
+              id="gene-scatter"
+              role="img"
+              aria-labelledby="gene-scatter-svg-title gene-scatter-description"
+            >
+              <title id="gene-scatter-svg-title">GeneBench v1 API cost and score</title>
+              <desc id="gene-scatter-description">
+                Scatter plot with API cost on a logarithmic horizontal axis and pass@1 score on the
+                vertical axis.
+              </desc>
+            </svg>
+          </div>
         </div>
-        <div class="scatter-legend" aria-label="Model legend">
-          <span class="legend-item"><span class="legend-dot" style="--legend-color:#292b2f"></span>GPT-5.6 Sol</span>
-          <span class="legend-item"><span class="legend-dot" style="--legend-color:#3478d4"></span>GPT-5.6 Terra</span>
-          <span class="legend-item"><span class="legend-dot" style="--legend-color:#188b62"></span>GPT-5.6 Luna</span>
-          <span class="legend-item"><span class="legend-dot" style="--legend-color:#d85f8c"></span>GPT-5.5</span>
-        </div>
-        <div class="scatter-scroll" id="gene-scatter-scroll">
-          <svg class="cost-score-chart" id="gene-scatter" role="img" aria-labelledby="gene-scatter-svg-title gene-scatter-description">
-            <title id="gene-scatter-svg-title">GeneBench v1 API cost and score</title>
-            <desc id="gene-scatter-description">Scatter plot with API cost on a logarithmic horizontal axis and pass@1 score on the vertical axis.</desc>
-          </svg>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="benchmark-section" aria-labelledby="exploitgym-scatter-title">
-      <div class="benchmark-heading">
-        <div>
-          <h2 id="exploitgym-scatter-title">ExploitGym: API cost vs. intended exploit rate</h2>
-          <p class="metric">API cost (USD), logarithmic scale &middot; intended exploit rate</p>
+      <section class="benchmark-section" aria-labelledby="genebench-pro-scaling-title">
+        <div class="benchmark-heading">
+          <div>
+            <h2 id="genebench-pro-scaling-title">
+              GeneBench-Pro: Test-time compute scaling on GPT models
+            </h2>
+            <p class="metric" id="genebench-pro-scaling-metric">Tokens used &middot; passrate</p>
+          </div>
+          <div class="count" id="genebench-pro-scaling-count">33 points</div>
         </div>
-        <div class="count" id="exploitgym-scatter-count">17 points &middot; 2 h limit</div>
-      </div>
-      <div class="chart-panel" aria-label="ExploitGym API cost and intended exploit rate scatter plot">
-        <div class="toolbar scatter-toolbar">
-          <div class="metric-picker scatter-picker">
-            <span id="exploitgym-selection-label">Model / reasoning effort</span>
+        <div class="chart-panel" aria-label="GeneBench-Pro resource use and passrate scatter plot">
+          <div class="toolbar scatter-toolbar">
+            <label class="metric-picker" for="genebench-pro-scaling-metric-select">
+              <span>Horizontal axis</span>
+              <span class="control-trigger select-trigger">
+                <select id="genebench-pro-scaling-metric-select">
+                  <option value="tokens">Tokens used</option>
+                  <option value="cost">Estimated API cost</option>
+                </select>
+              </span>
+            </label>
+            <span class="toolbar-divider" aria-hidden="true"></span>
             <button
-              class="multi-select-trigger"
+              class="control-trigger multi-select-trigger"
+              id="genebench-pro-scaling-selection-trigger"
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded="false"
+              aria-controls="genebench-pro-scaling-selection-panel"
+              aria-labelledby="genebench-pro-scaling-selection-label genebench-pro-scaling-selection-summary"
+            >
+              <span class="visually-hidden" id="genebench-pro-scaling-selection-label"
+                >Models and reasoning efforts:</span
+              >
+              <span id="genebench-pro-scaling-selection-summary">33 / 33 models/efforts</span>
+            </button>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <label class="pareto-toggle">
+              <input id="genebench-pro-scaling-log-toggle" type="checkbox" checked />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span>Log scale</span>
+            </label>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <label class="pareto-toggle">
+              <input id="genebench-pro-scaling-labels-toggle" type="checkbox" checked />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span>Point labels</span>
+            </label>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <label class="pareto-toggle">
+              <input id="genebench-pro-scaling-family-lines-toggle" type="checkbox" />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span>Family lines</span>
+            </label>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <label class="pareto-toggle">
+              <input id="genebench-pro-scaling-pareto-toggle" type="checkbox" />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span>Pareto frontier</span>
+            </label>
+          </div>
+          <div class="scatter-legend" aria-label="GeneBench-Pro chart legend">
+            <span class="legend-item quadrant-legend"
+              ><span class="quadrant-swatch" aria-hidden="true"></span>Most attractive
+              quadrant</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #b36b2e"></span>GPT-5.2</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #7d5db3"></span>GPT-5.4</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #d85f8c"></span>GPT-5.5</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #188b62"></span>GPT-5.6 Luna</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #3478d4"></span>GPT-5.6 Terra</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #292b2f"></span>GPT-5.6 Sol</span
+            >
+          </div>
+          <div class="scatter-scroll" id="genebench-pro-scaling-scroll">
+            <svg
+              class="resource-score-chart"
+              id="genebench-pro-scaling"
+              role="img"
+              aria-labelledby="genebench-pro-scaling-svg-title genebench-pro-scaling-description"
+            >
+              <title id="genebench-pro-scaling-svg-title">
+                GeneBench-Pro tokens used and passrate
+              </title>
+              <desc id="genebench-pro-scaling-description">
+                Scatter plot with tokens used on a logarithmic horizontal axis and passrate on the
+                vertical axis.
+              </desc>
+            </svg>
+          </div>
+          <p class="chart-note" id="genebench-pro-cost-note">
+            Estimated API cost covers generated output tokens only. Input tokens, tool calls, and
+            caching are not included. Rates are snapshotted from
+            <a
+              href="https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json"
+              target="_blank"
+              rel="noreferrer"
+              >LiteLLM</a
+            >
+            and
+            <a
+              href="https://openai.com/index/previewing-gpt-5-6-sol/"
+              target="_blank"
+              rel="noreferrer"
+              >OpenAI</a
+            >.
+          </p>
+        </div>
+      </section>
+
+      <section class="benchmark-section" aria-labelledby="exploitgym-scatter-title">
+        <div class="benchmark-heading">
+          <div>
+            <h2 id="exploitgym-scatter-title">ExploitGym: API cost vs. intended exploit rate</h2>
+            <p class="metric" id="exploitgym-scatter-metric">
+              API cost (USD), logarithmic scale &middot; intended exploit rate
+            </p>
+          </div>
+          <div class="count" id="exploitgym-scatter-count">17 points &middot; 2 h limit</div>
+        </div>
+        <div
+          class="chart-panel"
+          aria-label="ExploitGym resource use and intended exploit rate scatter plot"
+        >
+          <div class="toolbar scatter-toolbar">
+            <label class="metric-picker" for="exploitgym-scatter-metric-select">
+              <span>Horizontal axis</span>
+              <span class="control-trigger select-trigger">
+                <select id="exploitgym-scatter-metric-select">
+                  <option value="cost">API cost</option>
+                  <option value="latency">Latency</option>
+                  <option value="tokens">Output tokens</option>
+                </select>
+              </span>
+            </label>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <button
+              class="control-trigger multi-select-trigger"
               id="exploitgym-selection-trigger"
               type="button"
               aria-haspopup="dialog"
               aria-expanded="false"
               aria-labelledby="exploitgym-selection-label exploitgym-selection-summary"
             >
-              <span id="exploitgym-selection-summary">17 of 17 configurations</span>
+              <span class="visually-hidden" id="exploitgym-selection-label"
+                >Models and reasoning efforts:</span
+              >
+              <span id="exploitgym-selection-summary">17 / 17 models/efforts</span>
             </button>
-          </div>
-          <span class="toolbar-divider" aria-hidden="true"></span>
-          <div class="duration-picker">
-            <span>Time limit</span>
-            <div class="segmented-control" role="radiogroup" aria-label="ExploitGym time limit">
-              <label class="segment">
-                <input type="radio" name="exploitgym-duration" value="2h" checked>
-                <span>2 h</span>
-              </label>
-              <label class="segment">
-                <input type="radio" name="exploitgym-duration" value="6h">
-                <span>6 h</span>
-              </label>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <div class="duration-picker">
+              <span>Time limit</span>
+              <div class="segmented-control" role="radiogroup" aria-label="ExploitGym time limit">
+                <label class="segment">
+                  <input type="radio" name="exploitgym-duration" value="2h" checked />
+                  <span>2 h</span>
+                </label>
+                <label class="segment">
+                  <input type="radio" name="exploitgym-duration" value="6h" />
+                  <span>6 h</span>
+                </label>
+              </div>
             </div>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <label class="pareto-toggle">
+              <input id="exploitgym-scatter-log-toggle" type="checkbox" checked />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span>Log scale</span>
+            </label>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <label class="pareto-toggle">
+              <input id="exploitgym-scatter-labels-toggle" type="checkbox" checked />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span>Point labels</span>
+            </label>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <label class="pareto-toggle">
+              <input id="exploitgym-scatter-family-lines-toggle" type="checkbox" />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span>Family lines</span>
+            </label>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <label class="pareto-toggle">
+              <input id="exploitgym-pareto-toggle" type="checkbox" />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span>Pareto frontier</span>
+            </label>
           </div>
-          <span class="toolbar-divider" aria-hidden="true"></span>
-          <label class="pareto-toggle">
-            <input id="exploitgym-pareto-toggle" type="checkbox">
-            <span class="toggle-track" aria-hidden="true"></span>
-            <span>Pareto frontier</span>
-          </label>
+          <div class="scatter-legend" aria-label="ExploitGym chart legend">
+            <span class="legend-item quadrant-legend"
+              ><span class="quadrant-swatch" aria-hidden="true"></span>Most attractive
+              quadrant</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #292b2f"></span>GPT-5.6 Sol</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #3478d4"></span>GPT-5.6 Terra</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #188b62"></span>GPT-5.6 Luna</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #d85f8c"></span>GPT-5.5</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #7d5db3"></span>GPT-5.4</span
+            >
+          </div>
+          <div class="scatter-scroll" id="exploitgym-scatter-scroll">
+            <svg
+              class="resource-score-chart"
+              id="exploitgym-scatter"
+              role="img"
+              aria-labelledby="exploitgym-scatter-svg-title exploitgym-scatter-description"
+            >
+              <title id="exploitgym-scatter-svg-title">
+                ExploitGym API cost and intended exploit rate
+              </title>
+              <desc id="exploitgym-scatter-description">
+                Scatter plot with API cost on a logarithmic horizontal axis and intended exploit
+                rate on the vertical axis.
+              </desc>
+            </svg>
+          </div>
         </div>
-        <div class="scatter-legend" aria-label="ExploitGym model legend">
-          <span class="legend-item"><span class="legend-dot" style="--legend-color:#292b2f"></span>GPT-5.6 Sol</span>
-          <span class="legend-item"><span class="legend-dot" style="--legend-color:#3478d4"></span>GPT-5.6 Terra</span>
-          <span class="legend-item"><span class="legend-dot" style="--legend-color:#188b62"></span>GPT-5.6 Luna</span>
-          <span class="legend-item"><span class="legend-dot" style="--legend-color:#d85f8c"></span>GPT-5.5</span>
-          <span class="legend-item"><span class="legend-dot" style="--legend-color:#7d5db3"></span>GPT-5.4</span>
+      </section>
+
+      <section class="benchmark-section" aria-labelledby="terminalbench-title">
+        <div class="benchmark-heading">
+          <div>
+            <h2 id="terminalbench-title">TerminalBench 2.1</h2>
+            <p class="metric">
+              Coding &middot; sorted by score (descending) &middot; 50&ndash;100% axis
+            </p>
+          </div>
+          <div class="count">9 models</div>
         </div>
-        <div class="scatter-scroll" id="exploitgym-scatter-scroll">
-          <svg class="cost-score-chart" id="exploitgym-scatter" role="img" aria-labelledby="exploitgym-scatter-svg-title exploitgym-scatter-description">
-            <title id="exploitgym-scatter-svg-title">ExploitGym API cost and intended exploit rate</title>
-            <desc id="exploitgym-scatter-description">Scatter plot with API cost on a logarithmic horizontal axis and intended exploit rate on the vertical axis.</desc>
-          </svg>
+        <div class="chart-panel" aria-label="TerminalBench 2.1 comparison chart">
+          <div class="terminal-chart-wrap" id="terminal-chart-wrap">
+            <svg
+              id="terminal-chart"
+              role="img"
+              aria-labelledby="terminal-chart-title terminal-chart-description"
+            >
+              <title id="terminal-chart-title">TerminalBench 2.1 scores by model</title>
+              <desc id="terminal-chart-description">
+                Horizontal bar chart sorted by score in descending order.
+              </desc>
+            </svg>
+          </div>
         </div>
+      </section>
+
+      <section class="data-section" aria-labelledby="table-title">
+        <div class="table-heading">
+          <h2 id="table-title">GeneBench v1 data</h2>
+          <p class="sort-status" id="sort-status" aria-live="polite">Sorted by score, descending</p>
+        </div>
+        <div class="table-frame">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col" data-sort-key="model" aria-sort="none">
+                  <button class="sort-button" type="button" data-sort-key="model">
+                    Model <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                  </button>
+                </th>
+                <th scope="col" data-sort-key="effort" aria-sort="none">
+                  <button class="sort-button" type="button" data-sort-key="effort">
+                    Reasoning effort <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                  </button>
+                </th>
+                <th class="numeric" scope="col" data-sort-key="score" aria-sort="descending">
+                  <button class="sort-button" type="button" data-sort-key="score">
+                    Score <span class="sort-indicator" aria-hidden="true">&#8595;</span>
+                  </button>
+                </th>
+                <th class="numeric" scope="col" data-sort-key="tokens" aria-sort="none">
+                  <button class="sort-button" type="button" data-sort-key="tokens">
+                    Output tokens <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                  </button>
+                </th>
+                <th class="numeric" scope="col" data-sort-key="latency" aria-sort="none">
+                  <button class="sort-button" type="button" data-sort-key="latency">
+                    Latency <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                  </button>
+                </th>
+                <th class="numeric" scope="col" data-sort-key="cost" aria-sort="none">
+                  <button class="sort-button" type="button" data-sort-key="cost">
+                    API cost <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="data-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="notes">
+        <p>Reasoning effort levels follow the labels used in the source chart.</p>
+        <p>GPT-5.6 Sol has no &ldquo;none&rdquo; configuration.</p>
       </div>
-    </section>
+    </main>
 
-    <section class="benchmark-section" aria-labelledby="terminalbench-title">
-      <div class="benchmark-heading">
-        <div>
-          <h2 id="terminalbench-title">TerminalBench 2.1</h2>
-          <p class="metric">Coding &middot; sorted by score (descending) &middot; 50&ndash;100% axis</p>
-        </div>
-        <div class="count">9 models</div>
-      </div>
-      <div class="chart-panel" aria-label="TerminalBench 2.1 comparison chart">
-        <div class="terminal-chart-wrap" id="terminal-chart-wrap">
-          <svg id="terminal-chart" role="img" aria-labelledby="terminal-chart-title terminal-chart-description">
-            <title id="terminal-chart-title">TerminalBench 2.1 scores by model</title>
-            <desc id="terminal-chart-description">Horizontal bar chart sorted by score in descending order.</desc>
-          </svg>
-        </div>
-      </div>
-    </section>
+    <div class="tooltip" id="tooltip" role="status" aria-hidden="true"></div>
 
-    <section class="data-section" aria-labelledby="table-title">
-      <div class="table-heading">
-        <h2 id="table-title">GeneBench v1 data</h2>
-        <p class="sort-status" id="sort-status" aria-live="polite">Sorted by score, descending</p>
-      </div>
-      <div class="table-frame">
-        <table>
-          <thead>
-            <tr>
-              <th scope="col" data-sort-key="model" aria-sort="none">
-                <button class="sort-button" type="button" data-sort-key="model">
-                  Model <span class="sort-indicator" aria-hidden="true">&#8597;</span>
-                </button>
-              </th>
-              <th scope="col" data-sort-key="effort" aria-sort="none">
-                <button class="sort-button" type="button" data-sort-key="effort">
-                  Reasoning effort <span class="sort-indicator" aria-hidden="true">&#8597;</span>
-                </button>
-              </th>
-              <th class="numeric" scope="col" data-sort-key="score" aria-sort="descending">
-                <button class="sort-button" type="button" data-sort-key="score">
-                  Score <span class="sort-indicator" aria-hidden="true">&#8595;</span>
-                </button>
-              </th>
-              <th class="numeric" scope="col" data-sort-key="tokens" aria-sort="none">
-                <button class="sort-button" type="button" data-sort-key="tokens">
-                  Output tokens <span class="sort-indicator" aria-hidden="true">&#8597;</span>
-                </button>
-              </th>
-              <th class="numeric" scope="col" data-sort-key="cost" aria-sort="none">
-                <button class="sort-button" type="button" data-sort-key="cost">
-                  API cost <span class="sort-indicator" aria-hidden="true">&#8597;</span>
-                </button>
-              </th>
-            </tr>
-          </thead>
-          <tbody id="data-table-body"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <div class="notes">
-      <p>Reasoning effort levels follow the labels used in the source chart.</p>
-      <p>GPT-5.6 Sol has no &ldquo;none&rdquo; configuration.</p>
-    </div>
-  </main>
-
-  <div class="tooltip" id="tooltip" role="status" aria-hidden="true"></div>
-
-  <script src="data/benchmarks.generated.js"></script>
-  <script>
-    const benchmarkData = window.BENCHMARK_DATA;
-    if (!benchmarkData) {
-      throw new Error("Benchmark data could not be loaded.");
-    }
-
-    const familyColors = {
-      "GPT-5.6 Sol": "#292b2f",
-      "GPT-5.6 Terra": "#3478d4",
-      "GPT-5.6 Luna": "#188b62",
-      "GPT-5.5": "#d85f8c",
-      "GPT-5.4": "#7d5db3"
-    };
-    const terminalColors = {
-      "GPT-5.6 Sol Ultra": "#17181a",
-      "GPT-5.6 Sol": "#4b4e54",
-      "Claude Mythos 5": "#a6532d",
-      "Claude Fable 5": "#cf7747",
-      "GPT-5.6 Terra": "#3478d4",
-      "GPT-5.5": "#d85f8c",
-      "GPT-5.6 Luna": "#188b62",
-      "Claude Opus 4.8": "#e3a078",
-      "Gemini 3.1 Pro Preview": "#7256c8"
-    };
-    const groups = [
-      ...benchmarkData.geneBench.reduce((byModel, row) => {
-        if (!byModel.has(row.model)) {
-          byModel.set(row.model, {
-            model: row.model,
-            color: familyColors[row.model] || "#656970",
-            values: []
-          });
-        }
-        byModel.get(row.model).values.push({
-          effort: row.effort,
-          score: row.scorePercent,
-          tokens: row.outputTokens,
-          cost: row.apiCostUsd
-        });
-        return byModel;
-      }, new Map()).values()
-    ];
-    const exploitGymRuns = benchmarkData.exploitGym.map((row) => ({
-      family: row.model,
-      duration: row.duration,
-      effort: row.effort,
-      cost: row.apiCostUsd,
-      score: row.scorePercent
-    }));
-    const terminalData = benchmarkData.terminalBench.map((row) => ({
-      model: row.model,
-      reasoning: row.reasoning,
-      score: row.scoreFraction * 100,
-      sourceLabel: row.scoreLabel,
-      color: terminalColors[row.model] || "#656970"
-    }));
-
-    const integerFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
-    const metrics = {
-      score: {
-        key: "score",
-        axis: "Score",
-        description: "Pass@1 score",
-        max: 35,
-        step: 5,
-        formatTick: (value) => `${value}%`,
-        formatValue: (value) => `${Number.isInteger(value) ? value : String(value).replace(/0$/, "")}%`
-      },
-      tokens: {
-        key: "tokens",
-        axis: "Output tokens",
-        description: "Output tokens",
-        max: 60000,
-        step: 10000,
-        formatTick: (value) => value === 0 ? "0" : `${value / 1000}k`,
-        formatValue: (value) => integerFormatter.format(value)
-      },
-      cost: {
-        key: "cost",
-        axis: "API cost (USD)",
-        description: "Estimated API cost",
-        max: 2,
-        step: 0.5,
-        formatTick: (value) => `$${value.toFixed(1)}`,
-        formatValue: (value) => `$${value.toFixed(2)}`
-      }
-    };
-
-    const selectedModels = new Set(groups.map((group) => group.model));
-    const shortFamilyNames = {
-      "GPT-5.6 Sol": "Sol",
-      "GPT-5.6 Terra": "Terra",
-      "GPT-5.6 Luna": "Luna",
-      "GPT-5.5": "GPT-5.5",
-      "GPT-5.4": "GPT-5.4"
-    };
-    const effortOrder = ["none", "low", "medium", "high", "xhigh", "max"];
-    const familyOrder = ["GPT-5.6 Sol", "GPT-5.6 Terra", "GPT-5.6 Luna", "GPT-5.5", "GPT-5.4"];
-    const geneScatterPoints = groups.flatMap((group) =>
-      group.values.map((value) => ({
-        id: `${group.model}|${value.effort}`,
-        family: group.model,
-        effort: value.effort,
-        cost: value.cost,
-        score: value.score,
-        color: group.color,
-        selectionGroup: group.model,
-        selectionLabel: `${group.model} / ${value.effort}`,
-        label: `${shortFamilyNames[group.model]} / ${value.effort}`,
-        shape: "circle"
-      }))
-    );
-    const exploitGymPoints = exploitGymRuns
-      .map((run) => ({
-        ...run,
-        id: `${run.family}|${run.duration}|${run.effort}`,
-        selectionId: `${run.family}|${run.effort}`,
-        color: familyColors[run.family],
-        selectionGroup: run.family,
-        selectionLabel: `${run.family} / ${run.effort}`,
-        label: `${shortFamilyNames[run.family]} / ${run.effort}`,
-        shape: "circle"
-      }))
-      .sort((a, b) =>
-        familyOrder.indexOf(a.family) - familyOrder.indexOf(b.family)
-        || a.duration.localeCompare(b.duration)
-        || effortOrder.indexOf(a.effort) - effortOrder.indexOf(b.effort)
-      );
-    const svg = document.getElementById("chart");
-    const chartScroll = document.getElementById("chart-scroll");
-    const tooltip = document.getElementById("tooltip");
-    const count = document.getElementById("count");
-    const filters = document.getElementById("filters");
-    const metricSelect = document.getElementById("metric-select");
-    const metricDescription = document.getElementById("metric-description");
-    const terminalSvg = document.getElementById("terminal-chart");
-    const terminalChartWrap = document.getElementById("terminal-chart-wrap");
-    const tableBody = document.getElementById("data-table-body");
-    const sortStatus = document.getElementById("sort-status");
-    const tableSort = { key: "score", direction: "desc" };
-    const ns = "http://www.w3.org/2000/svg";
-    let geneCostScoreChart;
-    let exploitGymCostScoreChart;
-    let exploitGymDuration = "2h";
-
-    function svgNode(name, attributes = {}, text = "") {
-      const node = document.createElementNS(ns, name);
-      Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, value));
-      if (text) node.textContent = text;
-      return node;
-    }
-
-    function buildFilters() {
-      groups.forEach((group) => {
-        const label = document.createElement("label");
-        label.className = "filter";
-        label.style.setProperty("--filter-color", group.color);
-        label.innerHTML = `
-          <input type="checkbox" value="${group.model}" checked>
-          <span class="check" aria-hidden="true"></span>
-          <span class="swatch" aria-hidden="true"></span>
-          <span>${group.model}</span>
-        `;
-        label.querySelector("input").addEventListener("change", (event) => {
-          if (event.target.checked) {
-            selectedModels.add(group.model);
-          } else if (selectedModels.size > 1) {
-            selectedModels.delete(group.model);
-          } else {
-            event.target.checked = true;
-          }
-          geneCostScoreChart.refreshVisibility();
-          renderChart();
-          renderTable();
-        });
-        filters.appendChild(label);
-      });
-    }
-
-    function visiblePoints() {
-      return groups
-        .filter((group) => selectedModels.has(group.model))
-        .flatMap((group) => group.values.map((value) => ({ group, ...value })));
-    }
-
-    function showTooltip(event, group, effort, value, metric) {
-      tooltip.innerHTML = `<strong>${group.model}</strong>Reasoning effort: ${effort}<br>${metric.axis}: ${metric.formatValue(value)}`;
-      tooltip.style.left = `${event.clientX}px`;
-      tooltip.style.top = `${event.clientY}px`;
-      tooltip.classList.add("visible");
-      tooltip.setAttribute("aria-hidden", "false");
-    }
-
-    function showKeyboardTooltip(element, group, effort, value, metric) {
-      const rect = element.getBoundingClientRect();
-      showTooltip(
-        { clientX: rect.left + rect.width / 2, clientY: rect.top },
-        group,
-        effort,
-        value,
-        metric
-      );
-    }
-
-    function hideTooltip() {
-      tooltip.classList.remove("visible");
-      tooltip.setAttribute("aria-hidden", "true");
-    }
-
-    function showTerminalTooltip(event, item) {
-      tooltip.innerHTML = `<strong>${item.model}</strong>Reasoning: ${item.reasoning}<br>Score: ${item.sourceLabel}`;
-      tooltip.style.left = `${event.clientX}px`;
-      tooltip.style.top = `${event.clientY}px`;
-      tooltip.classList.add("visible");
-      tooltip.setAttribute("aria-hidden", "false");
-    }
-
-    function renderChart() {
-      const metric = metrics[metricSelect.value];
-      const points = visiblePoints()
-        .sort((a, b) => a[metric.key] - b[metric.key] || a.group.model.localeCompare(b.group.model));
-      const margins = { top: 54, right: 28, bottom: 158, left: 68 };
-      const chartHeight = 650;
-      const plotHeight = chartHeight - margins.top - margins.bottom;
-      const itemWidth = 55;
-      const contentWidth = margins.left + points.length * itemWidth + margins.right;
-      const width = Math.max(chartScroll.clientWidth, contentWidth);
-      const extraWidth = width - contentWidth;
-      const xOffset = Math.max(0, extraWidth / 2);
-      const plotBottom = margins.top + plotHeight;
-      const maxValue = metric.max;
-
-      svg.replaceChildren();
-      svg.setAttribute("viewBox", `0 0 ${width} ${chartHeight}`);
-      svg.style.width = `${width}px`;
-      metricDescription.textContent = `${metric.description} \u00b7 ascending`;
-
-      svg.append(
-        svgNode("title", { id: "chart-title" }, `GeneBench v1 ${metric.axis.toLowerCase()} by model and reasoning effort`),
-        svgNode("desc", { id: "chart-description" }, `Bar chart sorted by ${metric.axis.toLowerCase()} in ascending order. Each horizontal-axis category represents one model and reasoning effort level.`)
-      );
-
-      for (let tick = 0; tick <= maxValue + metric.step / 10; tick += metric.step) {
-        const y = plotBottom - (tick / maxValue) * plotHeight;
-        svg.append(
-          svgNode("line", {
-            x1: margins.left,
-            x2: width - margins.right,
-            y1: y,
-            y2: y,
-            stroke: tick === 0 ? "#aeb2b9" : "#e7e9ed",
-            "stroke-width": tick === 0 ? 1.2 : 1
-          }),
-          svgNode("text", {
-            x: margins.left - 14,
-            y: y + 4,
-            fill: "#656970",
-            "font-size": 12,
-            "font-variant-numeric": "tabular-nums",
-            "text-anchor": "end"
-          }, metric.formatTick(tick))
-        );
-      }
-
-      svg.appendChild(svgNode("text", {
-        x: 20,
-        y: margins.top + plotHeight / 2,
-        fill: "#34363a",
-        "font-size": 13,
-        "font-weight": 650,
-        "text-anchor": "middle",
-        transform: `rotate(-90 20 ${margins.top + plotHeight / 2})`
-      }, metric.axis));
-
-      points.forEach(({ group, effort, ...values }, index) => {
-        const value = values[metric.key];
-        const x = margins.left + index * itemWidth + itemWidth / 2 + xOffset;
-        const barHeight = (value / maxValue) * plotHeight;
-        const y = plotBottom - barHeight;
-        const bar = svgNode("rect", {
-          x: x - 15,
-          y,
-          width: 30,
-          height: barHeight,
-          rx: 2,
-          fill: group.color,
-          tabindex: 0,
-          role: "graphics-symbol",
-          "aria-label": `${group.model}, effort ${effort}, ${metric.axis} ${metric.formatValue(value)}`
-        });
-
-        bar.addEventListener("pointerenter", (event) => showTooltip(event, group, effort, value, metric));
-        bar.addEventListener("pointermove", (event) => showTooltip(event, group, effort, value, metric));
-        bar.addEventListener("pointerleave", hideTooltip);
-        bar.addEventListener("focus", () => showKeyboardTooltip(bar, group, effort, value, metric));
-        bar.addEventListener("blur", hideTooltip);
-
-        svg.append(
-          bar,
-          svgNode("text", {
-            x,
-            y: y - 9,
-            fill: "#34363a",
-            "font-size": 11,
-            "font-weight": 650,
-            "font-variant-numeric": "tabular-nums",
-            "text-anchor": "middle"
-          }, metric.formatValue(value)),
-          svgNode("text", {
-            x,
-            y: plotBottom + 24,
-            fill: group.color,
-            "font-size": 11,
-            "font-weight": 650,
-            "text-anchor": "end",
-            transform: `rotate(-48 ${x} ${plotBottom + 24})`
-          }, `${group.model} / ${effort}`)
-        );
-      });
-
-      count.textContent = `${points.length} configuration${points.length === 1 ? "" : "s"}`;
-    }
-
-    function cleanNumber(value) {
-      return Number(value.toPrecision(12));
-    }
-
-    function niceStep(range, targetIntervals = 6) {
-      const roughStep = range / targetIntervals;
-      if (!(roughStep > 0)) {
-        return 1;
-      }
-
-      const power = 10 ** Math.floor(Math.log10(roughStep));
-      const error = roughStep / power;
-      const factor = error >= Math.sqrt(50)
-        ? 10
-        : error >= Math.sqrt(10)
-          ? 5
-          : error >= Math.sqrt(2)
-            ? 2
-            : 1;
-
-      return factor * power;
-    }
-
-    function ticksBetween(min, max, step) {
-      const ticks = [];
-      const first = Math.ceil((min - step * 1e-9) / step) * step;
-
-      for (let value = first; value <= max + step * 1e-9; value += step) {
-        ticks.push(cleanNumber(value));
-      }
-
-      return ticks;
-    }
-
-    function createLinearScale(values, fallbackMax, fallbackStep) {
-      if (values.length === 0) {
-        return {
-          min: 0,
-          max: fallbackMax,
-          ticks: ticksBetween(0, fallbackMax, fallbackStep)
-        };
-      }
-
-      const dataMin = Math.min(...values);
-      const dataMax = Math.max(...values);
-      const dataRange = dataMax - dataMin;
-      const padding = dataRange > 0
-        ? dataRange * 0.12
-        : Math.max(Math.abs(dataMax) * 0.08, 1);
-      const paddedMin = Math.max(0, dataMin - padding);
-      const paddedMax = Math.min(100, dataMax + padding);
-      const step = niceStep(paddedMax - paddedMin);
-      let min = Math.max(0, Math.floor(paddedMin / step) * step);
-      let max = Math.min(100, Math.ceil(paddedMax / step) * step);
-
-      if (max <= min) {
-        min = Math.max(0, min - step);
-        max = Math.min(100, max + step);
-      }
-
-      return {
-        min: cleanNumber(min),
-        max: cleanNumber(max),
-        ticks: ticksBetween(min, max, step)
-      };
-    }
-
-    function createLogScale(values, fallbackMin, fallbackMax, fallbackTicks) {
-      if (values.length === 0) {
-        return {
-          min: fallbackMin,
-          max: fallbackMax,
-          ticks: fallbackTicks
-        };
-      }
-
-      const logarithms = values.map((value) => Math.log10(value));
-      const dataMin = Math.min(...logarithms);
-      const dataMax = Math.max(...logarithms);
-      const dataRange = dataMax - dataMin;
-      const padding = dataRange > 0 ? Math.max(dataRange * 0.1, 0.04) : 0.3;
-      const minLog = dataMin - padding;
-      const maxLog = dataMax + padding;
-      const ticks = [];
-
-      for (
-        let exponent = Math.floor(minLog) - 1;
-        exponent <= Math.ceil(maxLog) + 1;
-        exponent += 1
-      ) {
-        [1, 2, 5].forEach((factor) => {
-          const value = factor * (10 ** exponent);
-          const logarithm = Math.log10(value);
-          if (logarithm >= minLog - 1e-9 && logarithm <= maxLog + 1e-9) {
-            ticks.push(cleanNumber(value));
-          }
-        });
-      }
-
-      if (ticks.length < 3) {
-        const step = niceStep(maxLog - minLog, 4);
-        ticks.splice(
-          0,
-          ticks.length,
-          ...ticksBetween(minLog, maxLog, step).map((value) =>
-            cleanNumber(10 ** value)
-          )
-        );
-      }
-
-      return {
-        min: 10 ** minLog,
-        max: 10 ** maxLog,
-        ticks
-      };
-    }
-
-    function formatAxisCost(value) {
-      const decimals = value < 0.1 ? 3 : value < 1 ? 2 : value < 10 ? 1 : 0;
-      const formatted = value.toFixed(decimals);
-      return `$${decimals > 0 ? formatted.replace(/\.?0+$/, "") : formatted}`;
-    }
-
-    function formatAxisPercent(value) {
-      return `${Number.isInteger(value) ? value : value.toFixed(1)}%`;
-    }
-
-    function createCostScoreChart(config) {
-      const svg = document.getElementById(config.svgId);
-      const scrollContainer = document.getElementById(config.scrollId);
-      const count = document.getElementById(config.countId);
-      const trigger = document.getElementById(config.triggerId);
-      const summary = document.getElementById(config.summaryId);
-      const paretoToggle = document.getElementById(config.paretoId);
-      const selectionIdFor = (point) => point.selectionId || point.id;
-      const selectionItems = [
-        ...new Map(config.points.map((point) => [
-          selectionIdFor(point),
-          { ...point, id: selectionIdFor(point) }
-        ])).values()
-      ];
-      const selectedSelectionIds = new Set(selectionItems.map((item) => item.id));
-      const inputBySelectionId = new Map();
-      const panel = document.createElement("div");
-
-      panel.className = "multi-select-panel";
-      panel.id = `${config.id}-selection-panel`;
-      panel.setAttribute("role", "dialog");
-      panel.setAttribute("aria-label", config.selectionDialogLabel);
-      panel.hidden = true;
-      panel.innerHTML = `
-        <div class="selection-list"></div>
-        <div class="selection-actions">
-          <button class="selection-action" data-action="clear" type="button">Clear</button>
-          <button class="selection-action" data-action="all" type="button">Select all</button>
-        </div>
-      `;
-      document.body.appendChild(panel);
-      trigger.setAttribute("aria-controls", panel.id);
-
-      const selectionList = panel.querySelector(".selection-list");
-      const clearButton = panel.querySelector('[data-action="clear"]');
-      const selectAllButton = panel.querySelector('[data-action="all"]');
-      const groupedSelectionItems = new Map();
-
-      selectionItems.forEach((item) => {
-        if (!groupedSelectionItems.has(item.selectionGroup)) {
-          groupedSelectionItems.set(item.selectionGroup, []);
-        }
-        groupedSelectionItems.get(item.selectionGroup).push(item);
-      });
-
-      groupedSelectionItems.forEach((items, groupName) => {
-        const section = document.createElement("section");
-        section.className = "selection-group";
-        section.innerHTML = `<h3 class="selection-group-title">${groupName}</h3>`;
-
-        items.forEach((item) => {
-          const label = document.createElement("label");
-          label.className = "selection-option";
-          label.style.setProperty("--option-color", item.color);
-          label.innerHTML = `
-            <input type="checkbox" value="${item.id}" checked>
-            <span class="swatch" aria-hidden="true"></span>
-            <span>${item.selectionLabel}</span>
-          `;
-          const input = label.querySelector("input");
-          inputBySelectionId.set(item.id, input);
-          input.addEventListener("change", () => {
-            if (input.checked) {
-              selectedSelectionIds.add(item.id);
-            } else {
-              selectedSelectionIds.delete(item.id);
-            }
-            refreshSelection();
-            render();
-          });
-          section.appendChild(label);
-        });
-        selectionList.appendChild(section);
-      });
-
-      function pointIsAvailable(point) {
-        return config.pointIsAvailable ? config.pointIsAvailable(point) : true;
-      }
-
-      function pointIsDisplayed(point) {
-        return config.pointIsDisplayed ? config.pointIsDisplayed(point) : true;
-      }
-
-      function selectionItemIsAvailable(item) {
-        return config.points.some((point) =>
-          selectionIdFor(point) === item.id
-          && pointIsAvailable(point)
-          && pointIsDisplayed(point)
-        );
-      }
-
-      function refreshSelection() {
-        const availableItems = selectionItems.filter(selectionItemIsAvailable);
-        selectionItems.forEach((item) => {
-          const input = inputBySelectionId.get(item.id);
-          const available = selectionItemIsAvailable(item);
-          input.disabled = !available;
-          input.checked = selectedSelectionIds.has(item.id);
-          input.closest(".selection-option").classList.toggle("is-disabled", !available);
-        });
-        const selectedAvailableCount = availableItems
-          .filter((item) => selectedSelectionIds.has(item.id))
-          .length;
-        summary.textContent = `${selectedAvailableCount} of ${availableItems.length} configurations`;
-        clearButton.disabled = selectedSelectionIds.size === 0;
-        selectAllButton.disabled = selectedSelectionIds.size === selectionItems.length;
-      }
-
-      function positionPanel() {
-        const margin = 12;
-        const gap = 6;
-        const triggerRect = trigger.getBoundingClientRect();
-        const width = Math.min(360, window.innerWidth - margin * 2);
-
-        panel.style.width = `${width}px`;
-        panel.style.maxHeight = `${Math.min(520, window.innerHeight - margin * 2)}px`;
-
-        const panelHeight = panel.getBoundingClientRect().height;
-        const left = Math.max(margin, Math.min(triggerRect.left, window.innerWidth - width - margin));
-        let top = triggerRect.bottom + gap;
-
-        if (top + panelHeight > window.innerHeight - margin) {
-          const above = triggerRect.top - panelHeight - gap;
-          top = above >= margin ? above : Math.max(margin, window.innerHeight - panelHeight - margin);
-        }
-
-        panel.style.left = `${left}px`;
-        panel.style.top = `${top}px`;
-      }
-
-      function openPanel() {
-        panel.hidden = false;
-        trigger.setAttribute("aria-expanded", "true");
-        positionPanel();
-      }
-
-      function closePanel({ restoreFocus = false } = {}) {
-        panel.hidden = true;
-        trigger.setAttribute("aria-expanded", "false");
-        if (restoreFocus) {
-          trigger.focus();
-        }
-      }
-
-      function activePoints() {
-        const selected = config.points.filter((point) =>
-          selectedSelectionIds.has(selectionIdFor(point))
-          && pointIsAvailable(point)
-          && pointIsDisplayed(point)
-        );
-
-        if (!paretoToggle.checked) {
-          return selected;
-        }
-
-        const positiveScorePoints = selected.filter((point) => point.score > 0);
-
-        return positiveScorePoints.filter((candidate) =>
-          !positiveScorePoints.some((other) =>
-            other.score > candidate.score && other.cost < candidate.cost
-          )
-        );
-      }
-
-      function showPointTooltip(event, point) {
-        const duration = config.showDurationInTooltip && point.duration
-          ? `Time limit: ${point.duration}<br>`
-          : "";
-        tooltip.innerHTML = `<strong>${point.family}</strong>${duration}Reasoning effort: ${point.effort}<br>${config.scoreTooltipLabel}: ${formatPercent(point.score)}<br>API cost: ${formatCost(point.cost)}`;
-        tooltip.style.left = `${event.clientX}px`;
-        tooltip.style.top = `${event.clientY}px`;
-        tooltip.classList.add("visible");
-        tooltip.setAttribute("aria-hidden", "false");
-      }
-
-      function render() {
-        const points = activePoints();
-        const width = Math.max(scrollContainer.clientWidth, 900);
-        const chartHeight = 560;
-        const margins = { top: 38, right: 128, bottom: 68, left: 70 };
-        const plotWidth = width - margins.left - margins.right;
-        const plotHeight = chartHeight - margins.top - margins.bottom;
-        const plotBottom = margins.top + plotHeight;
-        const xScale = createLogScale(
-          points.map((point) => point.cost),
-          config.xMin,
-          config.xMax,
-          config.xTicks
-        );
-        const yScale = createLinearScale(
-          points.map((point) => point.score),
-          config.yMax,
-          config.yStep
-        );
-        const logMin = Math.log10(xScale.min);
-        const logRange = Math.log10(xScale.max) - logMin;
-        const yRange = yScale.max - yScale.min;
-        const xPosition = (value) =>
-          margins.left + ((Math.log10(value) - logMin) / logRange) * plotWidth;
-        const yPosition = (value) =>
-          plotBottom - ((value - yScale.min) / yRange) * plotHeight;
-
-        svg.replaceChildren();
-        svg.setAttribute("viewBox", `0 0 ${width} ${chartHeight}`);
-        svg.style.width = `${width}px`;
-        svg.dataset.xMin = xScale.min;
-        svg.dataset.xMax = xScale.max;
-        svg.dataset.yMin = yScale.min;
-        svg.dataset.yMax = yScale.max;
-        svg.append(
-          svgNode("title", { id: config.svgTitleId }, config.svgTitle),
-          svgNode(
-            "desc",
-            { id: config.svgDescriptionId },
-            `${config.svgDescription} Axes adjust to the visible points.${paretoToggle.checked ? " Pareto mode shows selected configurations with a score above zero that are not strictly dominated by a lower-cost, higher-scoring configuration." : ""}`
-          )
-        );
-
-        yScale.ticks.forEach((tick) => {
-          const y = yPosition(tick);
-          svg.append(
-            svgNode("line", {
-              x1: margins.left,
-              x2: width - margins.right,
-              y1: y,
-              y2: y,
-              stroke: tick === yScale.min ? "#aeb2b9" : "#e7e9ed",
-              "stroke-width": tick === yScale.min ? 1.2 : 1
-            }),
-            svgNode("text", {
-              x: margins.left - 14,
-              y: y + 4,
-              fill: "#656970",
-              "font-size": 12,
-              "text-anchor": "end",
-              "data-axis": "y",
-              "data-value": tick
-            }, formatAxisPercent(tick))
-          );
-        });
-
-        xScale.ticks.forEach((tick) => {
-          const x = xPosition(tick);
-          svg.append(
-            svgNode("line", {
-              x1: x,
-              x2: x,
-              y1: margins.top,
-              y2: plotBottom,
-              stroke: "#eef0f2",
-              "stroke-width": 1
-            }),
-            svgNode("text", {
-              x,
-              y: plotBottom + 25,
-              fill: "#656970",
-              "font-size": 12,
-              "font-variant-numeric": "tabular-nums",
-              "text-anchor": "middle",
-              "data-axis": "x",
-              "data-value": tick
-            }, formatAxisCost(tick))
-          );
-        });
-
-        svg.append(
-          svgNode("text", {
-            x: 20,
-            y: margins.top + plotHeight / 2,
-            fill: "#34363a",
-            "font-size": 13,
-            "font-weight": 650,
-            "text-anchor": "middle",
-            transform: `rotate(-90 20 ${margins.top + plotHeight / 2})`
-          }, config.yAxisTitle),
-          svgNode("text", {
-            x: margins.left + plotWidth / 2,
-            y: chartHeight - 10,
-            fill: "#34363a",
-            "font-size": 13,
-            "font-weight": 650,
-            "text-anchor": "middle"
-          }, "API cost (USD, logarithmic scale)")
-        );
-
-        points.forEach((point, index) => {
-          const positionOffset = config.getPointOffset?.(point) || {};
-          const x = xPosition(point.cost) + (positionOffset.dx || 0);
-          const y = yPosition(point.score) + (positionOffset.dy || 0);
-          const defaultAnchor = x > margins.left + plotWidth * 0.76 ? "end" : "start";
-          const override = config.labelOffsets?.[point.id]
-            || config.getLabelOffset?.(point, index)
-            || {};
-          const anchor = override.anchor || defaultAnchor;
-          const dx = override.dx ?? (anchor === "end" ? -10 : 10);
-          const dy = override.dy ?? -10;
-          const commonAttributes = {
-            fill: point.color,
-            stroke: "#ffffff",
-            "stroke-width": 2,
-            tabindex: 0,
-            role: "graphics-symbol",
-            "aria-label": config.ariaLabel(point)
-          };
-          const symbol = point.shape === "square"
-            ? svgNode("rect", { ...commonAttributes, x: x - 5, y: y - 5, width: 10, height: 10, rx: 2 })
-            : svgNode("circle", { ...commonAttributes, cx: x, cy: y, r: 6 });
-
-          symbol.addEventListener("pointerenter", (event) => showPointTooltip(event, point));
-          symbol.addEventListener("pointermove", (event) => showPointTooltip(event, point));
-          symbol.addEventListener("pointerleave", hideTooltip);
-          symbol.addEventListener("focus", () => {
-            const rect = symbol.getBoundingClientRect();
-            showPointTooltip({ clientX: rect.left + rect.width / 2, clientY: rect.top }, point);
-          });
-          symbol.addEventListener("blur", hideTooltip);
-
-          svg.append(
-            symbol,
-            svgNode("text", {
-              x: x + dx,
-              y: y + dy,
-              fill: "#34363a",
-              "font-size": 10,
-              "font-weight": 650,
-              "text-anchor": anchor,
-              "pointer-events": "none",
-              style: "paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round"
-            }, point.label)
-          );
-        });
-
-        count.textContent = `${points.length} point${points.length === 1 ? "" : "s"}${config.countSuffix ? ` \u00b7 ${config.countSuffix()}` : ""}${paretoToggle.checked ? " \u00b7 Pareto" : ""}`;
-      }
-
-      trigger.addEventListener("click", () => panel.hidden ? openPanel() : closePanel());
-      paretoToggle.addEventListener("change", render);
-      clearButton.addEventListener("click", () => {
-        selectedSelectionIds.clear();
-        refreshSelection();
-        render();
-      });
-      selectAllButton.addEventListener("click", () => {
-        selectionItems.forEach((item) => selectedSelectionIds.add(item.id));
-        refreshSelection();
-        render();
-      });
-      document.addEventListener("pointerdown", (event) => {
-        if (!panel.hidden && !panel.contains(event.target) && !trigger.contains(event.target)) {
-          closePanel();
-        }
-      });
-      document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && !panel.hidden) {
-          closePanel({ restoreFocus: true });
-        }
-      });
-      window.addEventListener("scroll", (event) => {
-        if (!panel.hidden && !panel.contains(event.target)) {
-          positionPanel();
-        }
-      }, true);
-      scrollContainer.addEventListener("scroll", hideTooltip);
-
-      refreshSelection();
-      render();
-
-      return {
-        render,
-        closePanel,
-        resize() {
-          render();
-          if (!panel.hidden) {
-            positionPanel();
-          }
-        },
-        refreshVisibility() {
-          refreshSelection();
-          render();
-        }
-      };
-    }
-
-    function formatCost(value) {
-      return `$${value.toFixed(2)}`;
-    }
-
-    function formatPercent(value) {
-      return `${Number.isInteger(value) ? value : value.toFixed(1)}%`;
-    }
-
-    function renderTerminalChart() {
-      const width = Math.max(terminalChartWrap.clientWidth - 36, 316);
-      const mobile = width < 620;
-      const margins = {
-        top: 30,
-        right: 62,
-        bottom: 48,
-        left: mobile ? 166 : 220
-      };
-      const rowHeight = 52;
-      const barHeight = 26;
-      const plotHeight = terminalData.length * rowHeight;
-      const plotWidth = Math.max(88, width - margins.left - margins.right);
-      const chartHeight = margins.top + plotHeight + margins.bottom;
-      const plotBottom = margins.top + plotHeight;
-      const minScore = 50;
-      const tickStep = 25;
-
-      terminalSvg.replaceChildren();
-      terminalSvg.setAttribute("viewBox", `0 0 ${width} ${chartHeight}`);
-      terminalSvg.style.height = `${chartHeight}px`;
-      terminalSvg.append(
-        svgNode("title", { id: "terminal-chart-title" }, "TerminalBench 2.1 scores by model"),
-        svgNode("desc", { id: "terminal-chart-description" }, "Horizontal bar chart sorted by score in descending order, with an axis ranging from 50 to 100 percent.")
-      );
-
-      for (let tick = minScore; tick <= 100; tick += tickStep) {
-        const x = margins.left + ((tick - minScore) / (100 - minScore)) * plotWidth;
-        terminalSvg.append(
-          svgNode("line", {
-            x1: x,
-            x2: x,
-            y1: margins.top,
-            y2: plotBottom,
-            stroke: tick === minScore ? "#aeb2b9" : "#e7e9ed",
-            "stroke-width": tick === minScore ? 1.2 : 1
-          }),
-          svgNode("text", {
-            x,
-            y: plotBottom + 24,
-            fill: "#656970",
-            "font-size": 12,
-            "font-variant-numeric": "tabular-nums",
-            "text-anchor": "middle"
-          }, `${tick}%`)
-        );
-      }
-
-      terminalData
-        .slice()
-        .sort((a, b) => b.score - a.score)
-        .forEach((item, index) => {
-          const rowY = margins.top + index * rowHeight;
-          const y = rowY + (rowHeight - barHeight) / 2;
-          const valueWidth = ((item.score - minScore) / (100 - minScore)) * plotWidth;
-          const bar = svgNode("rect", {
-            x: margins.left,
-            y,
-            width: valueWidth,
-            height: barHeight,
-            rx: 2,
-            fill: item.color,
-            tabindex: 0,
-            role: "graphics-symbol",
-            "aria-label": `${item.model}, reasoning ${item.reasoning}, score ${item.sourceLabel}`
-          });
-
-          bar.addEventListener("pointerenter", (event) => showTerminalTooltip(event, item));
-          bar.addEventListener("pointermove", (event) => showTerminalTooltip(event, item));
-          bar.addEventListener("pointerleave", hideTooltip);
-          bar.addEventListener("focus", () => {
-            const rect = bar.getBoundingClientRect();
-            showTerminalTooltip({ clientX: rect.right, clientY: rect.top }, item);
-          });
-          bar.addEventListener("blur", hideTooltip);
-
-          terminalSvg.append(
-            svgNode("text", {
-              x: margins.left - 14,
-              y: rowY + 21,
-              fill: "#34363a",
-              "font-size": mobile ? 11 : 13,
-              "font-weight": 650,
-              "text-anchor": "end"
-            }, item.model),
-            svgNode("text", {
-              x: margins.left - 14,
-              y: rowY + 37,
-              fill: "#7a7e85",
-              "font-size": 10,
-              "font-family": "SFMono-Regular, Consolas, Liberation Mono, monospace",
-              "text-anchor": "end"
-            }, `reasoning: ${item.reasoning}`),
-            bar,
-            svgNode("text", {
-              x: margins.left + valueWidth + 8,
-              y: rowY + rowHeight / 2 + 4,
-              fill: "#34363a",
-              "font-size": 12,
-              "font-weight": 700,
-              "font-variant-numeric": "tabular-nums"
-            }, `${item.score.toFixed(1)}%`)
-          );
-        });
-
-      terminalSvg.appendChild(svgNode("text", {
-        x: margins.left + plotWidth / 2,
-        y: chartHeight - 8,
-        fill: "#34363a",
-        "font-size": 13,
-        "font-weight": 650,
-        "text-anchor": "middle"
-      }, "Score"));
-    }
-
-    function renderTable() {
-      const direction = tableSort.direction === "asc" ? 1 : -1;
-      const points = visiblePoints().sort((a, b) => {
-        const aValue = tableSort.key === "model" ? a.group.model : a[tableSort.key];
-        const bValue = tableSort.key === "model" ? b.group.model : b[tableSort.key];
-        const comparison = typeof aValue === "string"
-          ? aValue.localeCompare(bValue)
-          : aValue - bValue;
-        return comparison * direction || b.score - a.score;
-      });
-
-      tableBody.replaceChildren();
-      points.forEach(({ group, effort, score, tokens, cost }) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>
-            <span class="model-cell">
-              <span class="model-dot" style="--model-color:${group.color}" aria-hidden="true"></span>
-              ${group.model}
-            </span>
-          </td>
-          <td class="effort-cell">${effort}</td>
-          <td class="numeric">${metrics.score.formatValue(score)}</td>
-          <td class="numeric">${metrics.tokens.formatValue(tokens)}</td>
-          <td class="numeric">${metrics.cost.formatValue(cost)}</td>
-        `;
-        tableBody.appendChild(row);
-      });
-
-      const sortNames = {
-        model: "model",
-        effort: "reasoning effort",
-        score: "score",
-        tokens: "tokens",
-        cost: "API cost"
-      };
-      sortStatus.textContent = `Sorted by ${sortNames[tableSort.key]}, ${tableSort.direction === "asc" ? "ascending" : "descending"}`;
-
-      document.querySelectorAll("th[data-sort-key]").forEach((header) => {
-        const active = header.dataset.sortKey === tableSort.key;
-        header.setAttribute("aria-sort", active ? (tableSort.direction === "asc" ? "ascending" : "descending") : "none");
-        header.querySelector(".sort-indicator").textContent = active
-          ? (tableSort.direction === "asc" ? "\u2191" : "\u2193")
-          : "\u2195";
-      });
-    }
-
-    document.querySelectorAll(".sort-button").forEach((button) => {
-      button.addEventListener("click", () => {
-        const key = button.dataset.sortKey;
-        if (tableSort.key === key) {
-          tableSort.direction = tableSort.direction === "asc" ? "desc" : "asc";
-        } else {
-          tableSort.key = key;
-          tableSort.direction = ["model", "effort"].includes(key) ? "asc" : "desc";
-        }
-        renderTable();
-      });
-    });
-
-    const geneScatterLabelOffsets = {
-      "GPT-5.6 Sol|low": { dy: -10 },
-      "GPT-5.6 Sol|medium": { dy: -10 },
-      "GPT-5.6 Sol|high": { dx: -10, dy: -10, anchor: "end" },
-      "GPT-5.6 Sol|xhigh": { dx: 10, dy: 15, anchor: "start" },
-      "GPT-5.6 Sol|max": { dy: -10 },
-      "GPT-5.6 Terra|none": { dy: 15 },
-      "GPT-5.6 Terra|low": { dy: -10 },
-      "GPT-5.6 Terra|medium": { dy: 15 },
-      "GPT-5.6 Terra|high": { dy: -10 },
-      "GPT-5.6 Terra|xhigh": { dy: 15 },
-      "GPT-5.6 Terra|max": { dy: 15 },
-      "GPT-5.6 Luna|none": { dy: 15 },
-      "GPT-5.6 Luna|low": { dx: -10, dy: -10, anchor: "end" },
-      "GPT-5.6 Luna|medium": { dy: -10 },
-      "GPT-5.6 Luna|high": { dy: -10 },
-      "GPT-5.6 Luna|xhigh": { dy: 15 },
-      "GPT-5.6 Luna|max": { dy: 15 },
-      "GPT-5.5|none": { dx: -10, dy: -10, anchor: "end" },
-      "GPT-5.5|low": { dy: 15 },
-      "GPT-5.5|medium": { dx: -10, dy: 15, anchor: "end" },
-      "GPT-5.5|high": { dy: 15 },
-      "GPT-5.5|xhigh": { dy: -10 }
-    };
-    const exploitGymLabelOffsets = {
-      "GPT-5.6 Sol|2h|medium": { dx: -10, dy: -10, anchor: "end" },
-      "GPT-5.6 Sol|2h|high": { dx: -10, dy: -10, anchor: "end" },
-      "GPT-5.6 Sol|2h|xhigh": { dx: -10, dy: 16, anchor: "end" },
-      "GPT-5.6 Sol|2h|max": { dx: 10, dy: -10, anchor: "start" },
-      "GPT-5.6 Terra|2h|high": { dx: -10, dy: 16, anchor: "end" },
-      "GPT-5.6 Terra|2h|xhigh": { dx: -10, dy: 16, anchor: "end" },
-      "GPT-5.6 Terra|2h|max": { dx: 10, dy: -10, anchor: "start" },
-      "GPT-5.6 Luna|2h|xhigh": { dx: -10, dy: 16, anchor: "end" },
-      "GPT-5.6 Luna|2h|max": { dx: -10, dy: -10, anchor: "end" },
-      "GPT-5.5|2h|xhigh": { dx: 10, dy: 16, anchor: "start" },
-      "GPT-5.4|2h|xhigh": { dx: 10, dy: -10, anchor: "start" }
-    };
-
-    buildFilters();
-    geneCostScoreChart = createCostScoreChart({
-      id: "gene-scatter",
-      points: geneScatterPoints,
-      svgId: "gene-scatter",
-      scrollId: "gene-scatter-scroll",
-      countId: "scatter-count",
-      triggerId: "scatter-selection-trigger",
-      summaryId: "scatter-selection-summary",
-      paretoId: "pareto-toggle",
-      selectionDialogLabel: "Select GeneBench configurations",
-      pointIsAvailable: (point) => selectedModels.has(point.family),
-      xMin: 0.01,
-      xMax: 2.5,
-      xTicks: [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2],
-      yMax: 35,
-      yStep: 5,
-      yAxisTitle: "Score",
-      scoreTooltipLabel: "Score",
-      labelOffsets: geneScatterLabelOffsets,
-      svgTitleId: "gene-scatter-svg-title",
-      svgDescriptionId: "gene-scatter-description",
-      svgTitle: "GeneBench v1 API cost and score",
-      svgDescription: "Scatter plot with API cost on a logarithmic horizontal axis and pass@1 score on the vertical axis.",
-      ariaLabel: (point) =>
-        `${point.family}, reasoning effort ${point.effort}, API cost ${formatCost(point.cost)}, score ${formatPercent(point.score)}`
-    });
-    exploitGymCostScoreChart = createCostScoreChart({
-      id: "exploitgym-scatter",
-      points: exploitGymPoints,
-      svgId: "exploitgym-scatter",
-      scrollId: "exploitgym-scatter-scroll",
-      countId: "exploitgym-scatter-count",
-      triggerId: "exploitgym-selection-trigger",
-      summaryId: "exploitgym-selection-summary",
-      paretoId: "exploitgym-pareto-toggle",
-      selectionDialogLabel: "Select ExploitGym configurations",
-      pointIsDisplayed: (point) => point.duration === exploitGymDuration,
-      countSuffix: () => `${exploitGymDuration.replace("h", " h")} limit`,
-      xMin: 0.1,
-      xMax: 200,
-      xTicks: [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100],
-      yMax: 40,
-      yStep: 10,
-      yAxisTitle: "Intended exploit rate",
-      scoreTooltipLabel: "Intended exploit rate",
-      labelOffsets: exploitGymLabelOffsets,
-      getLabelOffset: (point, index) => ({
-        dy: index % 2 === 0 ? -10 : 16
-      }),
-      svgTitleId: "exploitgym-scatter-svg-title",
-      svgDescriptionId: "exploitgym-scatter-description",
-      svgTitle: "ExploitGym API cost and intended exploit rate",
-      svgDescription: "Scatter plot with API cost on a logarithmic horizontal axis and intended exploit rate on the vertical axis.",
-      ariaLabel: (point) =>
-        `${point.family}, reasoning effort ${point.effort}, API cost ${formatCost(point.cost)}, intended exploit rate ${formatPercent(point.score)}`
-    });
-    document.querySelectorAll('input[name="exploitgym-duration"]').forEach((input) => {
-      input.addEventListener("change", () => {
-        if (input.checked) {
-          exploitGymDuration = input.value;
-          exploitGymCostScoreChart.refreshVisibility();
-        }
-      });
-    });
-    metricSelect.addEventListener("change", renderChart);
-    renderChart();
-    renderTerminalChart();
-    renderTable();
-    window.addEventListener("resize", () => {
-      renderChart();
-      geneCostScoreChart.resize();
-      exploitGymCostScoreChart.resize();
-      renderTerminalChart();
-    });
-    chartScroll.addEventListener("scroll", hideTooltip);
-  </script>
-</body>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>
