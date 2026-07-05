@@ -179,6 +179,164 @@ def inspect_scatter(selector):
     )
 
 
+def inspect_exploit_bench():
+    return js(
+        """(() => {
+          const svg = document.querySelector('#exploitbench-chart');
+          const points = [...svg.querySelectorAll('[data-exploitbench-point]')];
+          const comparisons = [
+            ...svg.querySelectorAll('[data-exploitbench-comparison]')
+          ];
+          const references = [
+            ...svg.querySelectorAll('[data-exploitbench-reference]')
+          ];
+          const labels = [...svg.querySelectorAll('[data-point-label]')];
+          return {
+            pointCount: points.length,
+            comparisonCount: comparisons.length,
+            referenceCount: references.length,
+            familyLineCount: svg.querySelectorAll('[data-family-line]').length,
+            labelCount: labels.length,
+            symbolCount: svg.querySelectorAll('[role="graphics-symbol"]').length,
+            comparisonModels: comparisons.map(
+              (point) => point.dataset.exploitbenchComparison
+            ),
+            referenceModels: references.map(
+              (line) => line.dataset.exploitbenchReference
+            ),
+            accessibleSymbols: [...svg.querySelectorAll('[role="graphics-symbol"]')]
+              .every((symbol) => Boolean(symbol.getAttribute('aria-label'))),
+            referencesAreHorizontal: references.every((line) =>
+              Number(line.getAttribute('x2')) > Number(line.getAttribute('x1'))
+              && Number(line.getAttribute('y1')) === Number(line.getAttribute('y2'))
+            ),
+            xScale: svg.dataset.xScale,
+            pointLabels: svg.dataset.pointLabels,
+            familyLines: svg.dataset.familyLines,
+            solMax: (() => {
+              const point = svg.querySelector(
+                '[data-exploitbench-point="GPT-5.6 Sol|max"]'
+              );
+              return point && {
+                outputTokens: Number(point.dataset.outputTokens),
+                score: Number(point.dataset.score)
+              };
+            })(),
+            width: svg.getBoundingClientRect().width,
+            height: svg.getBoundingClientRect().height,
+            containerWidth: document
+              .querySelector('#exploitbench-chart-scroll')
+              .getBoundingClientRect().width
+          };
+        })()"""
+    )
+
+
+def verify_exploit_bench():
+    result = inspect_exploit_bench()
+    assert result["pointCount"] == 23, result
+    assert result["comparisonCount"] == 2, result
+    assert result["referenceCount"] == 2, result
+    assert result["symbolCount"] == 25, result
+    assert result["labelCount"] == 25, result
+    assert result["familyLineCount"] == 0, result
+    assert result["xScale"] == "log", result
+    assert result["pointLabels"] == "true", result
+    assert result["familyLines"] == "false", result
+    assert result["comparisonModels"] == ["Mythos Preview", "Opus 4.7"], result
+    assert result["referenceModels"] == ["Mythos 5", "Opus 4.8"], result
+    assert result["accessibleSymbols"], result
+    assert result["referencesAreHorizontal"], result
+    assert result["solMax"] == {"outputTokens": 120457.771, "score": 73.476}, result
+    assert result["width"] >= result["containerWidth"], result
+    assert result["height"] == 560, result
+
+    logarithmic_distance = horizontal_point_distance(
+        "#exploitbench-chart", "GPT-5.6 Sol|low", "GPT-5.6 Sol|medium"
+    )
+    set_checkbox("#exploitbench-log-toggle", False)
+    linear = inspect_exploit_bench()
+    linear_distance = horizontal_point_distance(
+        "#exploitbench-chart", "GPT-5.6 Sol|low", "GPT-5.6 Sol|medium"
+    )
+    assert linear["xScale"] == "linear", linear
+    assert linear["symbolCount"] == 25, linear
+    assert logarithmic_distance > linear_distance, (
+        logarithmic_distance,
+        linear_distance,
+    )
+    set_checkbox("#exploitbench-log-toggle", True)
+
+    set_checkbox("#exploitbench-labels-toggle", False)
+    without_labels = inspect_exploit_bench()
+    assert without_labels["labelCount"] == 0, without_labels
+    assert without_labels["symbolCount"] == 25, without_labels
+    assert without_labels["pointLabels"] == "false", without_labels
+    set_checkbox("#exploitbench-labels-toggle", True)
+
+    set_checkbox("#exploitbench-family-lines-toggle", True)
+    with_lines = inspect_exploit_bench()
+    line_state = inspect_family_lines("#exploitbench-chart")
+    assert with_lines["familyLineCount"] == 5, with_lines
+    assert line_state["count"] == 5, line_state
+    assert line_state["valid"], line_state
+    set_checkbox("#exploitbench-family-lines-toggle", False)
+
+    trigger = "#exploitbench-selection-trigger"
+    panel = "#exploitbench-selection-panel"
+    js(f"document.querySelector({trigger!r}).click()")
+    verify_selection_hierarchy(
+        inspect_selection_hierarchy(panel),
+        [
+            "GPT-5.6 Sol",
+            "GPT-5.6 Terra",
+            "GPT-5.6 Luna",
+            "GPT-5.5",
+            "GPT-5.4",
+        ],
+        23,
+    )
+    sol_selector = f'{panel} [data-selection-group-toggle="GPT-5.6 Sol"]'
+    js(f"document.querySelector({sol_selector!r}).click()")
+    filtered = inspect_exploit_bench()
+    assert filtered["pointCount"] == 18, filtered
+    assert filtered["comparisonCount"] == 2, filtered
+    assert filtered["symbolCount"] == 20, filtered
+    assert js(
+        "document.querySelector('#exploitbench-selection-summary').textContent"
+    ) == ("18 / 23 models")
+    set_checkbox("#exploitbench-family-lines-toggle", True)
+    filtered_lines = inspect_family_lines("#exploitbench-chart")
+    assert filtered_lines["count"] == 4, filtered_lines
+    assert filtered_lines["valid"], filtered_lines
+    set_checkbox("#exploitbench-family-lines-toggle", False)
+    js(f"document.querySelector({sol_selector!r}).click()")
+
+    set_checkbox("#exploitbench-pareto-toggle", True)
+    pareto = inspect_exploit_bench()
+    assert pareto["symbolCount"] == 8, pareto
+    assert pareto["pointCount"] == 7, pareto
+    assert pareto["comparisonCount"] == 1, pareto
+    assert "Pareto" in js("document.querySelector('#exploitbench-count').textContent")
+    set_checkbox("#exploitbench-family-lines-toggle", True)
+    pareto_lines = inspect_family_lines("#exploitbench-chart", allow_gaps=True)
+    assert pareto_lines["count"] == 1, pareto_lines
+    assert pareto_lines["valid"], pareto_lines
+    set_checkbox("#exploitbench-family-lines-toggle", False)
+    set_checkbox("#exploitbench-pareto-toggle", False)
+    js(f"document.querySelector({trigger!r}).click()")
+
+    js(
+        """document.querySelector(
+          '[data-exploitbench-point="GPT-5.6 Sol|max"]'
+        ).dispatchEvent(new FocusEvent('focus'))"""
+    )
+    tooltip_text = js("document.querySelector('#tooltip').textContent")
+    assert "GPT-5.6 Sol" in tooltip_text, tooltip_text
+    assert "Output tokens: 120,458" in tooltip_text, tooltip_text
+    assert "Cap percent: 73.5%" in tooltip_text, tooltip_text
+
+
 def inspect_family_lines(selector, allow_gaps=False):
     return js(
         f"""(() => {{
@@ -277,6 +435,18 @@ def set_checkbox(selector, checked):
     )
 
 
+def activate_gene_view(view):
+    js(
+        f"""document.querySelector(
+          {f'#gene-view-tabs [data-gene-view="{view}"]'!r}
+        ).click()"""
+    )
+    active = js(
+        "document.querySelector('#gene-view-tabs [aria-selected=\"true\"]').dataset.geneView"
+    )
+    assert active == view, active
+
+
 def set_duration(duration):
     selector = f'input[name="exploitgym-duration"][value="{duration}"]'
     js(
@@ -286,6 +456,198 @@ def set_duration(duration):
           input.dispatchEvent(new Event('change', {{ bubbles: true }}));
         }})()"""
     )
+
+
+def verify_gene_bench_workspace():
+    expected_views = [
+        "scatter-cost",
+        "scatter-latency",
+        "scatter-tokens",
+        "bar-score",
+        "bar-cost",
+        "bar-latency",
+        "bar-tokens",
+        "table",
+    ]
+    tabs = js(
+        """[...document.querySelectorAll('#gene-view-tabs [role="tab"]')].map(
+          (tab) => ({
+            view: tab.dataset.geneView,
+            selected: tab.getAttribute('aria-selected'),
+            tabIndex: tab.tabIndex,
+            controls: tab.getAttribute('aria-controls')
+          })
+        )"""
+    )
+    assert [tab["view"] for tab in tabs] == expected_views, tabs
+    assert tabs[0]["selected"] == "true" and tabs[0]["tabIndex"] == 0, tabs
+    assert all(
+        tab["selected"] == "false" and tab["tabIndex"] == -1 for tab in tabs[1:]
+    ), tabs
+    if js("window.innerWidth") <= 390:
+        tab_widths = js(
+            """(() => {
+              const tabList = document.querySelector('#gene-view-tabs');
+              return {
+                client: tabList.clientWidth,
+                scroll: tabList.scrollWidth
+              };
+            })()"""
+        )
+        assert tab_widths["scroll"] > tab_widths["client"], tab_widths
+
+    js(
+        """document.querySelector(
+          '#gene-view-tabs [data-gene-view="scatter-cost"]'
+        ).dispatchEvent(new KeyboardEvent('keydown', {
+          key: 'ArrowRight',
+          bubbles: true
+        }))"""
+    )
+    assert (
+        js(
+            "document.querySelector('#gene-view-tabs [aria-selected=\"true\"]').dataset.geneView"
+        )
+        == "scatter-latency"
+    )
+    activate_gene_view("scatter-cost")
+
+    for view, metric in (
+        ("scatter-cost", "cost"),
+        ("scatter-latency", "latency"),
+        ("scatter-tokens", "tokens"),
+    ):
+        activate_gene_view(view)
+        state = inspect_scatter("#gene-scatter")
+        assert state["pointCount"] == 22, (view, state)
+        assert state["xMetric"] == metric, (view, state)
+        assert not js("document.querySelector('#gene-scatter-controls').hidden")
+        assert not js("document.querySelector('#gene-quadrant-legend').hidden")
+        assert not js("document.querySelector('#gene-scatter-panel').hidden")
+
+    activate_gene_view("scatter-cost")
+    plot_geometry = js(
+        """(() => {
+          const svg = document.querySelector('#gene-scatter');
+          const horizontalGrid = [...svg.querySelectorAll('[data-grid-line]')].find(
+            (line) => Number(line.getAttribute('x1')) !== Number(line.getAttribute('x2'))
+          );
+          return {
+            width: svg.viewBox.baseVal.width,
+            plotRight: Number(horizontalGrid.getAttribute('x2'))
+          };
+        })()"""
+    )
+    assert plot_geometry["width"] - plot_geometry["plotRight"] == 70, plot_geometry
+    set_checkbox("#gene-scatter-log-toggle", False)
+    linear_cost_ticks = js(
+        """[...document.querySelectorAll(
+          '#gene-scatter [data-axis="x"]'
+        )].map((tick) => Number(tick.dataset.value))"""
+    )
+    assert linear_cost_ticks == [0, 0.5, 1, 1.5, 2], linear_cost_ticks
+    set_checkbox("#gene-scatter-log-toggle", True)
+
+    for view, metric in (
+        ("bar-score", "score"),
+        ("bar-cost", "cost"),
+        ("bar-latency", "latency"),
+        ("bar-tokens", "tokens"),
+    ):
+        activate_gene_view(view)
+        bars = js(
+            """[...document.querySelectorAll('#chart [role="graphics-symbol"]')].map(
+              (bar) => ({
+                metric: bar.dataset.metric,
+                value: Number(bar.dataset.value)
+              })
+            )"""
+        )
+        values = [bar["value"] for bar in bars]
+        assert len(bars) == 22, (view, bars)
+        assert all(bar["metric"] == metric for bar in bars), (view, bars)
+        assert values == sorted(values), (view, values)
+        assert js("document.querySelector('#gene-scatter-controls').hidden")
+        assert js("document.querySelector('#gene-quadrant-legend').hidden")
+        assert not js("document.querySelector('#gene-bars-panel').hidden")
+
+    activate_gene_view("table")
+    assert js("document.querySelectorAll('#data-table-body tr').length") == 22
+    assert js("document.querySelector('#gene-scatter-controls').hidden")
+    assert js("document.querySelector('#gene-quadrant-legend').hidden")
+    js(
+        """document.querySelector(
+          '#gene-table-panel .sort-button[data-sort-key="tokens"]'
+        ).click()"""
+    )
+    js(
+        """document.querySelector(
+          '#gene-table-panel .sort-button[data-sort-key="tokens"]'
+        ).click()"""
+    )
+    token_order = js(
+        """[...document.querySelectorAll('#data-table-body tr')].map(
+          (row) => Number(row.dataset.tokens)
+        )"""
+    )
+    assert token_order == sorted(token_order), token_order
+    activate_gene_view("scatter-cost")
+    activate_gene_view("table")
+    assert (
+        js(
+            "document.querySelector('#gene-table-panel th[data-sort-key=\"tokens\"]').getAttribute('aria-sort')"
+        )
+        == "ascending"
+    )
+    assert (
+        js(
+            """[...document.querySelectorAll('#data-table-body tr')].map(
+              (row) => Number(row.dataset.tokens)
+            )"""
+        )
+        == token_order
+    )
+
+    activate_gene_view("scatter-cost")
+    trigger = "#gene-selection-trigger"
+    panel = "#gene-scatter-selection-panel"
+    js(f"document.querySelector({trigger!r}).click()")
+    sol_selector = f'{panel} [data-selection-group-toggle="GPT-5.6 Sol"]'
+    js(f"document.querySelector({sol_selector!r}).click()")
+    js(f"document.querySelector({trigger!r}).click()")
+    assert inspect_scatter("#gene-scatter")["pointCount"] == 17
+    activate_gene_view("bar-score")
+    assert (
+        js("document.querySelectorAll('#chart [role=\"graphics-symbol\"]').length")
+        == 17
+    )
+    activate_gene_view("table")
+    assert js("document.querySelectorAll('#data-table-body tr').length") == 17
+
+    activate_gene_view("scatter-cost")
+    js(f"document.querySelector({trigger!r}).click()")
+    js(f"document.querySelector({sol_selector!r}).click()")
+    js(f"document.querySelector({trigger!r}).click()")
+    assert inspect_scatter("#gene-scatter")["pointCount"] == 22
+
+    js(f"document.querySelector({trigger!r}).click()")
+    clear_selector = f'{panel} [data-action="clear"]'
+    js(f"document.querySelector({clear_selector!r}).click()")
+    js(f"document.querySelector({trigger!r}).click()")
+    assert inspect_scatter("#gene-scatter")["pointCount"] == 0
+    activate_gene_view("bar-score")
+    assert (
+        js("document.querySelectorAll('#chart [role=\"graphics-symbol\"]').length") == 0
+    )
+    activate_gene_view("table")
+    assert js("document.querySelectorAll('#data-table-body tr').length") == 0
+
+    activate_gene_view("scatter-cost")
+    js(f"document.querySelector({trigger!r}).click()")
+    all_selector = f'{panel} [data-action="all"]'
+    js(f"document.querySelector({all_selector!r}).click()")
+    js(f"document.querySelector({trigger!r}).click()")
+    assert inspect_scatter("#gene-scatter")["pointCount"] == 22
 
 
 def horizontal_point_distance(selector, first_id, second_id):
@@ -431,7 +793,6 @@ def verify_control_triggers():
     result = js(
         """(() => {
           const pairs = [
-            ['#gene-scatter-metric-select', '#scatter-selection-trigger'],
             [
               '#genebench-pro-scaling-metric-select',
               '#genebench-pro-scaling-selection-trigger'
@@ -493,7 +854,7 @@ def verify_control_triggers():
           };
         })"""
     )
-    assert all(item["summary"].endswith("models/efforts") for item in compact_labels), (
+    assert all(item["summary"].endswith("models") for item in compact_labels), (
         compact_labels
     )
     assert all(
@@ -564,9 +925,21 @@ def verify_selection_hierarchy(result, expected_groups, expected_options):
 
 
 def verify_gene_bench_selection_groups():
-    trigger = "#scatter-selection-trigger"
+    trigger = "#gene-selection-trigger"
     panel = "#gene-scatter-selection-panel"
     js(f"document.querySelector({trigger!r}).click()")
+    selector_widths = js(
+        f"""(() => {{
+          const trigger = document.querySelector({trigger!r}).getBoundingClientRect();
+          const panel = document.querySelector({panel!r}).getBoundingClientRect();
+          return {{ viewport: window.innerWidth, trigger: trigger.width, panel: panel.width }};
+        }})()"""
+    )
+    if selector_widths["viewport"] > 700:
+        assert selector_widths["trigger"] <= 222, selector_widths
+    assert abs(selector_widths["trigger"] - selector_widths["panel"]) < 1, (
+        selector_widths
+    )
 
     verify_selection_hierarchy(
         inspect_selection_hierarchy(panel),
@@ -581,8 +954,8 @@ def verify_gene_bench_selection_groups():
 
     sol_selector = f'{panel} [data-selection-group-toggle="GPT-5.6 Sol"]'
     js(f"document.querySelector({sol_selector!r}).click()")
-    assert js("document.querySelector('#scatter-selection-summary').textContent") == (
-        "17 / 22 models/efforts"
+    assert js("document.querySelector('#gene-selection-summary').textContent") == (
+        "17 / 22 models"
     )
     assert inspect_scatter("#gene-scatter")["pointCount"] == 17
     sol_items_are_cleared = js(
@@ -593,8 +966,8 @@ def verify_gene_bench_selection_groups():
     assert sol_items_are_cleared is True
 
     js(f"document.querySelector({sol_selector!r}).click()")
-    assert js("document.querySelector('#scatter-selection-summary').textContent") == (
-        "22 / 22 models/efforts"
+    assert js("document.querySelector('#gene-selection-summary').textContent") == (
+        "22 / 22 models"
     )
     assert inspect_scatter("#gene-scatter")["pointCount"] == 22
 
@@ -609,19 +982,101 @@ def verify_gene_bench_selection_groups():
         }})()"""
     )
     assert partial == {"checked": False, "indeterminate": True}, partial
-    assert js("document.querySelector('#scatter-selection-summary').textContent") == (
-        "21 / 22 models/efforts"
+    assert js("document.querySelector('#gene-selection-summary').textContent") == (
+        "21 / 22 models"
     )
 
     js(f"document.querySelector({sol_selector!r}).click()")
-    assert js("document.querySelector('#scatter-selection-summary').textContent") == (
-        "22 / 22 models/efforts"
+    assert js("document.querySelector('#gene-selection-summary').textContent") == (
+        "22 / 22 models"
     )
     js(f"document.querySelector({trigger!r}).click()")
 
 
+def verify_exploitgym_selection_groups():
+    trigger = "#exploitgym-selection-trigger"
+    panel = "#exploitgym-scatter-selection-panel"
+    js(f"document.querySelector({trigger!r}).click()")
+
+    verify_selection_hierarchy(
+        inspect_selection_hierarchy(panel),
+        [
+            "GPT-5.6 Sol",
+            "GPT-5.6 Terra",
+            "GPT-5.6 Luna",
+            "GPT-5.5",
+            "GPT-5.4",
+        ],
+        17,
+    )
+
+    sol_selector = f'{panel} [data-selection-group-toggle="GPT-5.6 Sol"]'
+    js(f"document.querySelector({sol_selector!r}).click()")
+    assert js(
+        "document.querySelector('#exploitgym-selection-summary').textContent"
+    ) == ("12 / 17 models")
+    assert inspect_scatter("#exploitgym-scatter")["pointCount"] == 12
+
+    js(
+        f"""[...document.querySelectorAll({f"{panel} .selection-option input"!r})]
+          .find((input) => input.value === 'GPT-5.6 Terra|low').click()"""
+    )
+    terra_state = js(
+        f"""(() => {{
+          const input = document.querySelector(
+            {f'{panel} [data-selection-group-toggle="GPT-5.6 Terra"]'!r}
+          );
+          return {{ checked: input.checked, indeterminate: input.indeterminate }};
+        }})()"""
+    )
+    assert terra_state == {"checked": False, "indeterminate": True}, terra_state
+
+    terra_selector = f'{panel} [data-selection-group-toggle="GPT-5.6 Terra"]'
+    js(f"document.querySelector({terra_selector!r}).click()")
+    js(f"document.querySelector({sol_selector!r}).click()")
+    assert inspect_scatter("#exploitgym-scatter")["pointCount"] == 17
+
+    set_duration("6h")
+    duration_availability = js(
+        f"""(() => {{
+          const state = {{}};
+          document.querySelectorAll(
+            {f"{panel} [data-selection-group-toggle]"!r}
+          ).forEach((input) => {{
+            state[input.dataset.selectionGroupToggle] = {{
+              checked: input.checked,
+              disabled: input.disabled
+            }};
+          }});
+          return state;
+        }})()"""
+    )
+    assert duration_availability == {
+        "GPT-5.6 Sol": {"checked": True, "disabled": False},
+        "GPT-5.6 Terra": {"checked": True, "disabled": False},
+        "GPT-5.6 Luna": {"checked": True, "disabled": False},
+        "GPT-5.5": {"checked": False, "disabled": True},
+        "GPT-5.4": {"checked": False, "disabled": True},
+    }, duration_availability
+    assert js(
+        "document.querySelector('#exploitgym-selection-summary').textContent"
+    ) == ("15 / 15 models")
+
+    js(f"document.querySelector({sol_selector!r}).click()")
+    assert inspect_scatter("#exploitgym-scatter")["pointCount"] == 10
+    assert js(
+        "document.querySelector('#exploitgym-selection-summary').textContent"
+    ) == ("10 / 15 models")
+
+    set_duration("2h")
+    assert inspect_scatter("#exploitgym-scatter")["pointCount"] == 12
+    js(f"document.querySelector({sol_selector!r}).click()")
+    assert inspect_scatter("#exploitgym-scatter")["pointCount"] == 17
+    js(f"document.querySelector({trigger!r}).click()")
+
+
 def verify_family_line_gap_handling():
-    trigger = "#scatter-selection-trigger"
+    trigger = "#gene-selection-trigger"
     panel = "#gene-scatter-selection-panel"
     toggle = "#gene-scatter-family-lines-toggle"
     set_checkbox(toggle, True)
@@ -787,7 +1242,7 @@ def verify_gene_bench_pro_interactions():
         js(
             "document.querySelector('#genebench-pro-scaling-selection-summary').textContent"
         )
-        == "27 / 33 models/efforts"
+        == "27 / 33 models"
     )
     js(f"document.querySelector({sol_group_selector!r}).click()")
     assert inspect_scatter(selector)["pointCount"] == 33
@@ -818,7 +1273,7 @@ def verify_gene_bench_pro_interactions():
         js(
             "document.querySelector('#genebench-pro-scaling-selection-summary').textContent"
         )
-        == "1 / 33 models/efforts"
+        == "1 / 33 models"
     )
 
     js(
@@ -967,11 +1422,8 @@ def verify_api_pricing_table():
 
 def verify_current_view():
     verify_api_pricing_table()
-    assert (
-        js("document.querySelectorAll('#chart [role=\"graphics-symbol\"]').length")
-        == 22
-    )
-    assert js("document.querySelectorAll('#data-table-body tr').length") == 22
+    verify_exploit_bench()
+    verify_gene_bench_workspace()
     assert (
         js(
             "document.querySelectorAll('#terminal-chart [role=\"graphics-symbol\"]').length"
@@ -1004,6 +1456,7 @@ def verify_current_view():
     verify_family_line_gap_handling()
     verify_gene_bench_pareto_lines()
     verify_gene_bench_selection_groups()
+    verify_exploitgym_selection_groups()
     verify_grid("#chart")
     verify_grid("#terminal-chart")
     verify_point_label_toggle("#gene-scatter-labels-toggle", "#gene-scatter", 22)
@@ -1021,7 +1474,7 @@ def verify_current_view():
     for checked, scale in ((True, "log"), (False, "linear")):
         set_checkbox("#gene-scatter-log-toggle", checked)
         for metric in METRICS:
-            set_select("#gene-scatter-metric-select", metric)
+            activate_gene_view(f"scatter-{metric}")
             set_checkbox("#gene-scatter-family-lines-toggle", True)
             gene_lines = inspect_family_lines("#gene-scatter")
             assert gene_lines["count"] == 4, (metric, scale, gene_lines)
@@ -1033,6 +1486,7 @@ def verify_current_view():
                 scale,
                 allow_label_overlaps=not checked,
             )
+    activate_gene_view("scatter-cost")
     set_checkbox("#gene-scatter-log-toggle", True)
 
     verify_scatter(

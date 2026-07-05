@@ -2,10 +2,897 @@
   "schemaVersion": 1,
   "source": {
     "format": "nextjs-react-flight-inline-vega-lite",
-    "specSha256": "1b6dad66f06da97ba84ac0ebcf9f227c697298ebe3feac4771128e8fcabffe42",
+    "specSha256": "0cc2fe45cc5b7a1023d2f10756e772dabac084dc3f7a196de28dd144d8fc09ee",
     "url": "https://openai.com/index/previewing-gpt-5-6-sol/"
   },
   "specs": {
+    "ExploitBench": {
+      "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+      "description": "Cap percent by selected metric across reasoning-effort levels on ExploitBench.",
+      "height": 340,
+      "layer": [
+        {
+          "data": {
+            "values": [
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 1,
+                "juice_level": "low",
+                "model": "GPT-5.6 Sol",
+                "score": 0.27896,
+                "score_label": "27.9%",
+                "score_unit": "cap_percent",
+                "x_label": "28.7K",
+                "x_metric": "output_tokens",
+                "x_value": 28718.502
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 2,
+                "juice_level": "medium",
+                "model": "GPT-5.6 Sol",
+                "score": 0.51829,
+                "score_label": "51.8%",
+                "score_unit": "cap_percent",
+                "x_label": "81.2K",
+                "x_metric": "output_tokens",
+                "x_value": 81238.059
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 3,
+                "juice_level": "high",
+                "model": "GPT-5.6 Sol",
+                "score": 0.62957,
+                "score_label": "63.0%",
+                "score_unit": "cap_percent",
+                "x_label": "103K",
+                "x_metric": "output_tokens",
+                "x_value": 103407.79
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 4,
+                "juice_level": "xhigh",
+                "model": "GPT-5.6 Sol",
+                "score": 0.70274,
+                "score_label": "70.3%",
+                "score_unit": "cap_percent",
+                "x_label": "111K",
+                "x_metric": "output_tokens",
+                "x_value": 111283.229
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 5,
+                "juice_level": "max",
+                "model": "GPT-5.6 Sol",
+                "score": 0.73476,
+                "score_label": "73.5%",
+                "score_unit": "cap_percent",
+                "x_label": "120K",
+                "x_metric": "output_tokens",
+                "x_value": 120457.771
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 1,
+                "juice_level": "low",
+                "model": "GPT-5.6 Terra",
+                "score": 0.22104,
+                "score_label": "22.1%",
+                "score_unit": "cap_percent",
+                "x_label": "31.6K",
+                "x_metric": "output_tokens",
+                "x_value": 31554.556
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 2,
+                "juice_level": "medium",
+                "model": "GPT-5.6 Terra",
+                "score": 0.28811,
+                "score_label": "28.8%",
+                "score_unit": "cap_percent",
+                "x_label": "58.5K",
+                "x_metric": "output_tokens",
+                "x_value": 58498.98
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 3,
+                "juice_level": "high",
+                "model": "GPT-5.6 Terra",
+                "score": 0.41311,
+                "score_label": "41.3%",
+                "score_unit": "cap_percent",
+                "x_label": "108K",
+                "x_metric": "output_tokens",
+                "x_value": 108347.205
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 4,
+                "juice_level": "xhigh",
+                "model": "GPT-5.6 Terra",
+                "score": 0.46189,
+                "score_label": "46.2%",
+                "score_unit": "cap_percent",
+                "x_label": "137K",
+                "x_metric": "output_tokens",
+                "x_value": 136863.854
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 5,
+                "juice_level": "max",
+                "model": "GPT-5.6 Terra",
+                "score": 0.52896,
+                "score_label": "52.9%",
+                "score_unit": "cap_percent",
+                "x_label": "164K",
+                "x_metric": "output_tokens",
+                "x_value": 164327.229
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 1,
+                "juice_level": "low",
+                "model": "GPT-5.6 Luna",
+                "score": 0.16768,
+                "score_label": "16.8%",
+                "score_unit": "cap_percent",
+                "x_label": "33.8K",
+                "x_metric": "output_tokens",
+                "x_value": 33783.863
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 2,
+                "juice_level": "medium",
+                "model": "GPT-5.6 Luna",
+                "score": 0.2378,
+                "score_label": "23.8%",
+                "score_unit": "cap_percent",
+                "x_label": "75.1K",
+                "x_metric": "output_tokens",
+                "x_value": 75098.468
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 3,
+                "juice_level": "high",
+                "model": "GPT-5.6 Luna",
+                "score": 0.29878,
+                "score_label": "29.9%",
+                "score_unit": "cap_percent",
+                "x_label": "114K",
+                "x_metric": "output_tokens",
+                "x_value": 114036.341
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 4,
+                "juice_level": "xhigh",
+                "model": "GPT-5.6 Luna",
+                "score": 0.30945,
+                "score_label": "30.9%",
+                "score_unit": "cap_percent",
+                "x_label": "135K",
+                "x_metric": "output_tokens",
+                "x_value": 135436.902
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 5,
+                "juice_level": "max",
+                "model": "GPT-5.6 Luna",
+                "score": 0.33232,
+                "score_label": "33.2%",
+                "score_unit": "cap_percent",
+                "x_label": "156K",
+                "x_metric": "output_tokens",
+                "x_value": 155869.995
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 1,
+                "juice_level": "low",
+                "model": "GPT-5.5",
+                "score": 0.2789634146341463,
+                "score_label": "27.9%",
+                "score_unit": "cap_percent",
+                "x_label": "57.4K",
+                "x_metric": "output_tokens",
+                "x_value": 57431.321951219514
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 2,
+                "juice_level": "medium",
+                "model": "GPT-5.5",
+                "score": 0.4009146341463415,
+                "score_label": "40.1%",
+                "score_unit": "cap_percent",
+                "x_label": "91.0K",
+                "x_metric": "output_tokens",
+                "x_value": 90978.08292682927
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 3,
+                "juice_level": "high",
+                "model": "GPT-5.5",
+                "score": 0.4771341463414634,
+                "score_label": "47.7%",
+                "score_unit": "cap_percent",
+                "x_label": "104K",
+                "x_metric": "output_tokens",
+                "x_value": 104030.6243902439
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 4,
+                "juice_level": "xhigh",
+                "model": "GPT-5.5",
+                "score": 0.4786585365853659,
+                "score_label": "47.9%",
+                "score_unit": "cap_percent",
+                "x_label": "122K",
+                "x_metric": "output_tokens",
+                "x_value": 121631.86829268292
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 1,
+                "juice_level": "low",
+                "model": "GPT-5.4",
+                "score": 0.26372,
+                "score_label": "26.4%",
+                "score_unit": "cap_percent",
+                "x_label": "84.3K",
+                "x_metric": "output_tokens",
+                "x_value": 84268.307
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 2,
+                "juice_level": "medium",
+                "model": "GPT-5.4",
+                "score": 0.30945,
+                "score_label": "30.9%",
+                "score_unit": "cap_percent",
+                "x_label": "132K",
+                "x_metric": "output_tokens",
+                "x_value": 131953.005
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 3,
+                "juice_level": "high",
+                "model": "GPT-5.4",
+                "score": 0.33384,
+                "score_label": "33.4%",
+                "score_unit": "cap_percent",
+                "x_label": "159K",
+                "x_metric": "output_tokens",
+                "x_value": 158981.956
+              },
+              {
+                "category": "Cyber",
+                "code_mode": "false",
+                "eval": "ExploitBench",
+                "eval_id": "exploitbench",
+                "juice_index": 4,
+                "juice_level": "xhigh",
+                "model": "GPT-5.4",
+                "score": 0.37957,
+                "score_label": "38.0%",
+                "score_unit": "cap_percent",
+                "x_label": "202K",
+                "x_metric": "output_tokens",
+                "x_value": 201938.795
+              }
+            ]
+          },
+          "encoding": {
+            "color": {
+              "field": "model",
+              "legend": {
+                "columns": 3,
+                "orient": "top",
+                "title": null
+              },
+              "scale": {
+                "domain": [
+                  "GPT-5.6 Sol",
+                  "GPT-5.6 Terra",
+                  "GPT-5.6 Luna",
+                  "GPT-5.5",
+                  "GPT-5.4"
+                ],
+                "range": [
+                  "theme1",
+                  "theme2",
+                  "theme3",
+                  "theme2_pink",
+                  "theme3_pink"
+                ]
+              },
+              "sort": [
+                "GPT-5.6 Sol",
+                "GPT-5.6 Terra",
+                "GPT-5.6 Luna",
+                "GPT-5.5",
+                "GPT-5.4"
+              ],
+              "type": "nominal"
+            },
+            "order": {
+              "field": "juice_index",
+              "type": "ordinal"
+            },
+            "tooltip": {
+              "value": {
+                "expr": "{'Model': datum.model, 'Reasoning effort': upper(substring(datum.juice_level, 0, 1)) + substring(datum.juice_level, 1), 'Output Tokens': format(datum.x_value, ',.0f'), 'Cap percent': datum.score_label}"
+              }
+            },
+            "x": {
+              "axis": {
+                "labelExpr": "format(datum.value / 1000, '.0f') + 'K'",
+                "title": "Output Tokens",
+                "values": [
+                  100000,
+                  200000,
+                  300000,
+                  400000,
+                  500000
+                ]
+              },
+              "field": "x_value",
+              "scale": {
+                "nice": true,
+                "zero": false
+              },
+              "type": "quantitative"
+            },
+            "y": {
+              "axis": {
+                "format": ".0%",
+                "labelExpr": "format(datum.value, '.0%')",
+                "title": "Cap percent",
+                "values": [
+                  0.2,
+                  0.4,
+                  0.6,
+                  0.8
+                ]
+              },
+              "field": "score",
+              "scale": {
+                "domain": [
+                  0.12264000000000001,
+                  0.82
+                ],
+                "nice": false,
+                "zero": false
+              },
+              "type": "quantitative"
+            }
+          },
+          "mark": {
+            "point": {
+              "filled": true,
+              "size": 70
+            },
+            "strokeWidth": 2,
+            "type": "line"
+          },
+          "transform": [
+            {
+              "filter": "datum.x_metric === 'output_tokens'"
+            }
+          ]
+        },
+        {
+          "data": {
+            "values": [
+              {
+                "label": "Mythos Preview",
+                "model": "Mythos Preview",
+                "score": 0.7423780499999999,
+                "shape": "diamond",
+                "x_value": 334638.235294
+              }
+            ]
+          },
+          "encoding": {
+            "tooltip": [
+              {
+                "field": "model",
+                "title": "Model",
+                "type": "nominal"
+              },
+              {
+                "field": "score",
+                "format": ".1%",
+                "title": "Cap percent",
+                "type": "quantitative"
+              },
+              {
+                "field": "x_value",
+                "format": ",.0f",
+                "title": "Output Tokens",
+                "type": "quantitative"
+              }
+            ],
+            "x": {
+              "field": "x_value",
+              "type": "quantitative"
+            },
+            "y": {
+              "field": "score",
+              "type": "quantitative"
+            }
+          },
+          "mark": {
+            "color": "theme1_orange",
+            "filled": true,
+            "shape": "diamond",
+            "size": 125,
+            "strokeWidth": 3,
+            "type": "point"
+          }
+        },
+        {
+          "data": {
+            "values": [
+              {
+                "label": "Opus 4.7",
+                "model": "Opus 4.7",
+                "score": 0.27743902,
+                "shape": "square",
+                "x_value": 221852.682927
+              }
+            ]
+          },
+          "encoding": {
+            "tooltip": [
+              {
+                "field": "model",
+                "title": "Model",
+                "type": "nominal"
+              },
+              {
+                "field": "score",
+                "format": ".1%",
+                "title": "Cap percent",
+                "type": "quantitative"
+              },
+              {
+                "field": "x_value",
+                "format": ",.0f",
+                "title": "Output Tokens",
+                "type": "quantitative"
+              }
+            ],
+            "x": {
+              "field": "x_value",
+              "type": "quantitative"
+            },
+            "y": {
+              "field": "score",
+              "type": "quantitative"
+            }
+          },
+          "mark": {
+            "color": "theme3_orange",
+            "filled": true,
+            "shape": "square",
+            "size": 110,
+            "strokeWidth": 3,
+            "type": "point"
+          }
+        },
+        {
+          "data": {
+            "values": [
+              {
+                "label": "Mythos Preview",
+                "model": "Mythos Preview",
+                "score": 0.7423780499999999,
+                "shape": "diamond",
+                "x_value": 334638.235294
+              }
+            ]
+          },
+          "encoding": {
+            "text": {
+              "field": "label",
+              "type": "nominal"
+            },
+            "tooltip": [
+              {
+                "field": "model",
+                "title": "Model",
+                "type": "nominal"
+              },
+              {
+                "field": "score",
+                "format": ".1%",
+                "title": "Cap percent",
+                "type": "quantitative"
+              },
+              {
+                "field": "x_value",
+                "format": ",.0f",
+                "title": "Output Tokens",
+                "type": "quantitative"
+              }
+            ],
+            "x": {
+              "field": "x_value",
+              "type": "quantitative"
+            },
+            "y": {
+              "field": "score",
+              "type": "quantitative"
+            }
+          },
+          "mark": {
+            "align": "left",
+            "baseline": "middle",
+            "color": "theme1_orange",
+            "dx": 12,
+            "dy": 0,
+            "fontWeight": 600,
+            "type": "text"
+          }
+        },
+        {
+          "data": {
+            "values": [
+              {
+                "label": "Opus 4.7",
+                "model": "Opus 4.7",
+                "score": 0.27743902,
+                "shape": "square",
+                "x_value": 221852.682927
+              }
+            ]
+          },
+          "encoding": {
+            "text": {
+              "field": "label",
+              "type": "nominal"
+            },
+            "tooltip": [
+              {
+                "field": "model",
+                "title": "Model",
+                "type": "nominal"
+              },
+              {
+                "field": "score",
+                "format": ".1%",
+                "title": "Cap percent",
+                "type": "quantitative"
+              },
+              {
+                "field": "x_value",
+                "format": ",.0f",
+                "title": "Output Tokens",
+                "type": "quantitative"
+              }
+            ],
+            "x": {
+              "field": "x_value",
+              "type": "quantitative"
+            },
+            "y": {
+              "field": "score",
+              "type": "quantitative"
+            }
+          },
+          "mark": {
+            "align": "left",
+            "baseline": "middle",
+            "color": "theme3_orange",
+            "dx": 12,
+            "dy": 0,
+            "fontWeight": 600,
+            "type": "text"
+          }
+        },
+        {
+          "data": {
+            "values": [
+              {
+                "detail": "API, 5 seeds",
+                "label": "Mythos 5",
+                "model": "Mythos 5",
+                "score": 0.78,
+                "x_end": 560000,
+                "x_start": 20000
+              }
+            ]
+          },
+          "encoding": {
+            "tooltip": [
+              {
+                "field": "model",
+                "title": "Reference",
+                "type": "nominal"
+              },
+              {
+                "field": "score",
+                "format": ".1%",
+                "title": "Cap percent",
+                "type": "quantitative"
+              },
+              {
+                "field": "detail",
+                "title": "Evaluation",
+                "type": "nominal"
+              }
+            ],
+            "x": {
+              "field": "x_start",
+              "type": "quantitative"
+            },
+            "x2": {
+              "field": "x_end"
+            },
+            "y": {
+              "field": "score",
+              "type": "quantitative"
+            }
+          },
+          "mark": {
+            "color": "theme1_orange",
+            "strokeDash": [
+              2,
+              7
+            ],
+            "strokeWidth": 2,
+            "type": "rule"
+          }
+        },
+        {
+          "data": {
+            "values": [
+              {
+                "detail": "API, 5 seeds",
+                "label": "Opus 4.8",
+                "model": "Opus 4.8",
+                "score": 0.4,
+                "x_end": 560000,
+                "x_start": 20000
+              }
+            ]
+          },
+          "encoding": {
+            "tooltip": [
+              {
+                "field": "model",
+                "title": "Reference",
+                "type": "nominal"
+              },
+              {
+                "field": "score",
+                "format": ".1%",
+                "title": "Cap percent",
+                "type": "quantitative"
+              },
+              {
+                "field": "detail",
+                "title": "Evaluation",
+                "type": "nominal"
+              }
+            ],
+            "x": {
+              "field": "x_start",
+              "type": "quantitative"
+            },
+            "x2": {
+              "field": "x_end"
+            },
+            "y": {
+              "field": "score",
+              "type": "quantitative"
+            }
+          },
+          "mark": {
+            "color": "theme2_orange",
+            "strokeDash": [
+              2,
+              7
+            ],
+            "strokeWidth": 2,
+            "type": "rule"
+          }
+        },
+        {
+          "data": {
+            "values": [
+              {
+                "detail": "API, 5 seeds",
+                "label": "Mythos 5",
+                "model": "Mythos 5",
+                "score": 0.78,
+                "x_end": 560000,
+                "x_start": 20000
+              }
+            ]
+          },
+          "encoding": {
+            "text": {
+              "field": "label",
+              "type": "nominal"
+            },
+            "tooltip": [
+              {
+                "field": "model",
+                "title": "Reference",
+                "type": "nominal"
+              },
+              {
+                "field": "score",
+                "format": ".1%",
+                "title": "Cap percent",
+                "type": "quantitative"
+              },
+              {
+                "field": "detail",
+                "title": "Evaluation",
+                "type": "nominal"
+              }
+            ],
+            "x": {
+              "field": "x_end",
+              "type": "quantitative"
+            },
+            "y": {
+              "field": "score",
+              "type": "quantitative"
+            }
+          },
+          "mark": {
+            "align": "right",
+            "baseline": "bottom",
+            "color": "theme1_orange",
+            "dy": -8,
+            "fontWeight": 600,
+            "type": "text"
+          }
+        },
+        {
+          "data": {
+            "values": [
+              {
+                "detail": "API, 5 seeds",
+                "label": "Opus 4.8",
+                "model": "Opus 4.8",
+                "score": 0.4,
+                "x_end": 560000,
+                "x_start": 20000
+              }
+            ]
+          },
+          "encoding": {
+            "text": {
+              "field": "label",
+              "type": "nominal"
+            },
+            "tooltip": [
+              {
+                "field": "model",
+                "title": "Reference",
+                "type": "nominal"
+              },
+              {
+                "field": "score",
+                "format": ".1%",
+                "title": "Cap percent",
+                "type": "quantitative"
+              },
+              {
+                "field": "detail",
+                "title": "Evaluation",
+                "type": "nominal"
+              }
+            ],
+            "x": {
+              "field": "x_end",
+              "type": "quantitative"
+            },
+            "y": {
+              "field": "score",
+              "type": "quantitative"
+            }
+          },
+          "mark": {
+            "align": "right",
+            "baseline": "bottom",
+            "color": "theme2_orange",
+            "dy": -8,
+            "fontWeight": 600,
+            "type": "text"
+          }
+        }
+      ],
+      "params": [],
+      "title": {
+        "subtitle": "Cyber",
+        "text": "ExploitBench"
+      }
+    },
     "ExploitGym": {
       "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
       "data": {

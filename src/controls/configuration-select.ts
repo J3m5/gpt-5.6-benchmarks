@@ -179,7 +179,7 @@ export function createConfigurationSelect({
         selectedGroupCount > 0 && selectedGroupCount < availableGroupItems.length;
     });
     const selectedAvailableCount = availableItems.filter((item) => selectedIds.has(item.id)).length;
-    summary.textContent = `${selectedAvailableCount} / ${availableItems.length} models/efforts`;
+    summary.textContent = `${selectedAvailableCount} / ${availableItems.length} models`;
     clearButton.disabled = selectedIds.size === 0;
     selectAllButton.disabled = selectedIds.size === items.length;
   }
@@ -188,7 +188,7 @@ export function createConfigurationSelect({
     const margin = 12;
     const gap = 6;
     const triggerRect = trigger.getBoundingClientRect();
-    const width = Math.min(360, window.innerWidth - margin * 2);
+    const width = Math.min(triggerRect.width, window.innerWidth - margin * 2);
 
     panel.style.width = `${width}px`;
     panel.style.maxHeight = `${Math.min(520, window.innerHeight - margin * 2)}px`;

@@ -46,6 +46,32 @@ export interface TerminalItem {
   color: string;
 }
 
+export interface ExploitBenchSeriesPoint {
+  model: string;
+  effort: string;
+  outputTokens: number;
+  score: number;
+  sourceLabel: string;
+  color: string;
+}
+
+export interface ExploitBenchComparisonPoint {
+  model: string;
+  outputTokens: number;
+  score: number;
+  shape: "diamond" | "square";
+  color: string;
+}
+
+export interface ExploitBenchReferenceLine {
+  model: string;
+  detail: string;
+  xStart: number;
+  xEnd: number;
+  score: number;
+  color: string;
+}
+
 export interface ApiPricingTier {
   thresholdTokens: number;
   inputUsdPerMillionTokens: number;

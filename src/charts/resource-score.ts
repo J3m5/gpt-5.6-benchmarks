@@ -56,6 +56,7 @@ export interface ResourceChartConfig {
   familyLinesToggleId?: string;
   metricSelectId?: string;
   metricKey?: ResourceKey;
+  onSelectionChange?: (selectedIds: ReadonlySet<string>) => void;
   metricOverrides?: Partial<Record<ResourceKey, ResourceMetricOverride>>;
   getMetricOverride?: (key: ResourceKey) => ResourceMetricOverride;
   headingId: string;
@@ -68,6 +69,7 @@ export interface ResourceChartConfig {
   pointIsAvailable?: (point: ScatterPoint) => boolean;
   pointIsDisplayed?: (point: ScatterPoint) => boolean;
   countSuffix?: () => string;
+  rightMargin?: number;
   showDurationInTooltip?: boolean;
   xFallbacks: Partial<Record<ResourceKey, ScaleFallback>>;
   xScaleFallbacks?: Partial<Record<ResourceKey, Partial<Record<ScaleKind, ScaleFallback>>>>;
@@ -92,6 +94,8 @@ export interface ResourceScoreChart {
   refreshVisibility: () => void;
   render: () => void;
   resize: () => void;
+  selectedIds: ReadonlySet<string>;
+  setMetric: (key: ResourceKey) => void;
 }
 
 const scatterXMetrics: Record<ResourceKey, ResourceMetric> = {
@@ -188,8 +192,9 @@ export function createResourceScoreChart(
     : undefined;
   const heading = byId(config.headingId, HTMLHeadingElement);
   const metricDescription = byId(config.metricDescriptionId, HTMLParagraphElement);
+  let activeMetricKey = config.metricKey;
   const xMetric = (): ResourceMetric => {
-    const key = metricSelect?.value ?? config.metricKey;
+    const key = metricSelect?.value ?? activeMetricKey;
     if (!key) {
       throw new Error(`Resource chart ${config.id} has no horizontal metric`);
     }
@@ -242,7 +247,10 @@ export function createResourceScoreChart(
     groupSelection: config.selectionGroupsAreSelectable,
     showItemSwatches: config.showSelectionItemSwatches,
     isAvailable: selectionItemIsAvailable,
-    onChange: render,
+    onChange() {
+      render();
+      config.onSelectionChange?.(configurationSelect.selectedIds);
+    },
   });
 
   function selectedPoints(): ScatterPoint[] {
@@ -297,7 +305,7 @@ export function createResourceScoreChart(
     }
     const width = Math.max(scrollContainer.clientWidth, 900);
     const chartHeight = 560;
-    const margins = { top: 38, right: 128, bottom: 68, left: 70 };
+    const margins = { top: 38, right: config.rightMargin ?? 128, bottom: 68, left: 70 };
     const plotWidth = width - margins.left - margins.right;
     const plotHeight = chartHeight - margins.top - margins.bottom;
     const plotBottom = margins.top + plotHeight;
@@ -513,8 +521,6 @@ export function createResourceScoreChart(
       const dy = override.dy ?? 4;
       const commonAttributes = {
         fill: point.color,
-        stroke: "#ffffff",
-        "stroke-width": 2,
         "data-point-id": point.id,
         tabindex: 0,
         role: "graphics-symbol",
@@ -595,6 +601,14 @@ export function createResourceScoreChart(
 
   return {
     render,
+    selectedIds: configurationSelect.selectedIds,
+    setMetric(key) {
+      activeMetricKey = key;
+      if (metricSelect) {
+        metricSelect.value = key;
+      }
+      render();
+    },
     resize() {
       render();
       configurationSelect.reposition();

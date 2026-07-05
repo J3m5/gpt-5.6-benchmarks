@@ -45,20 +45,26 @@ browser-harness. Set `BROWSER_TEST_URL` to probe another preferred server URL.
 ### GeneBench v1
 
 - It contains 22 model/effort configurations.
-- The bar chart supports score, output tokens, latency, and API cost and sorts
-  the selected metric from lowest to highest.
-- The table defaults to score descending and all columns are sortable.
-- Global model filters update both charts and the table.
+- One card exposes eight accessible tabs: score versus API cost, latency, or
+  output tokens; score, API-cost, latency, or output-token bar rankings; and
+  the data table. It defaults to score versus API cost.
+- Bar rankings sort every metric ascending.
+- The table defaults to score descending, keeps its sort state across tab
+  changes, and retains sortable columns.
 - The resource/score chart switches its horizontal axis between API cost,
   latency, and output tokens and between logarithmic and linear scales. It
   defaults to logarithmic.
-- Its combined model/effort multi-select refines the globally visible models
-  and allows an empty selection.
+- One combined model/effort multi-select filters scatter, bar, and table views
+  consistently and allows an empty selection.
 - Its model families can be selected or cleared in one action. Family
   checkboxes expose complete, partial, and empty selection states; child rows
   show only reasoning effort and use checkbox color without a second swatch.
   Family labels use stronger typography; effort rows are indented beneath them
   with a subtle vertical guide.
+- Scatter-only controls and the attractive-quadrant legend are hidden in bar
+  and table views. The selector and model legend remain visible.
+- Tabs support ArrowLeft, ArrowRight, Home, and End and scroll horizontally on
+  narrow viewports.
 
 ### ExploitGym
 
@@ -68,8 +74,33 @@ browser-harness. Set `BROWSER_TEST_URL` to probe another preferred server URL.
   multi-select state.
 - GPT-5.4 and GPT-5.5 are disabled in the multi-select at 6 h because no source
   runs exist for them at that duration.
+- Its model selector uses the shared selectable family hierarchy: family
+  checkboxes select or clear every available effort, expose tri-state status,
+  and contain indented effort-only rows without redundant swatches.
 - Every resource metric supports logarithmic and linear horizontal scales. The
   chart defaults to logarithmic.
+
+### ExploitBench
+
+- The normalized snapshot contains 23 GPT series points across GPT-5.6 Sol,
+  Terra, Luna, GPT-5.5, and GPT-5.4.
+- The chart connects each model family's points in reasoning-effort order and
+  preserves the exact source output-token and cap-percent values.
+- Mythos Preview and Opus 4.7 appear as standalone comparison points. Mythos 5
+  and Opus 4.8 appear as horizontal reference lines at 78% and 40%.
+- Its grouped selector controls the 23 GPT model/effort configurations.
+  Comparison points and horizontal references remain visible independently.
+- Its horizontal scale defaults to logarithmic and toggles to linear without
+  changing the fixed source domain or selected points.
+- Point labels default to visible. Family lines default to hidden and use the
+  shared contiguous-effort behavior when enabled.
+- Pareto mode filters the selected GPT configurations together with the two
+  comparison points while retaining both horizontal references. With every
+  configuration selected, the frontier contains eight points.
+- Every visible point symbol remains keyboard focusable, has an accessible
+  name, and exposes output tokens and cap percent through the shared tooltip.
+- The fixed 900 px chart scrolls inside its container on narrow viewports
+  without widening the document.
 
 ### TerminalBench 2.1
 
@@ -117,7 +148,8 @@ browser-harness. Set `BROWSER_TEST_URL` to probe another preferred server URL.
 - Pareto mode hides 0% scores; normal mode retains them.
 - Resource and score domains are recalculated from currently visible points.
   Every resource axis supports linear and logarithmic scales. All resource
-  scatter plots default to logarithmic.
+  scatter plots default to logarithmic. Linear resource axes stop at the first
+  rounded tick that covers the highest visible value.
 - Every resource scatter plot shows point labels by default and provides a
   toggle that removes only the visible label text. Points, accessible names,
   domains, and chart dimensions remain unchanged.
@@ -143,9 +175,9 @@ browser-harness. Set `BROWSER_TEST_URL` to probe another preferred server URL.
 - Keep chart dimensions stable when labels, filters, and values change.
 - Native axis selects and model multi-select triggers share height, border,
   background, typography, focus treatment, and chevron styling.
-- Model multi-select triggers use the compact
-  `selected / available models/efforts` summary and retain a visually hidden
-  accessible label.
+- Model multi-select triggers use the compact `selected / available models`
+  summary, retain a visually hidden accessible label, and open a panel matching
+  the trigger width.
 - Scatter labels are regular weight, horizontally aligned, and placed to the
   right of points by default. Vertical offsets are targeted collision
   exceptions.
@@ -158,10 +190,15 @@ browser-harness. Set `BROWSER_TEST_URL` to probe another preferred server URL.
 - the API pricing table's position, headers, exact eleven-model coverage,
   representative OpenAI, Anthropic, and Gemini values, source links, cache
   applicability, long-context tiers, and mobile containment;
-- 22 GeneBench bars, 22 scatter points, and 22 table rows;
+- all eight GeneBench tabs, keyboard tab navigation, contextual controls,
+  metric-specific scatter and bar rendering, shared configuration selection,
+  and persistent table sorting;
 - 33 GeneBench-Pro scaling points on linear and logarithmic tokens-used and
   estimated-cost axes;
 - 17 ExploitGym points in 2 h mode and 15 in 6 h mode;
+- ExploitBench grouped selection, logarithmic/linear scale switching, point
+  labels, five correctly positioned optional family lines, eight-point Pareto
+  filtering, two comparison points, and two persistent horizontal references;
 - 9 TerminalBench bars;
 - all resource axes and both ExploitGym durations;
 - point-label toggles on all three resource scatter plots, including preserved
@@ -169,7 +206,7 @@ browser-harness. Set `BROWSER_TEST_URL` to probe another preferred server URL.
 - family-line toggles on all three resource scatter plots, including default
   state, counts, colors, effort order, exact point-center geometry, rendering
   order, gap splitting, label-toggle independence, and preserved chart state;
-- family-line recalculation across metrics, linear/log scales, model filters,
+- family-line recalculation across metrics, linear/log scales, configuration filters,
   Pareto mode, and both ExploitGym durations, including the GeneBench v1
   Terra / low to Terra / max Pareto segment;
 - linear/logarithmic switching for every GeneBench v1 and ExploitGym resource
@@ -184,16 +221,18 @@ browser-harness. Set `BROWSER_TEST_URL` to probe another preferred server URL.
   retains Sol / low;
 - quadrant geometry, point-label placement, and grid styling;
 - visual parity and containment of axis-select and model-select triggers;
-- GeneBench v1 family selection, tri-state updates, effort-only labels,
-  hierarchical typography and indentation, and removal of redundant item
-  swatches;
+- GeneBench v1 family selection shared across scatter, bar, and table views,
+  tri-state updates, effort-only labels, hierarchical typography and
+  indentation, and removal of redundant item swatches;
+- ExploitGym family selection, hierarchy presentation, tri-state updates, and
+  duration-aware family availability;
 - no incoherent point-label collisions on desktop for the GeneBench v1 and
   ExploitGym scatter plots in their default logarithmic mode; collisions are
   accepted in optional linear mode while label count and right-side placement
   remain enforced;
 - document width equal to the viewport at 390 px.
 
-When a change affects model filters, configuration selection, Pareto mode, or
+When a change affects tabs, configuration selection, Pareto mode, or
 table sorting, add focused assertions or verify those interactions
 programmatically before finishing.
 

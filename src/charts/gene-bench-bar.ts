@@ -1,4 +1,4 @@
-import { visibleGeneBenchPoints } from "../data";
+import { selectedGeneBenchPoints } from "../data";
 import type { BenchmarkGroup, MetricKey } from "../types";
 import type { TooltipController } from "../ui/tooltip";
 import { byId, gridStyles, svgNode } from "../utils/dom";
@@ -7,7 +7,6 @@ import { integerFormatter } from "../utils/format";
 interface BarMetric {
   key: MetricKey;
   axis: string;
-  description: string;
   max: number;
   step: number;
   formatTick: (value: number) => string;
@@ -15,19 +14,18 @@ interface BarMetric {
 }
 
 interface GeneBenchBarChartConfig {
-  selectedModels: ReadonlySet<string>;
+  selectedConfigurationIds: ReadonlySet<string>;
   tooltip: TooltipController;
 }
 
 export interface GeneBenchBarChart {
-  render: () => void;
+  render: (metricKey: MetricKey) => void;
 }
 
 const metrics: Record<MetricKey, BarMetric> = {
   score: {
     key: "score",
     axis: "Score",
-    description: "Pass@1 score",
     max: 35,
     step: 5,
     formatTick: (value) => `${value}%`,
@@ -36,7 +34,6 @@ const metrics: Record<MetricKey, BarMetric> = {
   tokens: {
     key: "tokens",
     axis: "Output tokens",
-    description: "Output tokens",
     max: 60000,
     step: 10000,
     formatTick: (value) => (value === 0 ? "0" : `${value / 1000}k`),
@@ -45,7 +42,6 @@ const metrics: Record<MetricKey, BarMetric> = {
   latency: {
     key: "latency",
     axis: "Latency (minutes)",
-    description: "Latency",
     max: 15,
     step: 2.5,
     formatTick: (value) => `${value}`,
@@ -54,7 +50,6 @@ const metrics: Record<MetricKey, BarMetric> = {
   cost: {
     key: "cost",
     axis: "API cost (USD)",
-    description: "Estimated API cost",
     max: 2,
     step: 0.5,
     formatTick: (value) => `$${value.toFixed(1)}`,
@@ -87,18 +82,15 @@ function tooltipContent(
 }
 
 export function createGeneBenchBarChart({
-  selectedModels,
+  selectedConfigurationIds,
   tooltip,
 }: GeneBenchBarChartConfig): GeneBenchBarChart {
   const svg = byId("chart", SVGSVGElement);
   const scrollContainer = byId("chart-scroll", HTMLDivElement);
-  const count = byId("count", HTMLDivElement);
-  const metricSelect = byId("metric-select", HTMLSelectElement);
-  const metricDescription = byId("metric-description", HTMLParagraphElement);
 
-  function render(): void {
-    const metric = metricFor(metricSelect.value);
-    const points = visibleGeneBenchPoints(selectedModels).toSorted(
+  function render(metricKey: MetricKey): void {
+    const metric = metricFor(metricKey);
+    const points = selectedGeneBenchPoints(selectedConfigurationIds).toSorted(
       (a, b) => a[metric.key] - b[metric.key] || a.group.model.localeCompare(b.group.model),
     );
     const margins = { top: 54, right: 28, bottom: 158, left: 68 };
@@ -115,8 +107,6 @@ export function createGeneBenchBarChart({
     svg.replaceChildren();
     svg.setAttribute("viewBox", `0 0 ${width} ${chartHeight}`);
     svg.style.width = `${width}px`;
-    metricDescription.textContent = `${metric.description} \u00b7 ascending`;
-
     svg.append(
       svgNode(
         "title",
@@ -188,6 +178,9 @@ export function createGeneBenchBarChart({
         fill: group.color,
         tabindex: 0,
         role: "graphics-symbol",
+        "data-configuration-id": `${group.model}|${effort}`,
+        "data-metric": metric.key,
+        "data-value": value,
         "aria-label": `${group.model}, effort ${effort}, ${metric.axis} ${metric.formatValue(value)}`,
       });
       const showTooltip = (coordinates: { clientX: number; clientY: number }): void => {
@@ -236,11 +229,8 @@ export function createGeneBenchBarChart({
         ),
       );
     });
-
-    count.textContent = `${points.length} configuration${points.length === 1 ? "" : "s"}`;
   }
 
-  metricSelect.addEventListener("change", render);
   scrollContainer.addEventListener("scroll", tooltip.hide);
 
   return { render };

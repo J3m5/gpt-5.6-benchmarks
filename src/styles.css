@@ -141,6 +141,103 @@ h1 {
   background: var(--surface);
 }
 
+.gene-view-tabs {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--line);
+  background: #f7f8f9;
+  padding: 10px 12px 0;
+  scrollbar-width: thin;
+}
+
+.gene-view-tabs [role="tab"] {
+  min-height: 46px;
+  flex: none;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: #555960;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  padding: 0 14px;
+  white-space: nowrap;
+}
+
+.gene-view-tabs [role="tab"]:hover {
+  color: var(--ink);
+}
+
+.gene-view-tabs [role="tab"][aria-selected="true"] {
+  border-bottom-color: var(--ink);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.gene-view-tabs [role="tab"]:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -3px;
+}
+
+.gene-workspace-meta {
+  display: flex;
+  min-height: 66px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid var(--line);
+  padding: 10px 18px;
+}
+
+.gene-workspace-legend,
+.gene-workspace-actions,
+.gene-scatter-controls,
+.gene-model-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.gene-workspace-legend {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.gene-model-legend {
+  flex: none;
+}
+
+.gene-workspace-actions {
+  flex: none;
+}
+
+.gene-view-panel[hidden],
+.gene-scatter-controls[hidden],
+#gene-quadrant-legend[hidden] {
+  display: none;
+}
+
+.gene-table-sort-status {
+  border-bottom: 1px solid var(--line);
+  padding: 12px 16px;
+}
+
+.gene-table-frame {
+  border: 0;
+  border-radius: 0;
+}
+
+.gene-table-notes {
+  border-top: 1px solid var(--line);
+  margin-top: 0;
+  padding: 12px 16px;
+}
+
 .toolbar {
   display: flex;
   min-height: 64px;
@@ -201,7 +298,7 @@ h1 {
 
 .multi-select-trigger {
   display: inline-flex;
-  min-width: 260px;
+  min-width: 220px;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
@@ -521,73 +618,11 @@ h1 {
   background: var(--line);
 }
 
-.model-filters {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-
-.filter {
-  position: relative;
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  gap: 8px;
-  min-height: 36px;
-  cursor: pointer;
-  color: #34363a;
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.filter input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  opacity: 0;
-}
-
-.check {
-  display: grid;
-  width: 18px;
-  height: 18px;
-  place-items: center;
-  border: 1px solid #aeb2b9;
-  border-radius: 3px;
-  background: #fff;
-}
-
-.check::after {
-  width: 8px;
-  height: 4px;
-  border-bottom: 2px solid #fff;
-  border-left: 2px solid #fff;
-  content: "";
-  transform: translateY(-1px) rotate(-45deg);
-  opacity: 0;
-}
-
-.filter input:checked + .check {
-  border-color: var(--filter-color);
-  background: var(--filter-color);
-}
-
-.filter input:checked + .check::after {
-  opacity: 1;
-}
-
-.filter input:focus-visible + .check {
-  outline: 2px solid var(--ink);
-  outline-offset: 3px;
-}
-
 .swatch {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: var(--filter-color);
+  background: var(--option-color);
 }
 
 .chart-scroll {
@@ -656,6 +691,17 @@ h1 {
   min-width: 900px;
 }
 
+.exploitbench-chart-scroll {
+  overflow-x: auto;
+  scrollbar-color: #aeb2b9 transparent;
+}
+
+.exploitbench-chart {
+  display: block;
+  height: 560px;
+  min-width: 900px;
+}
+
 .terminal-chart-wrap {
   width: 100%;
   overflow: hidden;
@@ -692,24 +738,6 @@ h1 {
 
 .tooltip.visible {
   opacity: 1;
-}
-
-.data-section {
-  margin-top: clamp(36px, 5vw, 56px);
-}
-
-.table-heading {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 16px;
-}
-
-.table-heading h2 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 680;
 }
 
 .sort-status {
@@ -949,13 +977,31 @@ td.numeric {
     display: none;
   }
 
+  .gene-workspace-meta {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .gene-workspace-actions {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .gene-workspace-actions > .multi-select-trigger {
+    width: 100%;
+  }
+
+  .gene-scatter-controls {
+    flex-wrap: wrap;
+  }
+
+  .gene-scatter-controls .toolbar-divider {
+    display: none;
+  }
+
   .multi-select-trigger {
     width: 100%;
     min-width: 0;
-  }
-
-  .table-heading {
-    display: block;
   }
 
   .sort-status {

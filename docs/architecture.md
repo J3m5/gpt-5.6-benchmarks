@@ -21,8 +21,11 @@ The observed upstream rendering implementation is documented in
   contiguous family-series construction.
 - `src/api-cost.ts` contains the pure output-token cost calculation.
 - `src/charts/` owns SVG rendering. Benchmark-specific resource chart wrappers
-  configure the shared `resource-score.ts` renderer.
-- `src/controls/` owns model and duration input handling.
+  configure the shared `resource-score.ts` renderer; `exploit-bench.ts` owns
+  the source-specific layered ExploitBench chart.
+- `src/gene-bench/workspace.ts` owns the unified GeneBench tab state and
+  coordinates its scatter, bar, and table renderers.
+- `src/controls/` owns reusable configuration and duration input handling.
 - `src/table/` owns the sortable GeneBench table.
 - `src/table/api-pricing-table.ts` renders the non-sortable API pricing table
   from the normalized pricing snapshot.
@@ -49,6 +52,15 @@ delegates configuration selection state, panel positioning, and keyboard
 dismissal to `controls/configuration-select.ts`. Runtime-generated SVG must not
 be edited manually.
 
+The GeneBench workspace presents eight mutually exclusive views in one card:
+three score/resource scatters, four single-metric bar rankings, and the data
+table. Its resource chart owns the shared set of 22 selected configuration IDs;
+the bar and table renderers consume the same read-only set. Tab changes select
+the scatter metric through the renderer API rather than through a hidden DOM
+control. Scatter-only controls and the attractive-quadrant legend are hidden in
+bar and table views. Bar rankings use ascending order for every metric, while
+table sort state persists across view changes.
+
 Family lines are built after model, duration, and Pareto filtering. Outside
 Pareto mode, they connect only consecutive visible efforts in the canonical
 `none -> low -> medium -> high -> xhigh -> max` order; efforts absent from the
@@ -59,15 +71,27 @@ Unknown efforts remain visible as points but do not participate in lines.
 Positioned points are calculated once per render and shared by polylines,
 symbols, and labels.
 
+ExploitBench remains separate from the shared resource/score renderer because
+its source contract includes five GPT effort series, standalone comparison
+points, and horizontal reference lines. Its renderer reuses the shared
+configuration selector, Pareto calculation, and contiguous family-line builder
+while retaining its source-specific comparison and reference layers. Its
+normalizer locates Vega layers by mark type and validates their field contracts
+instead of depending on layer position. The frontend renders 23 selectable GPT
+series points, two persistent comparison points, and two persistent reference
+lines.
+
 Native single-selects and model multi-selects keep distinct interaction
 semantics but share the `control-trigger` visual shell in `src/styles.css`.
 The `select-trigger` wrapper supplies the same border, typography, focus
 treatment, and chevron as `multi-select-trigger`.
 The shared configuration selector optionally exposes tri-state family
-checkboxes. GeneBench v1 and GeneBench-Pro enable them, use effort-only item
-labels, and omit redundant item swatches; ExploitGym retains its existing
-grouped list. Triggers use the compact `selected / available models/efforts`
-summary while retaining a visually hidden accessible label.
+checkboxes. GeneBench v1, GeneBench-Pro, ExploitBench, and ExploitGym enable
+them, use effort-only item labels, and omit redundant item swatches.
+ExploitGym derives family availability from the active duration, disabling
+families without runs. Triggers use the compact `selected / available models`
+summary while retaining a visually hidden accessible label. The selection
+panel matches its trigger width.
 
 ## Module Boundaries
 
@@ -100,12 +124,13 @@ validates them, and writes deterministic artifacts atomically:
   consumed LiteLLM entries.
 - `data/benchmarks.json` is the normalized source of truth consumed by the UI.
 
-`src/data.ts` exposes the grouped GeneBench data, GeneBench-Pro scaling points,
-other scatter points, and TerminalBench rows required by the rendering domains.
-These are projections of the normalized JSON; benchmark values must remain in
-the data files rather than being duplicated in HTML or TypeScript. The
-normalized `geneBenchProMaxReasoning` collection is extracted and verified but
-does not yet have a frontend projection.
+`src/data.ts` exposes the grouped GeneBench data, the layered ExploitBench
+series and references, GeneBench-Pro scaling points, other scatter points, and
+TerminalBench rows required by the rendering domains. These are projections of
+the normalized JSON; benchmark values must remain in the data files rather than
+being duplicated in HTML or TypeScript. The normalized
+`geneBenchProMaxReasoning` collection is extracted and verified but does not
+yet have a frontend projection.
 
 API pricing extraction reads LiteLLM's public cost map for GPT-5.2, GPT-5.4,
 GPT-5.5, Claude Fable 5, Claude Opus 4.8, and Gemini 3.1 Pro Preview. GPT-5.6

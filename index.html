@@ -26,7 +26,8 @@
         <div>
           <h1 id="page-title">GPT-5.6 benchmark comparison</h1>
           <p class="metric">
-            GeneBench v1 &middot; GeneBench-Pro &middot; ExploitGym &middot; TerminalBench 2.1
+            GeneBench v1 &middot; GeneBench-Pro &middot; ExploitBench &middot; ExploitGym &middot;
+            TerminalBench 2.1
           </p>
         </div>
       </section>
@@ -72,132 +73,269 @@
         <div class="benchmark-heading">
           <div>
             <h2 id="genebench-title">GeneBench v1</h2>
-            <p class="metric" id="metric-description">Pass@1 score &middot; ascending</p>
-          </div>
-          <div class="count" id="count" aria-live="polite"></div>
-        </div>
-        <div class="chart-panel" aria-label="GeneBench v1 comparison chart">
-          <div class="toolbar">
-            <label class="metric-picker" for="metric-select">
-              <span>Metric</span>
-              <span class="control-trigger select-trigger">
-                <select id="metric-select">
-                  <option value="score">Score</option>
-                  <option value="tokens">Output tokens</option>
-                  <option value="latency">Latency</option>
-                  <option value="cost">API cost</option>
-                </select>
-              </span>
-            </label>
-            <span class="toolbar-divider" aria-hidden="true"></span>
-            <div class="model-filters" id="filters" aria-label="Displayed models"></div>
-          </div>
-          <div class="chart-scroll" id="chart-scroll">
-            <svg id="chart" role="img" aria-labelledby="chart-title chart-description">
-              <title id="chart-title">GeneBench v1 scores by model and reasoning effort</title>
-              <desc id="chart-description">
-                Bar chart sorted by score in ascending order. The vertical axis shows the score as a
-                percentage. Each horizontal-axis category represents one model and reasoning effort
-                level.
-              </desc>
-            </svg>
-          </div>
-        </div>
-      </section>
-
-      <section class="benchmark-section" aria-labelledby="gene-scatter-title">
-        <div class="benchmark-heading">
-          <div>
-            <h2 id="gene-scatter-title">GeneBench v1: API cost vs. score</h2>
-            <p class="metric" id="gene-scatter-metric">
+            <p class="metric" id="gene-workspace-metric">
               API cost (USD), logarithmic scale &middot; pass@1 score
             </p>
           </div>
-          <div class="count" id="scatter-count">22 points</div>
+          <div class="count" id="gene-workspace-count" aria-live="polite">22 points</div>
         </div>
-        <div class="chart-panel" aria-label="GeneBench resource use and score scatter plot">
-          <div class="toolbar scatter-toolbar">
-            <label class="metric-picker" for="gene-scatter-metric-select">
-              <span>Horizontal axis</span>
-              <span class="control-trigger select-trigger">
-                <select id="gene-scatter-metric-select">
-                  <option value="cost">API cost</option>
-                  <option value="latency">Latency</option>
-                  <option value="tokens">Output tokens</option>
-                </select>
-              </span>
-            </label>
-            <span class="toolbar-divider" aria-hidden="true"></span>
+        <div class="chart-panel gene-workspace" aria-label="GeneBench v1 data views">
+          <div
+            class="gene-view-tabs"
+            id="gene-view-tabs"
+            role="tablist"
+            aria-label="GeneBench view"
+          >
             <button
-              class="control-trigger multi-select-trigger"
-              id="scatter-selection-trigger"
+              id="gene-tab-scatter-cost"
               type="button"
-              aria-haspopup="dialog"
-              aria-expanded="false"
-              aria-controls="scatter-selection-panel"
-              aria-labelledby="scatter-selection-label scatter-selection-summary"
+              role="tab"
+              aria-selected="true"
+              aria-controls="gene-scatter-panel"
+              data-gene-view="scatter-cost"
             >
-              <span class="visually-hidden" id="scatter-selection-label"
-                >Models and reasoning efforts:</span
-              >
-              <span id="scatter-selection-summary">22 / 22 models/efforts</span>
+              Score vs. cost
             </button>
-            <span class="toolbar-divider" aria-hidden="true"></span>
-            <label class="pareto-toggle">
-              <input id="gene-scatter-log-toggle" type="checkbox" checked />
-              <span class="toggle-track" aria-hidden="true"></span>
-              <span>Log scale</span>
-            </label>
-            <span class="toolbar-divider" aria-hidden="true"></span>
-            <label class="pareto-toggle">
-              <input id="gene-scatter-labels-toggle" type="checkbox" checked />
-              <span class="toggle-track" aria-hidden="true"></span>
-              <span>Point labels</span>
-            </label>
-            <span class="toolbar-divider" aria-hidden="true"></span>
-            <label class="pareto-toggle">
-              <input id="gene-scatter-family-lines-toggle" type="checkbox" />
-              <span class="toggle-track" aria-hidden="true"></span>
-              <span>Family lines</span>
-            </label>
-            <span class="toolbar-divider" aria-hidden="true"></span>
-            <label class="pareto-toggle">
-              <input id="pareto-toggle" type="checkbox" />
-              <span class="toggle-track" aria-hidden="true"></span>
-              <span>Pareto frontier</span>
-            </label>
+            <button
+              id="gene-tab-scatter-latency"
+              type="button"
+              role="tab"
+              tabindex="-1"
+              aria-selected="false"
+              aria-controls="gene-scatter-panel"
+              data-gene-view="scatter-latency"
+            >
+              Score vs. time
+            </button>
+            <button
+              id="gene-tab-scatter-tokens"
+              type="button"
+              role="tab"
+              tabindex="-1"
+              aria-selected="false"
+              aria-controls="gene-scatter-panel"
+              data-gene-view="scatter-tokens"
+            >
+              Score vs. output tokens
+            </button>
+            <button
+              id="gene-tab-bar-score"
+              type="button"
+              role="tab"
+              tabindex="-1"
+              aria-selected="false"
+              aria-controls="gene-bars-panel"
+              data-gene-view="bar-score"
+            >
+              Score
+            </button>
+            <button
+              id="gene-tab-bar-cost"
+              type="button"
+              role="tab"
+              tabindex="-1"
+              aria-selected="false"
+              aria-controls="gene-bars-panel"
+              data-gene-view="bar-cost"
+            >
+              Cost
+            </button>
+            <button
+              id="gene-tab-bar-latency"
+              type="button"
+              role="tab"
+              tabindex="-1"
+              aria-selected="false"
+              aria-controls="gene-bars-panel"
+              data-gene-view="bar-latency"
+            >
+              Time
+            </button>
+            <button
+              id="gene-tab-bar-tokens"
+              type="button"
+              role="tab"
+              tabindex="-1"
+              aria-selected="false"
+              aria-controls="gene-bars-panel"
+              data-gene-view="bar-tokens"
+            >
+              Output tokens
+            </button>
+            <button
+              id="gene-tab-table"
+              type="button"
+              role="tab"
+              tabindex="-1"
+              aria-selected="false"
+              aria-controls="gene-table-panel"
+              data-gene-view="table"
+            >
+              Data table
+            </button>
           </div>
-          <div class="scatter-legend" aria-label="GeneBench chart legend">
-            <span class="legend-item quadrant-legend"
-              ><span class="quadrant-swatch" aria-hidden="true"></span>Most attractive
-              quadrant</span
-            >
-            <span class="legend-item"
-              ><span class="legend-dot" style="--legend-color: #292b2f"></span>GPT-5.6 Sol</span
-            >
-            <span class="legend-item"
-              ><span class="legend-dot" style="--legend-color: #3478d4"></span>GPT-5.6 Terra</span
-            >
-            <span class="legend-item"
-              ><span class="legend-dot" style="--legend-color: #188b62"></span>GPT-5.6 Luna</span
-            >
-            <span class="legend-item"
-              ><span class="legend-dot" style="--legend-color: #d85f8c"></span>GPT-5.5</span
-            >
+
+          <div class="gene-workspace-meta">
+            <div class="gene-workspace-legend" aria-label="GeneBench chart legend">
+              <span class="legend-item quadrant-legend" id="gene-quadrant-legend"
+                ><span class="quadrant-swatch" aria-hidden="true"></span>Most attractive
+                quadrant</span
+              >
+              <div class="gene-model-legend">
+                <span class="legend-item"
+                  ><span class="legend-dot" style="--legend-color: #292b2f"></span>GPT-5.6 Sol</span
+                >
+                <span class="legend-item"
+                  ><span class="legend-dot" style="--legend-color: #3478d4"></span>GPT-5.6
+                  Terra</span
+                >
+                <span class="legend-item"
+                  ><span class="legend-dot" style="--legend-color: #188b62"></span>GPT-5.6
+                  Luna</span
+                >
+                <span class="legend-item"
+                  ><span class="legend-dot" style="--legend-color: #d85f8c"></span>GPT-5.5</span
+                >
+              </div>
+            </div>
+            <div class="gene-workspace-actions">
+              <button
+                class="control-trigger multi-select-trigger"
+                id="gene-selection-trigger"
+                type="button"
+                aria-haspopup="dialog"
+                aria-expanded="false"
+                aria-controls="gene-scatter-selection-panel"
+                aria-labelledby="gene-selection-label gene-selection-summary"
+              >
+                <span class="visually-hidden" id="gene-selection-label"
+                  >Models and reasoning efforts:</span
+                >
+                <span id="gene-selection-summary">22 / 22 models</span>
+              </button>
+              <div class="gene-scatter-controls" id="gene-scatter-controls">
+                <span class="toolbar-divider" aria-hidden="true"></span>
+                <label class="pareto-toggle">
+                  <input id="gene-scatter-log-toggle" type="checkbox" checked />
+                  <span class="toggle-track" aria-hidden="true"></span>
+                  <span>Log scale</span>
+                </label>
+                <span class="toolbar-divider" aria-hidden="true"></span>
+                <label class="pareto-toggle">
+                  <input id="gene-scatter-labels-toggle" type="checkbox" checked />
+                  <span class="toggle-track" aria-hidden="true"></span>
+                  <span>Point labels</span>
+                </label>
+                <span class="toolbar-divider" aria-hidden="true"></span>
+                <label class="pareto-toggle">
+                  <input id="gene-scatter-family-lines-toggle" type="checkbox" />
+                  <span class="toggle-track" aria-hidden="true"></span>
+                  <span>Family lines</span>
+                </label>
+                <span class="toolbar-divider" aria-hidden="true"></span>
+                <label class="pareto-toggle">
+                  <input id="pareto-toggle" type="checkbox" />
+                  <span class="toggle-track" aria-hidden="true"></span>
+                  <span>Pareto frontier</span>
+                </label>
+              </div>
+            </div>
           </div>
-          <div class="scatter-scroll" id="gene-scatter-scroll">
-            <svg
-              class="resource-score-chart"
-              id="gene-scatter"
-              role="img"
-              aria-labelledby="gene-scatter-svg-title gene-scatter-description"
-            >
-              <title id="gene-scatter-svg-title">GeneBench v1 API cost and score</title>
-              <desc id="gene-scatter-description">
-                Scatter plot with API cost on a logarithmic horizontal axis and pass@1 score on the
-                vertical axis.
-              </desc>
-            </svg>
+
+          <div
+            class="gene-view-panel"
+            id="gene-scatter-panel"
+            role="tabpanel"
+            aria-labelledby="gene-tab-scatter-cost"
+          >
+            <div class="scatter-scroll" id="gene-scatter-scroll">
+              <svg
+                class="resource-score-chart"
+                id="gene-scatter"
+                role="img"
+                aria-labelledby="gene-scatter-svg-title gene-scatter-description"
+              >
+                <title id="gene-scatter-svg-title">GeneBench v1 API cost and score</title>
+                <desc id="gene-scatter-description">
+                  Scatter plot with API cost on a logarithmic horizontal axis and pass@1 score on
+                  the vertical axis.
+                </desc>
+              </svg>
+            </div>
+          </div>
+
+          <div
+            class="gene-view-panel"
+            id="gene-bars-panel"
+            role="tabpanel"
+            aria-labelledby="gene-tab-bar-score"
+            hidden
+          >
+            <div class="chart-scroll" id="chart-scroll">
+              <svg id="chart" role="img" aria-labelledby="chart-title chart-description">
+                <title id="chart-title">GeneBench v1 scores by model and reasoning effort</title>
+                <desc id="chart-description">
+                  Bar chart sorted by score in ascending order. Each horizontal-axis category
+                  represents one model and reasoning effort level.
+                </desc>
+              </svg>
+            </div>
+          </div>
+
+          <div
+            class="gene-view-panel"
+            id="gene-table-panel"
+            role="tabpanel"
+            aria-labelledby="gene-tab-table"
+            hidden
+          >
+            <p class="sort-status gene-table-sort-status" id="sort-status" aria-live="polite">
+              Sorted by score, descending
+            </p>
+            <div class="table-frame gene-table-frame">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col" data-sort-key="model" aria-sort="none">
+                      <button class="sort-button" type="button" data-sort-key="model">
+                        Model <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                      </button>
+                    </th>
+                    <th scope="col" data-sort-key="effort" aria-sort="none">
+                      <button class="sort-button" type="button" data-sort-key="effort">
+                        Reasoning effort
+                        <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                      </button>
+                    </th>
+                    <th class="numeric" scope="col" data-sort-key="score" aria-sort="descending">
+                      <button class="sort-button" type="button" data-sort-key="score">
+                        Score <span class="sort-indicator" aria-hidden="true">&#8595;</span>
+                      </button>
+                    </th>
+                    <th class="numeric" scope="col" data-sort-key="tokens" aria-sort="none">
+                      <button class="sort-button" type="button" data-sort-key="tokens">
+                        Output tokens <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                      </button>
+                    </th>
+                    <th class="numeric" scope="col" data-sort-key="latency" aria-sort="none">
+                      <button class="sort-button" type="button" data-sort-key="latency">
+                        Latency <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                      </button>
+                    </th>
+                    <th class="numeric" scope="col" data-sort-key="cost" aria-sort="none">
+                      <button class="sort-button" type="button" data-sort-key="cost">
+                        API cost <span class="sort-indicator" aria-hidden="true">&#8597;</span>
+                      </button>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="data-table-body"></tbody>
+              </table>
+            </div>
+            <div class="notes gene-table-notes">
+              <p>Reasoning effort levels follow the labels used in the source chart.</p>
+              <p>GPT-5.6 Sol has no &ldquo;none&rdquo; configuration.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -236,7 +374,7 @@
               <span class="visually-hidden" id="genebench-pro-scaling-selection-label"
                 >Models and reasoning efforts:</span
               >
-              <span id="genebench-pro-scaling-selection-summary">33 / 33 models/efforts</span>
+              <span id="genebench-pro-scaling-selection-summary">33 / 33 models</span>
             </button>
             <span class="toolbar-divider" aria-hidden="true"></span>
             <label class="pareto-toggle">
@@ -323,6 +461,92 @@
         </div>
       </section>
 
+      <section class="benchmark-section" aria-labelledby="exploitbench-title">
+        <div class="benchmark-heading">
+          <div>
+            <h2 id="exploitbench-title">ExploitBench</h2>
+            <p class="metric" id="exploitbench-metric">
+              Output tokens, logarithmic scale &middot; cap percent
+            </p>
+          </div>
+          <div class="count" id="exploitbench-count">25 points &middot; 2 references</div>
+        </div>
+        <div class="chart-panel" aria-label="ExploitBench output tokens and cap percent chart">
+          <div class="toolbar scatter-toolbar">
+            <button
+              class="control-trigger multi-select-trigger"
+              id="exploitbench-selection-trigger"
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded="false"
+              aria-controls="exploitbench-selection-panel"
+              aria-labelledby="exploitbench-selection-label exploitbench-selection-summary"
+            >
+              <span class="visually-hidden" id="exploitbench-selection-label"
+                >Models and reasoning efforts:</span
+              >
+              <span id="exploitbench-selection-summary">23 / 23 models</span>
+            </button>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <label class="pareto-toggle">
+              <input id="exploitbench-log-toggle" type="checkbox" checked />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span>Log scale</span>
+            </label>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <label class="pareto-toggle">
+              <input id="exploitbench-labels-toggle" type="checkbox" checked />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span>Point labels</span>
+            </label>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <label class="pareto-toggle">
+              <input id="exploitbench-family-lines-toggle" type="checkbox" />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span>Family lines</span>
+            </label>
+            <span class="toolbar-divider" aria-hidden="true"></span>
+            <label class="pareto-toggle">
+              <input id="exploitbench-pareto-toggle" type="checkbox" />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span>Pareto frontier</span>
+            </label>
+          </div>
+          <div class="scatter-legend" aria-label="ExploitBench chart legend">
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #292b2f"></span>GPT-5.6 Sol</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #3478d4"></span>GPT-5.6 Terra</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #188b62"></span>GPT-5.6 Luna</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #d85f8c"></span>GPT-5.5</span
+            >
+            <span class="legend-item"
+              ><span class="legend-dot" style="--legend-color: #7d5db3"></span>GPT-5.4</span
+            >
+          </div>
+          <div class="exploitbench-chart-scroll" id="exploitbench-chart-scroll">
+            <svg
+              class="exploitbench-chart"
+              id="exploitbench-chart"
+              role="img"
+              aria-labelledby="exploitbench-chart-title exploitbench-chart-description"
+            >
+              <title id="exploitbench-chart-title">ExploitBench cap percent by output tokens</title>
+              <desc id="exploitbench-chart-description">
+                Scatter plot showing cap percent by output tokens on a logarithmic horizontal axis,
+                with optional GPT family lines, two comparison points, and two horizontal reference
+                lines.
+              </desc>
+            </svg>
+          </div>
+        </div>
+      </section>
+
       <section class="benchmark-section" aria-labelledby="exploitgym-scatter-title">
         <div class="benchmark-heading">
           <div>
@@ -360,7 +584,7 @@
               <span class="visually-hidden" id="exploitgym-selection-label"
                 >Models and reasoning efforts:</span
               >
-              <span id="exploitgym-selection-summary">17 / 17 models/efforts</span>
+              <span id="exploitgym-selection-summary">17 / 17 models</span>
             </button>
             <span class="toolbar-divider" aria-hidden="true"></span>
             <div class="duration-picker">
@@ -466,57 +690,6 @@
           </div>
         </div>
       </section>
-
-      <section class="data-section" aria-labelledby="table-title">
-        <div class="table-heading">
-          <h2 id="table-title">GeneBench v1 data</h2>
-          <p class="sort-status" id="sort-status" aria-live="polite">Sorted by score, descending</p>
-        </div>
-        <div class="table-frame">
-          <table>
-            <thead>
-              <tr>
-                <th scope="col" data-sort-key="model" aria-sort="none">
-                  <button class="sort-button" type="button" data-sort-key="model">
-                    Model <span class="sort-indicator" aria-hidden="true">&#8597;</span>
-                  </button>
-                </th>
-                <th scope="col" data-sort-key="effort" aria-sort="none">
-                  <button class="sort-button" type="button" data-sort-key="effort">
-                    Reasoning effort <span class="sort-indicator" aria-hidden="true">&#8597;</span>
-                  </button>
-                </th>
-                <th class="numeric" scope="col" data-sort-key="score" aria-sort="descending">
-                  <button class="sort-button" type="button" data-sort-key="score">
-                    Score <span class="sort-indicator" aria-hidden="true">&#8595;</span>
-                  </button>
-                </th>
-                <th class="numeric" scope="col" data-sort-key="tokens" aria-sort="none">
-                  <button class="sort-button" type="button" data-sort-key="tokens">
-                    Output tokens <span class="sort-indicator" aria-hidden="true">&#8597;</span>
-                  </button>
-                </th>
-                <th class="numeric" scope="col" data-sort-key="latency" aria-sort="none">
-                  <button class="sort-button" type="button" data-sort-key="latency">
-                    Latency <span class="sort-indicator" aria-hidden="true">&#8597;</span>
-                  </button>
-                </th>
-                <th class="numeric" scope="col" data-sort-key="cost" aria-sort="none">
-                  <button class="sort-button" type="button" data-sort-key="cost">
-                    API cost <span class="sort-indicator" aria-hidden="true">&#8597;</span>
-                  </button>
-                </th>
-              </tr>
-            </thead>
-            <tbody id="data-table-body"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <div class="notes">
-        <p>Reasoning effort levels follow the labels used in the source chart.</p>
-        <p>GPT-5.6 Sol has no &ldquo;none&rdquo; configuration.</p>
-      </div>
     </main>
 
     <div class="tooltip" id="tooltip" role="status" aria-hidden="true"></div>

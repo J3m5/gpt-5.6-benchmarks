@@ -37,7 +37,12 @@ ANTHROPIC_CACHE_PRICING_URL = (
     "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
 )
 GOOGLE_PRICING_URL = "https://ai.google.dev/gemini-api/docs/pricing"
-TARGET_TITLES = ("GeneBench v1", "ExploitGym", "TerminalBench 2.1")
+TARGET_TITLES = (
+    "GeneBench v1",
+    "ExploitBench",
+    "ExploitGym",
+    "TerminalBench 2.1",
+)
 GENE_BENCH_PRO_SCALING_TITLE = "GeneBench-Pro: Test-time compute scaling on GPT models"
 GENE_BENCH_PRO_MAX_REASONING_TITLE = "GeneBench-Pro: Model passrates at max reasoning"
 GENE_BENCH_PRO_TARGET_TITLES = (
@@ -54,6 +59,13 @@ EXPLOIT_MODEL_ORDER = (
     "GPT-5.5",
     "GPT-5.4",
 )
+EXPLOIT_BENCH_EFFORTS = {
+    "GPT-5.6 Sol": ("low", "medium", "high", "xhigh", "max"),
+    "GPT-5.6 Terra": ("low", "medium", "high", "xhigh", "max"),
+    "GPT-5.6 Luna": ("low", "medium", "high", "xhigh", "max"),
+    "GPT-5.5": ("low", "medium", "high", "xhigh"),
+    "GPT-5.4": ("low", "medium", "high", "xhigh"),
+}
 LITELLM_PRICING_MODELS = {
     "GPT-5.5": ("gpt-5.5", "openai", "OpenAI"),
     "GPT-5.4": ("gpt-5.4", "openai", "OpenAI"),
@@ -759,6 +771,154 @@ def normalize_exploit(spec: dict[str, Any]) -> list[dict[str, Any]]:
     return entries
 
 
+def layer_rows(
+    spec: dict[str, Any], title: str, mark_type: str
+) -> list[list[dict[str, Any]]]:
+    layers = spec.get("layer")
+    if not isinstance(layers, list):
+        raise ValidationError(f"{title} has no layers")
+
+    matching_rows = []
+    for layer in layers:
+        if not isinstance(layer, dict):
+            raise ValidationError(f"{title} contains a non-object layer")
+        mark = layer.get("mark")
+        resolved_mark_type = mark.get("type") if isinstance(mark, dict) else mark
+        if resolved_mark_type != mark_type:
+            continue
+        matching_rows.append(require_rows(layer, f"{title} {mark_type} layer"))
+    return matching_rows
+
+
+def normalize_exploit_bench(spec: dict[str, Any]) -> dict[str, Any]:
+    line_layers = layer_rows(spec, "ExploitBench", "line")
+    if len(line_layers) != 1:
+        raise ValidationError(
+            f"ExploitBench must contain exactly one line layer, found {len(line_layers)}"
+        )
+
+    series = []
+    seen_series: set[tuple[str, str]] = set()
+    for row in line_layers[0]:
+        if row.get("eval_id") != "exploitbench":
+            raise ValidationError("Unexpected ExploitBench eval_id")
+        if row.get("x_metric") != "output_tokens":
+            raise ValidationError("Unexpected ExploitBench horizontal metric")
+        model = row.get("model")
+        effort = row.get("juice_level")
+        if not isinstance(model, str) or not isinstance(effort, str):
+            raise ValidationError("ExploitBench model and effort must be strings")
+        key = (model, effort)
+        if key in seen_series:
+            raise ValidationError(
+                f"Duplicate ExploitBench series point: {' / '.join(key)}"
+            )
+        seen_series.add(key)
+        output_tokens = finite_number(
+            row.get("x_value"), "ExploitBench output_tokens x_value"
+        )
+        if output_tokens <= 0:
+            raise ValidationError("ExploitBench output tokens must be positive")
+        series.append(
+            {
+                "model": model,
+                "effort": effort,
+                "outputTokens": output_tokens,
+                **shared_score(row),
+            }
+        )
+
+    series.sort(
+        key=lambda item: (
+            ordered_index(item["model"], EXPLOIT_MODEL_ORDER),
+            ordered_index(item["effort"], EFFORT_ORDER),
+        )
+    )
+    expected_series = {
+        (model, effort)
+        for model, efforts in EXPLOIT_BENCH_EFFORTS.items()
+        for effort in efforts
+    }
+    if seen_series != expected_series:
+        raise ValidationError("Unexpected ExploitBench series coverage")
+
+    comparison_points = []
+    seen_comparisons: set[str] = set()
+    for rows in layer_rows(spec, "ExploitBench", "point"):
+        for row in rows:
+            model = row.get("model")
+            shape = row.get("shape")
+            if not isinstance(model, str) or shape not in {"diamond", "square"}:
+                raise ValidationError("Invalid ExploitBench comparison point")
+            if model in seen_comparisons:
+                raise ValidationError(f"Duplicate ExploitBench comparison: {model}")
+            seen_comparisons.add(model)
+            output_tokens = finite_number(
+                row.get("x_value"), f"ExploitBench {model} x_value"
+            )
+            score_fraction = bounded_fraction(
+                row.get("score"), f"ExploitBench {model} score"
+            )
+            if output_tokens <= 0:
+                raise ValidationError(
+                    f"ExploitBench {model} output tokens must be positive"
+                )
+            comparison_points.append(
+                {
+                    "model": model,
+                    "outputTokens": output_tokens,
+                    "scoreFraction": score_fraction,
+                    "scorePercent": score_fraction * 100,
+                    "shape": shape,
+                }
+            )
+    if not comparison_points:
+        raise ValidationError("ExploitBench has no comparison points")
+    if seen_comparisons != {"Mythos Preview", "Opus 4.7"}:
+        raise ValidationError("Unexpected ExploitBench comparison coverage")
+    comparison_points.sort(key=lambda item: item["model"])
+
+    reference_lines = []
+    seen_references: set[str] = set()
+    for rows in layer_rows(spec, "ExploitBench", "rule"):
+        for row in rows:
+            model = row.get("model")
+            detail = row.get("detail")
+            if not isinstance(model, str) or not isinstance(detail, str):
+                raise ValidationError("Invalid ExploitBench reference line")
+            if model in seen_references:
+                raise ValidationError(f"Duplicate ExploitBench reference: {model}")
+            seen_references.add(model)
+            x_start = finite_number(row.get("x_start"), f"ExploitBench {model} x_start")
+            x_end = finite_number(row.get("x_end"), f"ExploitBench {model} x_end")
+            score_fraction = bounded_fraction(
+                row.get("score"), f"ExploitBench {model} score"
+            )
+            if x_start < 0 or x_end <= x_start:
+                raise ValidationError(f"Invalid ExploitBench {model} reference range")
+            reference_lines.append(
+                {
+                    "model": model,
+                    "detail": detail,
+                    "xStart": x_start,
+                    "xEnd": x_end,
+                    "scoreFraction": score_fraction,
+                    "scorePercent": score_fraction * 100,
+                }
+            )
+    if not reference_lines:
+        raise ValidationError("ExploitBench has no reference lines")
+    if seen_references != {"Mythos 5", "Opus 4.8"}:
+        raise ValidationError("Unexpected ExploitBench reference coverage")
+    reference_lines.sort(key=lambda item: item["model"])
+
+    return {
+        "series": series,
+        "comparisonPoints": comparison_points,
+        "referenceLines": reference_lines,
+    }
+
+
 def normalize_terminal(spec: dict[str, Any]) -> list[dict[str, Any]]:
     entries = []
     seen_models: set[str] = set()
@@ -990,6 +1150,7 @@ def normalize_raw(raw: dict[str, Any]) -> dict[str, Any]:
             "specSha256": actual_hash,
         },
         "geneBench": normalize_gene(specs["GeneBench v1"]),
+        "exploitBench": normalize_exploit_bench(specs["ExploitBench"]),
         "exploitGym": normalize_exploit(specs["ExploitGym"]),
         "terminalBench": normalize_terminal(specs["TerminalBench 2.1"]),
     }
@@ -1033,13 +1194,14 @@ def combine_normalized_data(
     api_pricing: dict[str, Any],
 ) -> dict[str, Any]:
     return {
-        "schemaVersion": 3,
+        "schemaVersion": 4,
         "sources": {
             "gpt56SolPreview": legacy["source"],
             "geneBenchPro": gene_bench_pro["source"],
         },
         "apiPricing": api_pricing,
         "geneBench": legacy["geneBench"],
+        "exploitBench": legacy["exploitBench"],
         "exploitGym": legacy["exploitGym"],
         "terminalBench": legacy["terminalBench"],
         "geneBenchProScaling": gene_bench_pro["geneBenchProScaling"],
@@ -1103,6 +1265,9 @@ def fetch_litellm_cost_map() -> dict[str, Any]:
 def data_summary(data: dict[str, Any]) -> str:
     return (
         f"{len(data['geneBench'])} GeneBench configurations, "
+        f"{len(data['exploitBench']['series'])} ExploitBench series points, "
+        f"{len(data['exploitBench']['comparisonPoints'])} ExploitBench comparison points, "
+        f"{len(data['exploitBench']['referenceLines'])} ExploitBench references, "
         f"{len(data['exploitGym'])} ExploitGym runs, "
         f"{len(data['terminalBench'])} TerminalBench models, "
         f"{len(data['geneBenchProScaling'])} GeneBench-Pro scaling points, "
@@ -1133,6 +1298,23 @@ def diff_summary(before: dict[str, Any] | None, after: dict[str, Any]) -> str:
         removed = len(old.keys() - new.keys())
         modified = sum(old[key] != new[key] for key in old.keys() & new.keys())
         parts.append(f"{collection}: +{added} -{removed} ~{modified}")
+    for collection, fields in {
+        "series": ("model", "effort"),
+        "comparisonPoints": ("model",),
+        "referenceLines": ("model",),
+    }.items():
+        old = {
+            tuple(row[field] for field in fields): row
+            for row in before.get("exploitBench", {}).get(collection, [])
+        }
+        new = {
+            tuple(row[field] for field in fields): row
+            for row in after["exploitBench"][collection]
+        }
+        added = len(new.keys() - old.keys())
+        removed = len(old.keys() - new.keys())
+        modified = sum(old[key] != new[key] for key in old.keys() & new.keys())
+        parts.append(f"exploitBench.{collection}: +{added} -{removed} ~{modified}")
     old_pricing = {
         row["model"]: row for row in (before.get("apiPricing") or {}).get("models", [])
     }

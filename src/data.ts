@@ -5,6 +5,9 @@ import { compareReasoningEfforts } from "./chart-series";
 import type {
   ApiPricingRow,
   BenchmarkGroup,
+  ExploitBenchComparisonPoint,
+  ExploitBenchReferenceLine,
+  ExploitBenchSeriesPoint,
   ScatterPoint,
   TerminalItem,
   VisiblePoint,
@@ -120,6 +123,53 @@ const apiOutputPricing = new Map(
 export const apiPricingRows: ApiPricingRow[] = benchmarkData.apiPricing.models;
 export const apiPricingSources = benchmarkData.apiPricing.sources;
 
+const exploitBenchReferenceColors: Record<string, string> = {
+  "Mythos Preview": "#a6532d",
+  "Mythos 5": "#a6532d",
+  "Opus 4.7": "#e3a078",
+  "Opus 4.8": "#cf7747",
+};
+
+function exploitBenchShape(shape: string): "diamond" | "square" {
+  switch (shape) {
+    case "diamond":
+    case "square":
+      return shape;
+    default:
+      throw new RangeError(`Unsupported ExploitBench comparison shape: ${shape}`);
+  }
+}
+
+export const exploitBenchSeries: ExploitBenchSeriesPoint[] = benchmarkData.exploitBench.series.map(
+  (row) => ({
+    model: row.model,
+    effort: row.effort,
+    outputTokens: row.outputTokens,
+    score: row.scoreFraction * 100,
+    sourceLabel: row.scoreLabel,
+    color: familyColors[row.model] ?? "#656970",
+  }),
+);
+
+export const exploitBenchComparisonPoints: ExploitBenchComparisonPoint[] =
+  benchmarkData.exploitBench.comparisonPoints.map((row) => ({
+    model: row.model,
+    outputTokens: row.outputTokens,
+    score: row.scoreFraction * 100,
+    shape: exploitBenchShape(row.shape),
+    color: exploitBenchReferenceColors[row.model] ?? "#a6532d",
+  }));
+
+export const exploitBenchReferenceLines: ExploitBenchReferenceLine[] =
+  benchmarkData.exploitBench.referenceLines.map((row) => ({
+    model: row.model,
+    detail: row.detail,
+    xStart: row.xStart,
+    xEnd: row.xEnd,
+    score: row.scoreFraction * 100,
+    color: exploitBenchReferenceColors[row.model] ?? "#a6532d",
+  }));
+
 export function apiOutputPriceFor(model: string): number {
   const price = apiOutputPricing.get(model);
   if (price === undefined) {
@@ -169,4 +219,14 @@ export function visibleGeneBenchPoints(selectedModels: ReadonlySet<string>): Vis
   return groups
     .filter((group) => selectedModels.has(group.model))
     .flatMap((group) => group.values.map((value) => ({ group, ...value })));
+}
+
+export function selectedGeneBenchPoints(
+  selectedConfigurationIds: ReadonlySet<string>,
+): VisiblePoint[] {
+  return groups.flatMap((group) =>
+    group.values
+      .filter((value) => selectedConfigurationIds.has(`${group.model}|${value.effort}`))
+      .map((value) => Object.assign({ group }, value)),
+  );
 }

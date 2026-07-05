@@ -90,7 +90,7 @@ export function createLinearValueScale(
   const paddedMax = dataMax + padding;
   const step = niceStep(paddedMax - paddedMin);
   let min = Math.max(0, Math.floor(paddedMin / step) * step);
-  let max = Math.ceil(paddedMax / step) * step;
+  let max = Math.ceil(dataMax / step) * step;
 
   if (max <= min) {
     min = Math.max(0, min - step);

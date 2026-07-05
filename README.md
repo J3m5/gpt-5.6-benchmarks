@@ -1,7 +1,7 @@
 # GPT-5.6 Benchmark Visualizations
 
-Interactive visualizations of the GeneBench v1, ExploitGym, and TerminalBench
-2.1 results published in OpenAI's
+Interactive visualizations of the GeneBench v1, ExploitBench, ExploitGym, and
+TerminalBench 2.1 results published in OpenAI's
 [GPT-5.6 Sol preview](https://openai.com/index/previewing-gpt-5-6-sol/).
 The auditable data snapshot also includes the two charts from OpenAI's
 [GeneBench-Pro article](https://openai.com/index/introducing-genebench-pro/).
@@ -12,18 +12,19 @@ https://j3m5.github.io/gpt-5.6-benchmarks/
 
 ## Included views
 
-- Standard API input, cached-input, cache-write, and output pricing for every
-  model shown in the charts
-- GeneBench v1 score, output-token, latency, and API-cost comparison
-- GeneBench v1 score versus API cost, latency, or output tokens
+- Standard API input, cached-input, cache-write, and output pricing for the
+  current model families rendered by the resource charts
+- Unified GeneBench v1 workspace with three score/resource scatter views, four
+  ranked bar views, and the sortable data table
 - GeneBench-Pro passrate versus tokens used or estimated output-token API cost,
   with configuration and Pareto filters
+- ExploitBench cap percent versus output tokens, including grouped
+  model/effort selection, scale, label, family-line, and Pareto controls
 - ExploitGym intended-exploit rate versus API cost, latency, or output tokens
 - Linear/logarithmic horizontal-axis toggles on all resource scatter plots
 - Point-label visibility toggles on all resource scatter plots
 - Optional family lines connecting consecutive reasoning efforts
 - Attractive and opposite quadrants on both resource-efficiency plots
-- Sortable GeneBench v1 data table with all resource metrics
 - TerminalBench 2.1 scores with reasoning levels
 
 The frontend uses Vite with vanilla TypeScript and CSS. Node LTS and Aube are

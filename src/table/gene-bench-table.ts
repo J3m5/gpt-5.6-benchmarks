@@ -1,4 +1,4 @@
-import { visibleGeneBenchPoints } from "../data";
+import { selectedGeneBenchPoints } from "../data";
 import type { MetricKey } from "../types";
 import { byId, query } from "../utils/dom";
 import { formatCost, formatLatency, formatPercent, integerFormatter } from "../utils/format";
@@ -7,7 +7,7 @@ type SortKey = "model" | "effort" | MetricKey;
 type SortDirection = "asc" | "desc";
 
 interface GeneBenchTableConfig {
-  selectedModels: ReadonlySet<string>;
+  selectedConfigurationIds: ReadonlySet<string>;
 }
 
 export interface GeneBenchTable {
@@ -39,7 +39,9 @@ function sortKeyFor(value: string | undefined): SortKey {
   }
 }
 
-export function createGeneBenchTable({ selectedModels }: GeneBenchTableConfig): GeneBenchTable {
+export function createGeneBenchTable({
+  selectedConfigurationIds,
+}: GeneBenchTableConfig): GeneBenchTable {
   const tableBody = byId("data-table-body", HTMLTableSectionElement);
   const sortStatus = byId("sort-status", HTMLParagraphElement);
   const tableSort: { key: SortKey; direction: SortDirection } = {
@@ -49,7 +51,7 @@ export function createGeneBenchTable({ selectedModels }: GeneBenchTableConfig): 
 
   function render(): void {
     const direction = tableSort.direction === "asc" ? 1 : -1;
-    const points = visibleGeneBenchPoints(selectedModels).toSorted((a, b) => {
+    const points = selectedGeneBenchPoints(selectedConfigurationIds).toSorted((a, b) => {
       const aValue = tableSort.key === "model" ? a.group.model : a[tableSort.key];
       const bValue = tableSort.key === "model" ? b.group.model : b[tableSort.key];
       const comparison =
@@ -62,6 +64,11 @@ export function createGeneBenchTable({ selectedModels }: GeneBenchTableConfig): 
     tableBody.replaceChildren();
     points.forEach(({ group, effort, score, tokens, latency, cost }) => {
       const row = document.createElement("tr");
+      row.dataset.configurationId = `${group.model}|${effort}`;
+      row.dataset.score = String(score);
+      row.dataset.tokens = String(tokens);
+      row.dataset.latency = String(latency);
+      row.dataset.cost = String(cost);
       row.innerHTML = `
         <td>
           <span class="model-cell">

@@ -31,7 +31,7 @@ describe("chart scales", () => {
     expect(scale.max).toBeLessThanOrEqual(100);
   });
 
-  it("creates an unbounded linear domain for token values", () => {
+  it("ends a linear resource domain at the first nice tick covering the data", () => {
     const scale = createLinearValueScale(
       [1000, 50000, 120000],
       0,
@@ -40,8 +40,12 @@ describe("chart scales", () => {
     );
 
     expect(scale.min).toBeLessThanOrEqual(1000);
-    expect(scale.max).toBeGreaterThan(120000);
+    expect(scale.max).toBe(120000);
     expect(scale.ticks.at(-1)).toBe(scale.max);
+
+    const costScale = createLinearValueScale([0.12, 1.89], 0, 2.5, [0, 0.5, 1, 1.5, 2, 2.5]);
+    expect(costScale.max).toBe(2);
+    expect(costScale.ticks).toEqual([0, 0.5, 1, 1.5, 2]);
   });
 
   it("creates stable decimal ticks", () => {

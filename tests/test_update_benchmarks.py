@@ -43,13 +43,18 @@ class ExtractionTests(unittest.TestCase):
     def test_extracts_required_specs_from_react_flight(self) -> None:
         specs = [
             {"title": {"text": title}, "data": {"values": [{"row": title}]}}
-            for title in ("GeneBench v1", "ExploitGym", "TerminalBench 2.1")
+            for title in (
+                "GeneBench v1",
+                "ExploitBench",
+                "ExploitGym",
+                "TerminalBench 2.1",
+            )
         ]
 
         extracted = extract_specs_from_html(self.flight_html(specs))
 
         self.assertEqual(
-            {"GeneBench v1", "ExploitGym", "TerminalBench 2.1"},
+            {"GeneBench v1", "ExploitBench", "ExploitGym", "TerminalBench 2.1"},
             set(extracted),
         )
         self.assertEqual(
@@ -210,8 +215,26 @@ class ExtractionTests(unittest.TestCase):
         data = normalize_raw(copy.deepcopy(raw))
 
         self.assertEqual(22, len(data["geneBench"]))
+        self.assertEqual(23, len(data["exploitBench"]["series"]))
+        self.assertEqual(2, len(data["exploitBench"]["comparisonPoints"]))
+        self.assertEqual(2, len(data["exploitBench"]["referenceLines"]))
         self.assertEqual(32, len(data["exploitGym"]))
         self.assertEqual(9, len(data["terminalBench"]))
+        exploit_bench_max = next(
+            row
+            for row in data["exploitBench"]["series"]
+            if (row["model"], row["effort"]) == ("GPT-5.6 Sol", "max")
+        )
+        self.assertEqual(120457.771, exploit_bench_max["outputTokens"])
+        self.assertEqual(73.5, exploit_bench_max["scorePercent"])
+        self.assertEqual(
+            ["Mythos Preview", "Opus 4.7"],
+            [row["model"] for row in data["exploitBench"]["comparisonPoints"]],
+        )
+        self.assertEqual(
+            ["Mythos 5", "Opus 4.8"],
+            [row["model"] for row in data["exploitBench"]["referenceLines"]],
+        )
         run = next(
             row
             for row in data["exploitGym"]
@@ -280,6 +303,20 @@ class ExtractionTests(unittest.TestCase):
         raw = build_raw_document(raw["specs"])
 
         with self.assertRaisesRegex(ValidationError, "Missing metrics"):
+            normalize_raw(raw)
+
+    def test_rejects_incomplete_exploit_bench_coverage(self) -> None:
+        raw = json.loads(RAW_PATH.read_text(encoding="utf-8"))
+        spec = raw["specs"]["ExploitBench"]
+        line_layer = next(
+            layer
+            for layer in spec["layer"]
+            if layer.get("mark", {}).get("type") == "line"
+        )
+        line_layer["data"]["values"] = line_layer["data"]["values"][:-1]
+        raw = build_raw_document(raw["specs"])
+
+        with self.assertRaisesRegex(ValidationError, "series coverage"):
             normalize_raw(raw)
 
 

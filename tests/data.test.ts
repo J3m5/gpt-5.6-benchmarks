@@ -4,10 +4,14 @@ import benchmarkData from "../data/benchmarks.json";
 import {
   apiOutputPriceFor,
   apiPricingRows,
+  exploitBenchComparisonPoints,
+  exploitBenchReferenceLines,
+  exploitBenchSeries,
   exploitGymPoints,
   geneBenchProScalingPoints,
   geneScatterPoints,
   groups,
+  selectedGeneBenchPoints,
   terminalData,
   visibleGeneBenchPoints,
 } from "../src/data";
@@ -15,6 +19,9 @@ import {
 describe("benchmark UI projections", () => {
   it("preserves the committed benchmark counts", () => {
     expect(geneScatterPoints).toHaveLength(22);
+    expect(exploitBenchSeries).toHaveLength(23);
+    expect(exploitBenchComparisonPoints).toHaveLength(2);
+    expect(exploitBenchReferenceLines).toHaveLength(2);
     expect(exploitGymPoints.filter((point) => point.duration === "2h")).toHaveLength(17);
     expect(exploitGymPoints.filter((point) => point.duration === "6h")).toHaveLength(15);
     expect(terminalData).toHaveLength(9);
@@ -23,6 +30,22 @@ describe("benchmark UI projections", () => {
     expect(geneBenchProScalingPoints).toHaveLength(33);
     expect(geneBenchProScalingPoints.every((point) => point.tokens > 0)).toBe(true);
     expect(geneBenchProScalingPoints.every((point) => (point.cost ?? 0) > 0)).toBe(true);
+  });
+
+  it("projects ExploitBench series and references from the normalized snapshot", () => {
+    expect(
+      exploitBenchSeries
+        .filter((point) => point.model === "GPT-5.6 Sol")
+        .map((point) => point.effort),
+    ).toEqual(["low", "medium", "high", "xhigh", "max"]);
+    expect(exploitBenchComparisonPoints.map((point) => [point.model, point.shape])).toEqual([
+      ["Mythos Preview", "diamond"],
+      ["Opus 4.7", "square"],
+    ]);
+    expect(exploitBenchReferenceLines.map((line) => [line.model, line.score])).toEqual([
+      ["Mythos 5", 78],
+      ["Opus 4.8", 40],
+    ]);
   });
 
   it("projects snapshotted output-token pricing into GeneBench-Pro costs", () => {
@@ -90,5 +113,13 @@ describe("benchmark UI projections", () => {
 
     expect(points.length).toBeGreaterThan(0);
     expect(points.every((point) => point.group.model === selectedModel)).toBe(true);
+  });
+
+  it("projects exact selected GeneBench configurations", () => {
+    const selectedIds = new Set(["GPT-5.6 Sol|low", "GPT-5.5|xhigh"]);
+
+    expect(
+      selectedGeneBenchPoints(selectedIds).map((point) => `${point.group.model}|${point.effort}`),
+    ).toEqual(["GPT-5.6 Sol|low", "GPT-5.5|xhigh"]);
   });
 });

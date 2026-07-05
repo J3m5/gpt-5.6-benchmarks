@@ -171,6 +171,251 @@
     },
     "unitTokens": 1000000
   },
+  "exploitBench": {
+    "comparisonPoints": [
+      {
+        "model": "Mythos Preview",
+        "outputTokens": 334638.235294,
+        "scoreFraction": 0.7423780499999999,
+        "scorePercent": 74.237805,
+        "shape": "diamond"
+      },
+      {
+        "model": "Opus 4.7",
+        "outputTokens": 221852.682927,
+        "scoreFraction": 0.27743902,
+        "scorePercent": 27.743902,
+        "shape": "square"
+      }
+    ],
+    "referenceLines": [
+      {
+        "detail": "API, 5 seeds",
+        "model": "Mythos 5",
+        "scoreFraction": 0.78,
+        "scorePercent": 78.0,
+        "xEnd": 560000.0,
+        "xStart": 20000.0
+      },
+      {
+        "detail": "API, 5 seeds",
+        "model": "Opus 4.8",
+        "scoreFraction": 0.4,
+        "scorePercent": 40.0,
+        "xEnd": 560000.0,
+        "xStart": 20000.0
+      }
+    ],
+    "series": [
+      {
+        "effort": "low",
+        "model": "GPT-5.6 Sol",
+        "outputTokens": 28718.502,
+        "scoreFraction": 0.27896,
+        "scoreLabel": "27.9%",
+        "scorePercent": 27.9,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "medium",
+        "model": "GPT-5.6 Sol",
+        "outputTokens": 81238.059,
+        "scoreFraction": 0.51829,
+        "scoreLabel": "51.8%",
+        "scorePercent": 51.8,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "high",
+        "model": "GPT-5.6 Sol",
+        "outputTokens": 103407.79,
+        "scoreFraction": 0.62957,
+        "scoreLabel": "63.0%",
+        "scorePercent": 63.0,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "xhigh",
+        "model": "GPT-5.6 Sol",
+        "outputTokens": 111283.229,
+        "scoreFraction": 0.70274,
+        "scoreLabel": "70.3%",
+        "scorePercent": 70.3,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "max",
+        "model": "GPT-5.6 Sol",
+        "outputTokens": 120457.771,
+        "scoreFraction": 0.73476,
+        "scoreLabel": "73.5%",
+        "scorePercent": 73.5,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "low",
+        "model": "GPT-5.6 Terra",
+        "outputTokens": 31554.556,
+        "scoreFraction": 0.22104,
+        "scoreLabel": "22.1%",
+        "scorePercent": 22.1,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "medium",
+        "model": "GPT-5.6 Terra",
+        "outputTokens": 58498.98,
+        "scoreFraction": 0.28811,
+        "scoreLabel": "28.8%",
+        "scorePercent": 28.8,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "high",
+        "model": "GPT-5.6 Terra",
+        "outputTokens": 108347.205,
+        "scoreFraction": 0.41311,
+        "scoreLabel": "41.3%",
+        "scorePercent": 41.3,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "xhigh",
+        "model": "GPT-5.6 Terra",
+        "outputTokens": 136863.854,
+        "scoreFraction": 0.46189,
+        "scoreLabel": "46.2%",
+        "scorePercent": 46.2,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "max",
+        "model": "GPT-5.6 Terra",
+        "outputTokens": 164327.229,
+        "scoreFraction": 0.52896,
+        "scoreLabel": "52.9%",
+        "scorePercent": 52.9,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "low",
+        "model": "GPT-5.6 Luna",
+        "outputTokens": 33783.863,
+        "scoreFraction": 0.16768,
+        "scoreLabel": "16.8%",
+        "scorePercent": 16.8,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "medium",
+        "model": "GPT-5.6 Luna",
+        "outputTokens": 75098.468,
+        "scoreFraction": 0.2378,
+        "scoreLabel": "23.8%",
+        "scorePercent": 23.8,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "high",
+        "model": "GPT-5.6 Luna",
+        "outputTokens": 114036.341,
+        "scoreFraction": 0.29878,
+        "scoreLabel": "29.9%",
+        "scorePercent": 29.9,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "xhigh",
+        "model": "GPT-5.6 Luna",
+        "outputTokens": 135436.902,
+        "scoreFraction": 0.30945,
+        "scoreLabel": "30.9%",
+        "scorePercent": 30.9,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "max",
+        "model": "GPT-5.6 Luna",
+        "outputTokens": 155869.995,
+        "scoreFraction": 0.33232,
+        "scoreLabel": "33.2%",
+        "scorePercent": 33.2,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "low",
+        "model": "GPT-5.5",
+        "outputTokens": 57431.321951219514,
+        "scoreFraction": 0.2789634146341463,
+        "scoreLabel": "27.9%",
+        "scorePercent": 27.9,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "medium",
+        "model": "GPT-5.5",
+        "outputTokens": 90978.08292682927,
+        "scoreFraction": 0.4009146341463415,
+        "scoreLabel": "40.1%",
+        "scorePercent": 40.1,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "high",
+        "model": "GPT-5.5",
+        "outputTokens": 104030.6243902439,
+        "scoreFraction": 0.4771341463414634,
+        "scoreLabel": "47.7%",
+        "scorePercent": 47.7,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "xhigh",
+        "model": "GPT-5.5",
+        "outputTokens": 121631.86829268292,
+        "scoreFraction": 0.4786585365853659,
+        "scoreLabel": "47.9%",
+        "scorePercent": 47.9,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "low",
+        "model": "GPT-5.4",
+        "outputTokens": 84268.307,
+        "scoreFraction": 0.26372,
+        "scoreLabel": "26.4%",
+        "scorePercent": 26.4,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "medium",
+        "model": "GPT-5.4",
+        "outputTokens": 131953.005,
+        "scoreFraction": 0.30945,
+        "scoreLabel": "30.9%",
+        "scorePercent": 30.9,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "high",
+        "model": "GPT-5.4",
+        "outputTokens": 158981.956,
+        "scoreFraction": 0.33384,
+        "scoreLabel": "33.4%",
+        "scorePercent": 33.4,
+        "scoreUnit": "cap_percent"
+      },
+      {
+        "effort": "xhigh",
+        "model": "GPT-5.4",
+        "outputTokens": 201938.795,
+        "scoreFraction": 0.37957,
+        "scoreLabel": "38.0%",
+        "scorePercent": 38.0,
+        "scoreUnit": "cap_percent"
+      }
+    ]
+  },
   "exploitGym": [
     {
       "apiCostUsd": 4.367289759999999,
@@ -1425,14 +1670,14 @@
       "validSamplesWithNonmaskedSollen": 1285
     }
   ],
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "sources": {
     "geneBenchPro": {
       "specSha256": "18ab3a5e05d7a3ffccb0c60c52c8b6d994abf7cb0b26db88fb3c20d16b7aa5c5",
       "url": "https://openai.com/index/introducing-genebench-pro/"
     },
     "gpt56SolPreview": {
-      "specSha256": "1b6dad66f06da97ba84ac0ebcf9f227c697298ebe3feac4771128e8fcabffe42",
+      "specSha256": "0cc2fe45cc5b7a1023d2f10756e772dabac084dc3f7a196de28dd144d8fc09ee",
       "url": "https://openai.com/index/previewing-gpt-5-6-sol/"
     }
   },

@@ -17,8 +17,8 @@ const metricLabelOffsets: MetricLabelOffsets = {
 };
 
 export function createGeneBenchResourceChart(
-  selectedModels: ReadonlySet<string>,
   tooltip: TooltipController,
+  onSelectionChange: (selectedIds: ReadonlySet<string>) => void,
 ): ResourceScoreChart {
   const logScaleToggle = byId("gene-scatter-log-toggle", HTMLInputElement);
   const chart = createResourceScoreChart(
@@ -27,23 +27,25 @@ export function createGeneBenchResourceChart(
       points: geneScatterPoints,
       svgId: "gene-scatter",
       scrollId: "gene-scatter-scroll",
-      countId: "scatter-count",
-      triggerId: "scatter-selection-trigger",
-      summaryId: "scatter-selection-summary",
+      countId: "gene-workspace-count",
+      triggerId: "gene-selection-trigger",
+      summaryId: "gene-selection-summary",
       paretoId: "pareto-toggle",
       pointLabelsToggleId: "gene-scatter-labels-toggle",
       familyLinesToggleId: "gene-scatter-family-lines-toggle",
-      metricSelectId: "gene-scatter-metric-select",
+      metricKey: "cost",
+      onSelectionChange,
       getMetricOverride: () => ({
         scale: logScaleToggle.checked ? "log" : "linear",
       }),
-      headingId: "gene-scatter-title",
-      metricDescriptionId: "gene-scatter-metric",
+      headingId: "genebench-title",
+      headingText: "GeneBench v1",
+      metricDescriptionId: "gene-workspace-metric",
       selectionDialogLabel: "Select GeneBench configurations",
       selectionGroupsAreSelectable: true,
       selectionItemLabel: (point) => point.effort,
       showSelectionItemSwatches: false,
-      pointIsAvailable: (point) => selectedModels.has(point.family),
+      rightMargin: 70,
       xFallbacks: {
         cost: {
           min: 0.01,

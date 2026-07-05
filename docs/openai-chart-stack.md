@@ -33,7 +33,9 @@ The article's inline React Flight payload contains objects named
 `vegaLiteSpec`. Their `$schema` is
 `https://vega.github.io/schema/vega-lite/v6.json`, and their semantic titles
 identify charts such as GeneBench v1, ExploitGym, and the two GeneBench-Pro
-views.
+views. ExploitBench is a layered specification: its series, standalone
+comparison points, labels, and horizontal references use separate Vega-Lite
+layers.
 
 The dynamically loaded chart bundle contains:
 
