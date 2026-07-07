@@ -20,37 +20,84 @@ The observed upstream rendering implementation is documented in
 - `src/chart-series.ts` owns canonical reasoning-effort ordering and pure
   contiguous family-series construction.
 - `src/api-cost.ts` contains the pure output-token cost calculation.
-- `src/charts/` owns SVG rendering. Benchmark-specific resource chart wrappers
-  configure the shared `resource-score.ts` renderer; `exploit-bench.ts` owns
-  the source-specific layered ExploitBench chart.
+- `src/charts/` owns chart rendering. Every chart prepares an explicit Plot
+  model and renders it through the generic core under `src/charts/plot/`.
+  Benchmark controllers retain their source-specific selection and toggles.
 - `src/gene-bench/workspace.ts` owns the unified GeneBench tab state and
   coordinates its scatter, bar, and table renderers.
+- `src/gene-bench-pro/workspace.ts` owns the equivalent six-view
+  GeneBench-Pro workspace.
+- `src/exploit-gym/workspace.ts` owns the eight-view, duration-aware
+  ExploitGym workspace. The tabbed workspaces share the accessible tab-list
+  controller under `src/workspace/`.
+- `src/exploit-bench/workspace.ts` owns the four-view ExploitBench workspace.
+  It reuses the grouped scatter selection across the scatter, bar, and table
+  views.
+- `src/terminal-bench/workspace.ts` owns the two-view TerminalBench card.
 - `src/controls/` owns reusable configuration and duration input handling.
-- `src/table/` owns the sortable GeneBench table.
+- `src/table/` owns the sortable benchmark tables and their shared sorting
+  controller.
 - `src/table/api-pricing-table.ts` renders the non-sortable API pricing table
   from the normalized pricing snapshot.
-- `src/ui/` owns stateful shared UI services such as the tooltip.
-- `src/utils/` contains stateless DOM/SVG and formatting primitives.
+- `src/utils/` contains stateless DOM and formatting primitives.
 - `data/benchmarks.json` is imported directly by Vite and bundled into the
   production JavaScript.
 
-`createResourceScoreChart` is the shared implementation for the GeneBench,
-GeneBench-Pro scaling, and ExploitGym resource/score charts. It owns resource
-selection, linear or logarithmic axes, Pareto filtering, dynamic domains, point
-tooltips, point-label visibility, optional family lines, and SVG rendering.
-Every resource scatter wrapper supplies linear/log, point-label, and family-line
-toggles plus scale-specific empty-selection fallbacks. All three resource
-scatter plots default to logarithmic with labels visible and family lines
-hidden. GeneBench-Pro keeps its source's linear scale available through the
-toggle and fixes the shared `tokens` metric label to "Tokens used". Its
-horizontal metric selector also exposes an estimated API cost derived from
-generated output tokens and snapshotted per-model output rates. It configures a
-2% resource tolerance for Pareto dominance; the shared default remains strict.
-Persistent labels retain the shared right-of-point placement even though linear
-domains can make some label and point collisions unavoidable. The renderer
-delegates configuration selection state, panel positioning, and keyboard
-dismissal to `controls/configuration-select.ts`. Runtime-generated SVG must not
-be edited manually.
+GeneBench v1 uses Observable Plot 0.6.17 for all three scatter and four bar
+views; GeneBench-Pro, ExploitGym, and ExploitBench use it for their scatters
+and bar rankings, while TerminalBench uses it for vertical bars. Shared pure
+scatter preparation keeps explicit source domains, optional quadrants, Pareto
+points, family runs, reference annotations, and pixel label offsets, but lets
+Plot infer standard ticks whenever visible data exists. Linear resource axes
+pass a small numeric tick budget to keep Plot's grid and axis labels
+synchronized; logarithmic resource axes keep explicit major ticks because D3
+log scales can generate unlabeled intermediate tick positions. Percentage axes
+pass a numeric interval so score and passrate ticks remain on stable
+5/10/20-point steps. Empty-selection and source-fixed axes keep explicit
+fallback ticks. Bar preparation keeps the
+sorted items, labels, and values explicit but lets Plot infer standard
+value-axis domains and ticks with zero and nice enabled. TerminalBench remains
+explicit because its score axis is part of the benchmark contract. The generic
+renderers own only SVG construction and delegate selection and toggles to
+benchmark controllers, while the GeneBench workspace continues to own active
+tabs.
+Quadrants, grids, axes, family lines, symbols, labels, bars, and pointer tips
+use Plot's native marks and options. Point and bar marks expose per-datum ARIA
+labels but are not keyboard targets. Plot's pointer transform owns tip
+selection and click-to-stick behavior; tip content is plain text rather than
+application HTML. The renderer does not inspect Plot's generated children or
+private data. The HTML data table remains independent of Plot.
+
+GeneBench-Pro exposes six mutually exclusive views in one card: passrate versus
+tokens or estimated cost, passrate/token/cost vertical bar rankings, and a
+sortable data table. Its scatter definition supplies the two resource metrics,
+scale fallbacks, passrate axis, tooltip, and 2% Pareto resource tolerance before
+delegating to the shared renderer. The grouped selection is owned by the
+scatter controller and shared by every view. Scatter controls and the quadrant
+legend are contextual; the model legend and selection remain visible. Bar
+rankings are ascending, while the table defaults to passrate descending and
+retains its sort state. Persistent scatter labels remain right-aligned and
+collisions on concentrated linear domains are accepted.
+
+The tabbed workspaces reserve a first full metadata row for selectors and
+contextual controls and a more spacious second row for the quadrant and model
+legend. Legend items stay horizontal and scroll inside their row on narrow
+viewports.
+
+ExploitGym exposes eight views matching GeneBench v1: three resource scatters,
+four ascending vertical bar rankings, and a sortable table. Its scatter defines
+the three resource metrics, duration-specific label offsets, and
+intended-exploit-rate axis before delegating to the shared model and renderer.
+The model selector and 2 h/6 h duration control are shared by every view, while
+scatter toggles and the quadrant legend remain contextual. Selection IDs are
+independent of duration so switching limits preserves selection while
+recalculating availability and every active view.
+
+TerminalBench exposes two views in one card: the vertical score ranking and a
+sortable data table. Its chart delegates to the shared Plot bar renderer. Its
+model fixes the score domain to 50–100%, supplies the three source ticks, sorts
+scores descending, and includes each source reasoning level in the category,
+accessible label, and native tip.
 
 The GeneBench workspace presents eight mutually exclusive views in one card:
 three score/resource scatters, four single-metric bar rankings, and the data
@@ -61,6 +108,11 @@ control. Scatter-only controls and the attractive-quadrant legend are hidden in
 bar and table views. Bar rankings use ascending order for every metric, while
 table sort state persists across view changes.
 
+Plot SVGs replace the previous SVG in a persistent scroll container on every
+render, matching Plot's documented full-rerender interaction model. Controls
+and tabs retain their own keyboard behavior, while data marks and tips are
+pointer-driven.
+
 Family lines are built after model, duration, and Pareto filtering. Outside
 Pareto mode, they connect only consecutive visible efforts in the canonical
 `none -> low -> medium -> high -> xhigh -> max` order; efforts absent from the
@@ -68,18 +120,21 @@ active selection split a family into separate runs. Pareto mode may bridge
 efforts removed by dominance when every intermediate effort was still selected.
 This preserves the frontier trajectory without hiding manual selection gaps.
 Unknown efforts remain visible as points but do not participate in lines.
-Positioned points are calculated once per render and shared by polylines,
-symbols, and labels.
+The pure model supplies the same abstract coordinates to native Plot line,
+symbol, and text marks.
 
-ExploitBench remains separate from the shared resource/score renderer because
-its source contract includes five GPT effort series, standalone comparison
-points, and horizontal reference lines. Its renderer reuses the shared
-configuration selector, Pareto calculation, and contiguous family-line builder
-while retaining its source-specific comparison and reference layers. Its
-normalizer locates Vega layers by mark type and validates their field contracts
-instead of depending on layer position. The frontend renders 23 selectable GPT
-series points, two persistent comparison points, and two persistent reference
-lines.
+ExploitBench exposes four views in one card: cap percent versus output tokens,
+cap-percent and output-token vertical bar rankings, and a sortable table. Its
+source-specific scatter model delegates to the shared Plot scatter renderer
+with quadrants disabled. Its model fixes both domains, prepares five GPT effort
+series, two standalone comparison points, two partial horizontal reference
+rules, Pareto filtering, and contiguous family lines. The bar rankings include
+the selected GPT series points plus the two persistent comparison points. The
+table includes selected GPT series rows, comparison points, and the horizontal
+reference rows. Its normalizer locates Vega layers by mark type and validates
+their field contracts instead of depending on layer position. The frontend
+renders 23 selectable GPT series points, two persistent comparison points, and
+two persistent reference lines.
 
 Native single-selects and model multi-selects keep distinct interaction
 semantics but share the `control-trigger` visual shell in `src/styles.css`.
@@ -150,6 +205,10 @@ application.
 - `mise.toml` pins Node LTS, Aube, Python, Ruff, and ty and exposes project
   tasks.
 - `package.json` and `aube-lock.yaml` own exact frontend dependencies.
+- Fallow 3.2.0 is an exact development dependency. Run its project-local
+  binary with `aube run fallow -- <command>`. The matching agent skill under
+  `.agents/skills/fallow` is vendored from `fallow-rs/fallow-skills` commit
+  `c5bf09bbc789b8145a8e3d7a9bf7cae424f7d17c`.
 - `pyproject.toml` configures Ruff linting/formatting and ty type-checking for
   `scripts/` and `tests/`. The browser verification script allows its
   `browser_harness` import because that module is supplied by the
@@ -159,6 +218,9 @@ application.
   Dedicated `*:python` tasks expose Ruff and ty independently, while
   `typecheck` and `lint:fix` delegate to matching Aube package scripts.
 - TypeScript is strict and targets browser APIs.
+- Observable Plot and the matching D3 declaration package are exact runtime
+  and development dependencies, respectively. Keep `@types/d3` aligned with
+  D3's major version when upgrading Plot.
 - Oxlint runs type-aware rules through `oxlint-tsgolint`.
 - Oxfmt formats supported project files.
 - Ruff lints and formats Python; ty type-checks it against Python 3.12.
@@ -196,6 +258,12 @@ uncompiled TypeScript.
   exact chart-model coverage validation must remain.
 - Scatter labels use targeted per-point offsets and may need adjustment when
   source values change.
+- Migrating GeneBench v1 to Plot increased the production JavaScript from
+  19.99 kB to 109.46 kB gzip (80.58 kB to 339.22 kB raw). Migrating
+  the remaining charts, adding the GeneBench-Pro workspace, and adopting native
+  Plot tips brings the bundle to about 111.22 kB gzip (356.96 kB raw) after the
+  ExploitGym workspace is added. Plot makes no runtime network requests;
+  further chart work should continue using the shared renderer.
 - The browser regression script covers counts, resource and duration switching,
   chart geometry, labels, family-line interactions, grids, selector filtering,
   Pareto behavior, and mobile overflow. Table sorting still requires

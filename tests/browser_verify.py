@@ -90,17 +90,43 @@ def inspect_scatter(selector):
         f"""(() => {{
           const svg = document.querySelector({selector!r});
           const svgRect = svg.getBoundingClientRect();
-          const points = [...svg.querySelectorAll('[data-point-id]')];
-          const labels = [...svg.querySelectorAll('[data-point-label]')].map((label) => {{
-            const point = svg.querySelector(
-              `[data-point-id="${{CSS.escape(label.dataset.pointLabel)}}"]`
-            );
+          const plotPoints = [...svg.querySelectorAll(
+            'g.benchmark-point [aria-label]'
+          )];
+          const points = plotPoints.length
+            ? plotPoints
+            : [...svg.querySelectorAll('[data-point-id]')];
+          const plotLabels = [...svg.querySelectorAll(
+            'g.benchmark-point-label text'
+          )];
+          const labels = (
+            plotLabels.length
+              ? plotLabels
+              : [...svg.querySelectorAll('[data-point-label]')]
+          ).map((label) => {{
+            const labelRect = label.getBoundingClientRect();
+            const nativeId = label.getAttribute('aria-label');
+            const point = plotLabels.length
+              ? (() => {{
+                  const segments = nativeId.split('|');
+                  const effort = segments.pop();
+                  if (/^\\d+h$/.test(segments.at(-1))) segments.pop();
+                  const family = segments.join('|');
+                  const prefix = `${{family}}, reasoning effort ${{effort}},`;
+                  return points.find((candidate) =>
+                    candidate.getAttribute('aria-label').startsWith(prefix)
+                  );
+                }})()
+              : svg.querySelector(
+                  `[data-point-id="${{CSS.escape(label.dataset.pointLabel)}}"]`
+                );
+            const style = getComputedStyle(label);
             return {{
-              id: label.dataset.pointLabel,
-              label: label.getBoundingClientRect().toJSON(),
+              id: label.dataset.pointLabel || nativeId,
+              label: labelRect.toJSON(),
               point: point.getBoundingClientRect().toJSON(),
-              anchor: label.getAttribute('text-anchor'),
-              weight: label.getAttribute('font-weight')
+              anchor: label.getAttribute('text-anchor') || style.textAnchor,
+              weight: label.getAttribute('font-weight') || style.fontWeight
             }};
           }});
           const overlaps = [];
@@ -122,37 +148,63 @@ def inspect_scatter(selector):
               }}
             }}
           }}
-          const attractive = svg.querySelector('[data-quadrant="attractive"]');
-          const opposite = svg.querySelector('[data-quadrant="opposite"]');
-          const invalidGridLines = [...svg.querySelectorAll('[data-grid-line]')]
+          const attractive = svg.querySelector(
+            'g.benchmark-quadrant-attractive rect, [data-quadrant="attractive"]'
+          );
+          const opposite = svg.querySelector(
+            'g.benchmark-quadrant-opposite rect, [data-quadrant="opposite"]'
+          );
+          const nativeGridLines = [...svg.querySelectorAll(
+            'g.benchmark-grid-minor line, g.benchmark-grid-axis line'
+          )];
+          const gridLines = nativeGridLines.length
+            ? nativeGridLines
+            : [...svg.querySelectorAll('[data-grid-line]')];
+          const invalidGridLines = gridLines
             .filter((line) => {{
-              const axis = line.dataset.gridLine === 'axis';
-              return line.getAttribute('stroke') !== (axis ? '#d4d7dc' : '#eef0f2')
-                || Number(line.getAttribute('stroke-width')) !== (axis ? 0.9 : 0.65);
+              const owner = line.closest(
+                '.benchmark-grid-axis, .benchmark-grid-minor'
+              );
+              const axis = owner
+                ? owner.classList.contains('benchmark-grid-axis')
+                : line.dataset.gridLine === 'axis';
+              const source = owner || line;
+              return source.getAttribute('stroke')
+                  !== (axis ? '#d4d7dc' : '#eef0f2')
+                || Number(source.getAttribute('stroke-width'))
+                  !== (axis ? 0.9 : 0.65)
+                || Number(source.getAttribute('stroke-opacity') ?? 1) !== 1;
             }})
             .length;
+          const familyLineCount = svg.querySelectorAll(
+            'g.benchmark-family-line, [data-family-line]'
+          ).length;
           return {{
             pointCount: points.length,
             pointNames: points.map((point) => point.getAttribute('aria-label')),
             labelCount: labels.length,
-            familyLineCount: svg.querySelectorAll('[data-family-line]').length,
+            familyLineCount,
             viewBox: svg.getAttribute('viewBox'),
             renderedWidth: svgRect.width,
             renderedHeight: svgRect.height,
-            quadrantCount: svg.querySelectorAll('[data-quadrant]').length,
+            quadrantCount: Number(Boolean(attractive)) + Number(Boolean(opposite)),
             attractive: {{
               x: Number(attractive.getAttribute('x')),
               y: Number(attractive.getAttribute('y')),
               width: Number(attractive.getAttribute('width')),
               height: Number(attractive.getAttribute('height')),
-              fill: attractive.getAttribute('fill')
+              fill:
+                attractive.getAttribute('fill')
+                || attractive.parentElement.getAttribute('fill')
             }},
             opposite: {{
               x: Number(opposite.getAttribute('x')),
               y: Number(opposite.getAttribute('y')),
               width: Number(opposite.getAttribute('width')),
               height: Number(opposite.getAttribute('height')),
-              fill: opposite.getAttribute('fill')
+              fill:
+                opposite.getAttribute('fill')
+                || opposite.parentElement.getAttribute('fill')
             }},
             xMin: Number(svg.dataset.xMin),
             xMax: Number(svg.dataset.xMax),
@@ -183,44 +235,66 @@ def inspect_exploit_bench():
     return js(
         """(() => {
           const svg = document.querySelector('#exploitbench-chart');
-          const points = [...svg.querySelectorAll('[data-exploitbench-point]')];
-          const comparisons = [
-            ...svg.querySelectorAll('[data-exploitbench-comparison]')
-          ];
-          const references = [
-            ...svg.querySelectorAll('[data-exploitbench-reference]')
-          ];
-          const labels = [...svg.querySelectorAll('[data-point-label]')];
+          const symbols = [...svg.querySelectorAll(
+            'g.benchmark-point path[aria-label]'
+          )];
+          const comparisons = symbols.filter((point) => {
+            const label = point.getAttribute('aria-label');
+            return label.startsWith('Mythos Preview,')
+              || label.startsWith('Opus 4.7,');
+          });
+          const points = symbols.filter((point) => !comparisons.includes(point));
+          const references = [...svg.querySelectorAll(
+            'g.benchmark-reference-line line[aria-label]'
+          )];
+          const labels = [...svg.querySelectorAll(
+            'g.benchmark-point-label text'
+          )];
           return {
             pointCount: points.length,
             comparisonCount: comparisons.length,
             referenceCount: references.length,
-            familyLineCount: svg.querySelectorAll('[data-family-line]').length,
+            familyLineCount: svg.querySelectorAll(
+              'g.benchmark-family-line'
+            ).length,
             labelCount: labels.length,
-            symbolCount: svg.querySelectorAll('[role="graphics-symbol"]').length,
+            symbolCount: symbols.length,
             comparisonModels: comparisons.map(
-              (point) => point.dataset.exploitbenchComparison
+              (point) => point.getAttribute('aria-label').split(',')[0]
             ),
             referenceModels: references.map(
-              (line) => line.dataset.exploitbenchReference
+              (line) => line.getAttribute('aria-label').split(',')[0]
             ),
-            accessibleSymbols: [...svg.querySelectorAll('[role="graphics-symbol"]')]
-              .every((symbol) => Boolean(symbol.getAttribute('aria-label'))),
+            accessibleSymbols: symbols.every(
+              (symbol) => Boolean(symbol.getAttribute('aria-label'))
+            ),
+            keyboardTargets: symbols.filter(
+              (symbol) => symbol.tabIndex >= 0
+            ).length,
+            whitePointStrokes: symbols.filter(
+              (symbol) => getComputedStyle(symbol).stroke === 'rgb(255, 255, 255)'
+            ).length,
             referencesAreHorizontal: references.every((line) =>
               Number(line.getAttribute('x2')) > Number(line.getAttribute('x1'))
               && Number(line.getAttribute('y1')) === Number(line.getAttribute('y2'))
             ),
+            quadrantCount: svg.querySelectorAll(
+              'g.benchmark-quadrant-attractive, g.benchmark-quadrant-opposite'
+            ).length,
+            tipMarks: svg.querySelectorAll('g[aria-label="tip"]').length,
+            svgCount: document.querySelectorAll(
+              '#exploitbench-chart-scroll > svg'
+            ).length,
             xScale: svg.dataset.xScale,
             pointLabels: svg.dataset.pointLabels,
             familyLines: svg.dataset.familyLines,
             solMax: (() => {
-              const point = svg.querySelector(
-                '[data-exploitbench-point="GPT-5.6 Sol|max"]'
+              const point = points.find((candidate) =>
+                candidate.getAttribute('aria-label').startsWith(
+                  'GPT-5.6 Sol, reasoning effort max,'
+                )
               );
-              return point && {
-                outputTokens: Number(point.dataset.outputTokens),
-                score: Number(point.dataset.score)
-              };
+              return point?.getAttribute('aria-label');
             })(),
             width: svg.getBoundingClientRect().width,
             height: svg.getBoundingClientRect().height,
@@ -246,8 +320,14 @@ def verify_exploit_bench():
     assert result["comparisonModels"] == ["Mythos Preview", "Opus 4.7"], result
     assert result["referenceModels"] == ["Mythos 5", "Opus 4.8"], result
     assert result["accessibleSymbols"], result
+    assert result["keyboardTargets"] == 0, result
+    assert result["whitePointStrokes"] == 0, result
     assert result["referencesAreHorizontal"], result
-    assert result["solMax"] == {"outputTokens": 120457.771, "score": 73.476}, result
+    assert result["quadrantCount"] == 0, result
+    assert result["tipMarks"] == 1, result
+    assert result["svgCount"] == 1, result
+    assert "120,458 output tokens" in result["solMax"], result
+    assert "cap percent 73.5%" in result["solMax"], result
     assert result["width"] >= result["containerWidth"], result
     assert result["height"] == 560, result
 
@@ -326,15 +406,77 @@ def verify_exploit_bench():
     set_checkbox("#exploitbench-pareto-toggle", False)
     js(f"document.querySelector({trigger!r}).click()")
 
-    js(
-        """document.querySelector(
-          '[data-exploitbench-point="GPT-5.6 Sol|max"]'
-        ).dispatchEvent(new FocusEvent('focus'))"""
+    tooltip_text = js(
+        """(async () => {
+          const svg = document.querySelector('#exploitbench-chart');
+          const point = [...svg.querySelectorAll(
+            'g.benchmark-point path[aria-label]'
+          )].find((candidate) =>
+            candidate.getAttribute('aria-label').startsWith(
+              'GPT-5.6 Sol, reasoning effort max,'
+            )
+          );
+          const bounds = point.getBoundingClientRect();
+          svg.dispatchEvent(new PointerEvent('pointermove', {
+            bubbles: true,
+            clientX: bounds.left + bounds.width / 2,
+            clientY: bounds.top + bounds.height / 2
+          }));
+          await new Promise(requestAnimationFrame);
+          await new Promise(requestAnimationFrame);
+          return svg.querySelector('g[aria-label="tip"]').textContent;
+        })()"""
     )
-    tooltip_text = js("document.querySelector('#tooltip').textContent")
     assert "GPT-5.6 Sol" in tooltip_text, tooltip_text
     assert "Output tokens: 120,458" in tooltip_text, tooltip_text
     assert "Cap percent: 73.5%" in tooltip_text, tooltip_text
+
+    for view, metric, expected_count in (
+        ("bar-score", "score", 25),
+        ("bar-tokens", "tokens", 25),
+    ):
+        activate_exploitbench_view(view)
+        bars = js(
+            """[...document.querySelectorAll(
+              '#exploitbench-bars g.benchmark-bar rect[aria-label]'
+            )].map((bar) => ({
+              label: bar.getAttribute('aria-label'),
+              value: bar.getBoundingClientRect().height
+            }))"""
+        )
+        values = [bar["value"] for bar in bars]
+        assert len(bars) == expected_count, (view, bars)
+        assert all(bar["label"] for bar in bars), (view, bars)
+        assert values == sorted(values), (view, values)
+        assert js("document.querySelector('#exploitbench-scatter-controls').hidden")
+        assert (
+            js("document.querySelector('#exploitbench-bars').dataset.metric") == metric
+        )
+        if metric == "tokens":
+            text_labels = js(
+                """[...document.querySelectorAll('#exploitbench-bars text')]
+                  .map((label) => label.textContent.trim())
+                  .filter(Boolean)"""
+            )
+            assert "350k" in text_labels, text_labels
+            assert "500k" not in text_labels, text_labels
+
+    activate_exploitbench_view("table")
+    assert js("document.querySelectorAll('#exploitbench-table-body tr').length") == 27
+    assert js("document.querySelector('#exploitbench-scatter-controls').hidden")
+    js(
+        """document.querySelector(
+          '#exploitbench-table-panel .sort-button[data-sort-key="tokens"]'
+        ).click()"""
+    )
+    token_order = js(
+        """[...document.querySelectorAll('#exploitbench-table-body tr')].map(
+          (row) => Number(row.dataset.tokens)
+        )"""
+    )
+    assert token_order == sorted(token_order, reverse=True), token_order
+    activate_exploitbench_view("scatter")
+    assert not js("document.querySelector('#exploitbench-scatter-controls').hidden")
 
 
 def inspect_family_lines(selector, allow_gaps=False):
@@ -342,24 +484,46 @@ def inspect_family_lines(selector, allow_gaps=False):
         f"""(() => {{
           const svg = document.querySelector({selector!r});
           const effortOrder = ['none', 'low', 'medium', 'high', 'xhigh', 'max'];
-          const center = (point) => point.tagName === 'circle'
-            ? {{
-                x: Number(point.getAttribute('cx')),
-                y: Number(point.getAttribute('cy'))
-              }}
-            : {{
-                x: Number(point.getAttribute('x')) + Number(point.getAttribute('width')) / 2,
-                y: Number(point.getAttribute('y')) + Number(point.getAttribute('height')) / 2
-              }};
-          const lines = [...svg.querySelectorAll('[data-family-line]')].map((line) => {{
-            const pointIds = JSON.parse(line.dataset.pointIds);
-            const points = pointIds.map((id) =>
-              svg.querySelector(`[data-point-id="${{CSS.escape(id)}}"]`)
+          const plotLines = [...svg.querySelectorAll('g.benchmark-family-line')];
+          const plotPoints = [...svg.querySelectorAll(
+            'g.benchmark-point [aria-label]'
+          )];
+          const center = (point) => {{
+            const rect = point.getBoundingClientRect();
+            return {{
+              x: rect.left + rect.width / 2,
+              y: rect.top + rect.height / 2
+            }};
+          }};
+          const nativeLines = plotLines.map((line) => {{
+            const path = line.querySelector('path');
+            const matrix = path.getScreenCTM();
+            const coordinates = [...path.getAttribute('d').matchAll(
+              /[ML](-?\\d+(?:\\.\\d+)?),(-?\\d+(?:\\.\\d+)?)/g
+            )].map((match) => {{
+              const point = new DOMPoint(Number(match[1]), Number(match[2]))
+                .matrixTransform(matrix);
+              return {{ x: point.x, y: point.y }};
+            }});
+            const points = coordinates.map((coordinate) =>
+              plotPoints.reduce((closest, candidate) => {{
+                const pointCenter = center(candidate);
+                const distance = Math.hypot(
+                  pointCenter.x - coordinate.x,
+                  pointCenter.y - coordinate.y
+                );
+                return !closest || distance < closest.distance
+                  ? {{ point: candidate, distance }}
+                  : closest;
+              }}, null)
             );
-            const coordinates = [...line.points].map((coordinate) => ({{
-              x: coordinate.x,
-              y: coordinate.y
-            }}));
+            const pointIds = points.map((match) => {{
+              const label = match.point.getAttribute('aria-label');
+              const parsed = label.match(
+                /^(.*), reasoning effort ([^,]+),/
+              );
+              return parsed ? `${{parsed[1]}}|${{parsed[2]}}` : label;
+            }});
             const efforts = pointIds.map((id) => id.split('|').at(-1));
             const ordered = efforts.every((effort, index) => {{
               if (index === 0) return true;
@@ -368,17 +532,16 @@ def inspect_family_lines(selector, allow_gaps=False):
               return rank > previousRank
                 && ({str(allow_gaps).lower()} || rank === previousRank + 1);
             }});
-            const positioned = points.every((point, index) => {{
-              if (!point || !coordinates[index]) return false;
-              const pointCenter = center(point);
-              return Math.abs(pointCenter.x - coordinates[index].x) < 0.001
-                && Math.abs(pointCenter.y - coordinates[index].y) < 0.001;
-            }});
-            const stroke = line.getAttribute('stroke');
-            const colored = points.every((point) => point?.getAttribute('fill') === stroke);
-            const layered = points.every((point) =>
-              point
-              && Boolean(line.compareDocumentPosition(point) & Node.DOCUMENT_POSITION_FOLLOWING)
+            const positioned = points.every((match) => match.distance < 1.1);
+            const stroke = getComputedStyle(line).stroke;
+            const colored = points.every(
+              (match) => getComputedStyle(match.point).fill === stroke
+            );
+            const layered = points.every((match) =>
+              Boolean(
+                line.compareDocumentPosition(match.point)
+                & Node.DOCUMENT_POSITION_FOLLOWING
+              )
             );
             const styled =
               line.getAttribute('fill') === 'none'
@@ -389,7 +552,7 @@ def inspect_family_lines(selector, allow_gaps=False):
               && line.getAttribute('pointer-events') === 'none'
               && line.getAttribute('aria-hidden') === 'true';
             return {{
-              family: line.dataset.familyLine,
+              family: pointIds[0]?.split('|').slice(0, -1).join('|'),
               pointIds,
               ordered,
               positioned,
@@ -398,6 +561,73 @@ def inspect_family_lines(selector, allow_gaps=False):
               styled
             }};
           }});
+          const legacyLines = [...svg.querySelectorAll('[data-family-line]')].map(
+            (line) => {{
+              const pointIds = JSON.parse(line.dataset.pointIds);
+              const points = pointIds.map((id) =>
+                svg.querySelector(`[data-point-id="${{CSS.escape(id)}}"]`)
+              );
+              const coordinates = [...line.points].map((coordinate) => ({{
+                x: coordinate.x,
+                y: coordinate.y
+              }}));
+              const efforts = pointIds.map((id) => id.split('|').at(-1));
+              const ordered = efforts.every((effort, index) => {{
+                if (index === 0) return true;
+                const previousRank = effortOrder.indexOf(efforts[index - 1]);
+                const rank = effortOrder.indexOf(effort);
+                return rank > previousRank
+                  && ({str(allow_gaps).lower()} || rank === previousRank + 1);
+              }});
+              const positioned = points.every((point, index) => {{
+                if (!point || !coordinates[index]) return false;
+                const pointCenter = point.tagName === 'circle'
+                  ? {{
+                      x: Number(point.getAttribute('cx')),
+                      y: Number(point.getAttribute('cy'))
+                    }}
+                  : {{
+                      x:
+                        Number(point.getAttribute('x'))
+                        + Number(point.getAttribute('width')) / 2,
+                      y:
+                        Number(point.getAttribute('y'))
+                        + Number(point.getAttribute('height')) / 2
+                    }};
+                return Math.abs(pointCenter.x - coordinates[index].x) < 0.001
+                  && Math.abs(pointCenter.y - coordinates[index].y) < 0.001;
+              }});
+              const stroke = line.getAttribute('stroke');
+              const colored = points.every(
+                (point) => point?.getAttribute('fill') === stroke
+              );
+              const layered = points.every((point) =>
+                point
+                && Boolean(
+                  line.compareDocumentPosition(point)
+                  & Node.DOCUMENT_POSITION_FOLLOWING
+                )
+              );
+              const styled =
+                line.getAttribute('fill') === 'none'
+                && Number(line.getAttribute('stroke-width')) === 1.25
+                && Number(line.getAttribute('stroke-opacity')) === 0.45
+                && line.getAttribute('stroke-linecap') === 'round'
+                && line.getAttribute('stroke-linejoin') === 'round'
+                && line.getAttribute('pointer-events') === 'none'
+                && line.getAttribute('aria-hidden') === 'true';
+              return {{
+                family: line.dataset.familyLine,
+                pointIds,
+                ordered,
+                positioned,
+                colored,
+                layered,
+                styled
+              }};
+            }}
+          );
+          const lines = plotLines.length ? nativeLines : legacyLines;
           return {{
             enabled: svg.dataset.familyLines,
             count: lines.length,
@@ -435,6 +665,19 @@ def set_checkbox(selector, checked):
     )
 
 
+def plot_point_expression(selector, point_id):
+    family, effort = point_id.rsplit("|", 1)
+    aria_prefix = f"{family}, reasoning effort {effort},"
+    return f"""(() => {{
+      const svg = document.querySelector({selector!r});
+      return [...svg.querySelectorAll('g.benchmark-point [aria-label]')].find(
+        (point) => point.getAttribute('aria-label').startsWith({aria_prefix!r})
+      ) || svg.querySelector(
+        `[data-point-id="${{CSS.escape({point_id!r})}}"]`
+      );
+    }})()"""
+
+
 def activate_gene_view(view):
     js(
         f"""document.querySelector(
@@ -443,6 +686,45 @@ def activate_gene_view(view):
     )
     active = js(
         "document.querySelector('#gene-view-tabs [aria-selected=\"true\"]').dataset.geneView"
+    )
+    assert active == view, active
+
+
+def activate_gene_bench_pro_view(view):
+    js(
+        f"""document.querySelector(
+          {f'#genebench-pro-view-tabs [data-genebench-pro-view="{view}"]'!r}
+        ).click()"""
+    )
+    active = js(
+        "document.querySelector('#genebench-pro-view-tabs "
+        '[aria-selected="true"]\').dataset.genebenchProView'
+    )
+    assert active == view, active
+
+
+def activate_exploitgym_view(view):
+    js(
+        f"""document.querySelector(
+          {f'#exploitgym-view-tabs [data-exploitgym-view="{view}"]'!r}
+        ).click()"""
+    )
+    active = js(
+        "document.querySelector('#exploitgym-view-tabs "
+        '[aria-selected="true"]\').dataset.exploitgymView'
+    )
+    assert active == view, active
+
+
+def activate_exploitbench_view(view):
+    js(
+        f"""document.querySelector(
+          {f'#exploitbench-view-tabs [data-exploitbench-view="{view}"]'!r}
+        ).click()"""
+    )
+    active = js(
+        "document.querySelector('#exploitbench-view-tabs "
+        '[aria-selected="true"]\').dataset.exploitbenchView'
     )
     assert active == view, active
 
@@ -529,7 +811,9 @@ def verify_gene_bench_workspace():
     plot_geometry = js(
         """(() => {
           const svg = document.querySelector('#gene-scatter');
-          const horizontalGrid = [...svg.querySelectorAll('[data-grid-line]')].find(
+          const horizontalGrid = [...svg.querySelectorAll(
+            'g.benchmark-grid-minor line, g.benchmark-grid-axis line'
+          )].find(
             (line) => Number(line.getAttribute('x1')) !== Number(line.getAttribute('x2'))
           );
           return {
@@ -540,15 +824,16 @@ def verify_gene_bench_workspace():
     )
     assert plot_geometry["width"] - plot_geometry["plotRight"] == 70, plot_geometry
     set_checkbox("#gene-scatter-log-toggle", False)
-    linear_cost_ticks = js(
-        """[...document.querySelectorAll(
-          '#gene-scatter [data-axis="x"]'
-        )].map((tick) => Number(tick.dataset.value))"""
+    linear_cost_labels = js(
+        """[...document.querySelectorAll('#gene-scatter text')]
+          .map((label) => label.textContent.trim())
+          .filter(Boolean)"""
     )
-    assert linear_cost_ticks == [0, 0.5, 1, 1.5, 2], linear_cost_ticks
+    assert "$2" in linear_cost_labels, linear_cost_labels
+    assert "$2.5" not in linear_cost_labels, linear_cost_labels
     set_checkbox("#gene-scatter-log-toggle", True)
 
-    for view, metric in (
+    for view, _metric in (
         ("bar-score", "score"),
         ("bar-cost", "cost"),
         ("bar-latency", "latency"),
@@ -556,16 +841,18 @@ def verify_gene_bench_workspace():
     ):
         activate_gene_view(view)
         bars = js(
-            """[...document.querySelectorAll('#chart [role="graphics-symbol"]')].map(
+            """[...document.querySelectorAll(
+              '#chart g.benchmark-bar rect[aria-label]'
+            )].map(
               (bar) => ({
-                metric: bar.dataset.metric,
-                value: Number(bar.dataset.value)
+                label: bar.getAttribute('aria-label'),
+                value: bar.getBoundingClientRect().height
               })
             )"""
         )
         values = [bar["value"] for bar in bars]
         assert len(bars) == 22, (view, bars)
-        assert all(bar["metric"] == metric for bar in bars), (view, bars)
+        assert all(bar["label"] for bar in bars), (view, bars)
         assert values == sorted(values), (view, values)
         assert js("document.querySelector('#gene-scatter-controls').hidden")
         assert js("document.querySelector('#gene-quadrant-legend').hidden")
@@ -618,7 +905,11 @@ def verify_gene_bench_workspace():
     assert inspect_scatter("#gene-scatter")["pointCount"] == 17
     activate_gene_view("bar-score")
     assert (
-        js("document.querySelectorAll('#chart [role=\"graphics-symbol\"]').length")
+        js(
+            "document.querySelectorAll("
+            "'#chart g.benchmark-bar rect[aria-label]'"
+            ").length"
+        )
         == 17
     )
     activate_gene_view("table")
@@ -637,7 +928,12 @@ def verify_gene_bench_workspace():
     assert inspect_scatter("#gene-scatter")["pointCount"] == 0
     activate_gene_view("bar-score")
     assert (
-        js("document.querySelectorAll('#chart [role=\"graphics-symbol\"]').length") == 0
+        js(
+            "document.querySelectorAll("
+            "'#chart g.benchmark-bar rect[aria-label]'"
+            ").length"
+        )
+        == 0
     )
     activate_gene_view("table")
     assert js("document.querySelectorAll('#data-table-body tr').length") == 0
@@ -650,16 +946,427 @@ def verify_gene_bench_workspace():
     assert inspect_scatter("#gene-scatter")["pointCount"] == 22
 
 
+def verify_exploitgym_workspace():
+    expected_views = [
+        "scatter-cost",
+        "scatter-latency",
+        "scatter-tokens",
+        "bar-score",
+        "bar-cost",
+        "bar-latency",
+        "bar-tokens",
+        "table",
+    ]
+    tabs = js(
+        """[...document.querySelectorAll(
+          '#exploitgym-view-tabs [role="tab"]'
+        )].map((tab) => ({
+          view: tab.dataset.exploitgymView,
+          selected: tab.getAttribute('aria-selected'),
+          tabIndex: tab.tabIndex
+        }))"""
+    )
+    assert [tab["view"] for tab in tabs] == expected_views, tabs
+    assert tabs[0]["selected"] == "true" and tabs[0]["tabIndex"] == 0, tabs
+    assert all(
+        tab["selected"] == "false" and tab["tabIndex"] == -1 for tab in tabs[1:]
+    ), tabs
+    if js("window.innerWidth") <= 390:
+        widths = js(
+            """(() => {
+              const tabs = document.querySelector('#exploitgym-view-tabs');
+              return { client: tabs.clientWidth, scroll: tabs.scrollWidth };
+            })()"""
+        )
+        assert widths["scroll"] > widths["client"], widths
+
+    js(
+        """document.querySelector(
+          '#exploitgym-view-tabs [data-exploitgym-view="scatter-cost"]'
+        ).dispatchEvent(new KeyboardEvent('keydown', {
+          key: 'ArrowRight',
+          bubbles: true
+        }))"""
+    )
+    assert (
+        js(
+            "document.querySelector('#exploitgym-view-tabs "
+            '[aria-selected="true"]\').dataset.exploitgymView'
+        )
+        == "scatter-latency"
+    )
+
+    for view, metric in (
+        ("scatter-cost", "cost"),
+        ("scatter-latency", "latency"),
+        ("scatter-tokens", "tokens"),
+    ):
+        activate_exploitgym_view(view)
+        state = inspect_scatter("#exploitgym-scatter")
+        assert state["pointCount"] == 17, (view, state)
+        assert state["xMetric"] == metric, (view, state)
+        assert not js("document.querySelector('#exploitgym-scatter-controls').hidden")
+        assert not js("document.querySelector('#exploitgym-quadrant-legend').hidden")
+
+    for view in ("bar-score", "bar-cost", "bar-latency", "bar-tokens"):
+        activate_exploitgym_view(view)
+        bars = js(
+            """[...document.querySelectorAll(
+              '#exploitgym-bars g.benchmark-bar rect[aria-label]'
+            )].map((bar) => ({
+              label: bar.getAttribute('aria-label'),
+              value: bar.getBoundingClientRect().height
+            }))"""
+        )
+        values = [bar["value"] for bar in bars]
+        assert len(bars) == 17, (view, bars)
+        assert all(bar["label"] for bar in bars), (view, bars)
+        assert values == sorted(values), (view, values)
+        assert js("document.querySelector('#exploitgym-scatter-controls').hidden")
+        assert js("document.querySelector('#exploitgym-quadrant-legend').hidden")
+
+    activate_exploitgym_view("table")
+    assert js("document.querySelectorAll('#exploitgym-table-body tr').length") == 17
+    js(
+        """document.querySelector(
+          '#exploitgym-table-panel .sort-button[data-sort-key="tokens"]'
+        ).click()"""
+    )
+    token_order = js(
+        """[...document.querySelectorAll('#exploitgym-table-body tr')].map(
+          (row) => Number(row.dataset.tokens)
+        )"""
+    )
+    assert token_order == sorted(token_order, reverse=True), token_order
+    activate_exploitgym_view("scatter-cost")
+
+
+def verify_gene_bench_plot_contract():
+    activate_gene_view("scatter-cost")
+    set_checkbox("#gene-scatter-log-toggle", True)
+    set_checkbox("#gene-scatter-labels-toggle", True)
+    set_checkbox("#gene-scatter-family-lines-toggle", False)
+    set_checkbox("#pareto-toggle", False)
+
+    contract = js(
+        """(() => {
+          const svg = document.querySelector('#gene-scatter');
+          const points = [...svg.querySelectorAll(
+            'g.benchmark-point path[aria-label]'
+          )];
+          return {
+            points: points.length,
+            accessible: points.every((point) => point.getAttribute('aria-label')),
+            keyboardTargets: points.filter((point) => point.tabIndex >= 0).length,
+            whitePointStrokes: points.filter(
+              (point) => getComputedStyle(point).stroke === 'rgb(255, 255, 255)'
+            ).length,
+            tipMarks: svg.querySelectorAll('g[aria-label="tip"]').length,
+            svgCount: document.querySelectorAll('#gene-scatter-scroll > svg').length,
+            controlledLogTicks: Boolean(svg.dataset.xTicks),
+            externalRuntimeRequests: performance.getEntriesByType('resource')
+              .filter((entry) => new URL(entry.name).origin !== location.origin)
+              .map((entry) => entry.name)
+          };
+        })()"""
+    )
+    assert contract == {
+        "points": 22,
+        "accessible": True,
+        "keyboardTargets": 0,
+        "whitePointStrokes": 0,
+        "tipMarks": 1,
+        "svgCount": 1,
+        "controlledLogTicks": True,
+        "externalRuntimeRequests": [],
+    }, contract
+
+    tip_content = js(
+        """(async () => {
+          const svg = document.querySelector('#gene-scatter');
+          const point = [...svg.querySelectorAll(
+            'g.benchmark-point path[aria-label]'
+          )].find((candidate) =>
+            candidate.getAttribute('aria-label').startsWith(
+              'GPT-5.6 Sol, reasoning effort max,'
+            )
+          );
+          const bounds = point.getBoundingClientRect();
+          svg.dispatchEvent(new PointerEvent('pointermove', {
+            bubbles: true,
+            clientX: bounds.left + bounds.width / 2,
+            clientY: bounds.top + bounds.height / 2
+          }));
+          await new Promise(requestAnimationFrame);
+          await new Promise(requestAnimationFrame);
+          return svg.querySelector('g[aria-label="tip"]').textContent;
+        })()"""
+    )
+    assert "GPT-5.6 Sol" in tip_content, tip_content
+    assert "Output tokens:" in tip_content, tip_content
+
+    activate_gene_view("bar-score")
+    bar_contract = js(
+        """(() => {
+          const svg = document.querySelector('#chart');
+          const bars = [...svg.querySelectorAll(
+            'g.benchmark-bar rect[aria-label]'
+          )];
+          return {
+            bars: bars.length,
+            accessible: bars.every((bar) => bar.getAttribute('aria-label')),
+            keyboardTargets: bars.filter((bar) => bar.tabIndex >= 0).length,
+            tipMarks: svg.querySelectorAll('g[aria-label="tip"]').length
+          };
+        })()"""
+    )
+    assert bar_contract == {
+        "bars": 22,
+        "accessible": True,
+        "keyboardTargets": 0,
+        "tipMarks": 1,
+    }, bar_contract
+    activate_gene_view("bar-cost")
+    js("window.dispatchEvent(new Event('resize'))")
+    activate_gene_view("scatter-cost")
+
+    if js("window.innerWidth") > 500:
+        stress = js(
+            """(() => {
+              window.__genePlotErrors = [];
+              window.addEventListener('error', (event) => {
+                window.__genePlotErrors.push(event.message);
+              }, { once: false });
+              const metrics = ['cost', 'latency', 'tokens'];
+              const labels = document.querySelector('#gene-scatter-labels-toggle');
+              const lines = document.querySelector('#gene-scatter-family-lines-toggle');
+              const log = document.querySelector('#gene-scatter-log-toggle');
+              const pareto = document.querySelector('#pareto-toggle');
+              const selection = document.querySelector(
+                '#gene-scatter-selection-panel input[value="GPT-5.5|none"]'
+              );
+              const change = (input, checked) => {
+                input.checked = checked;
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+              };
+              document.activeElement?.blur();
+              for (let index = 0; index < 100; index += 1) {
+                document.querySelector(
+                  `#gene-view-tabs [data-gene-view="scatter-${metrics[index % 3]}"]`
+                ).click();
+                change(log, index % 2 === 0);
+                change(labels, index % 3 !== 0);
+                change(lines, index % 4 === 0);
+                change(pareto, index % 5 === 0);
+                selection.click();
+                window.dispatchEvent(new Event('resize'));
+              }
+              document.querySelector(
+                '#gene-view-tabs [data-gene-view="scatter-cost"]'
+              ).click();
+              change(log, true);
+              change(labels, true);
+              change(lines, false);
+              change(pareto, false);
+              document.querySelector('#gene-scatter-scroll').dispatchEvent(
+                new Event('scroll')
+              );
+              return {
+                scatterSvgs: document.querySelectorAll(
+                  '#gene-scatter-scroll > svg'
+                ).length,
+                barSvgs: document.querySelectorAll('#chart-scroll > svg').length,
+                points: document.querySelectorAll(
+                  '#gene-scatter g.benchmark-point path[aria-label]'
+                ).length,
+                errors: window.__genePlotErrors,
+                tipMarks: document.querySelectorAll(
+                  '#gene-scatter g[aria-label="tip"]'
+                ).length
+              };
+            })()"""
+        )
+        assert stress == {
+            "scatterSvgs": 1,
+            "barSvgs": 1,
+            "points": 22,
+            "errors": [],
+            "tipMarks": 1,
+        }, stress
+
+
+def verify_exploitgym_plot_contract():
+    contract = js(
+        """(() => {
+          const svg = document.querySelector('#exploitgym-scatter');
+          const points = [...svg.querySelectorAll(
+            'g.benchmark-point path[aria-label]'
+          )];
+          return {
+            points: points.length,
+            accessible: points.every((point) => point.getAttribute('aria-label')),
+            keyboardTargets: points.filter((point) => point.tabIndex >= 0).length,
+            whitePointStrokes: points.filter(
+              (point) => getComputedStyle(point).stroke === 'rgb(255, 255, 255)'
+            ).length,
+            tipMarks: svg.querySelectorAll('g[aria-label="tip"]').length,
+            svgCount: document.querySelectorAll(
+              '#exploitgym-scatter-scroll > svg'
+            ).length,
+            controlledLogTicks: Boolean(svg.dataset.xTicks)
+          };
+        })()"""
+    )
+    assert contract == {
+        "points": 17,
+        "accessible": True,
+        "keyboardTargets": 0,
+        "whitePointStrokes": 0,
+        "tipMarks": 1,
+        "svgCount": 1,
+        "controlledLogTicks": True,
+    }, contract
+
+
+def verify_terminal_bench():
+    tabs = js(
+        """[...document.querySelectorAll(
+          '#terminalbench-view-tabs [role="tab"]'
+        )].map((tab) => ({
+          view: tab.dataset.terminalbenchView,
+          selected: tab.getAttribute('aria-selected'),
+          tabIndex: tab.tabIndex
+        }))"""
+    )
+    assert [tab["view"] for tab in tabs] == ["score", "table"], tabs
+    assert tabs[0]["selected"] == "true" and tabs[0]["tabIndex"] == 0, tabs
+    assert tabs[1]["selected"] == "false" and tabs[1]["tabIndex"] == -1, tabs
+
+    contract = js(
+        """(() => {
+          const svg = document.querySelector('#terminal-chart');
+          const bars = [...svg.querySelectorAll(
+            'g.benchmark-bar rect[aria-label]'
+          )];
+          const categories = [...svg.querySelectorAll(
+            'g.benchmark-bar-category text'
+          )].map((label) => label.textContent);
+          return {
+            bars: bars.length,
+            accessible: bars.every((bar) => bar.getAttribute('aria-label')),
+            keyboardTargets: bars.filter((bar) => bar.tabIndex >= 0).length,
+            heights: bars.map((bar) => bar.getBoundingClientRect().height),
+            widths: bars.map((bar) => bar.getBoundingClientRect().width),
+            categories,
+            tipMarks: svg.querySelectorAll('g[aria-label="tip"]').length,
+            svgCount: document.querySelectorAll(
+              '#terminal-chart-wrap > svg'
+            ).length,
+            yMin: Number(svg.dataset.yMin),
+            yMax: Number(svg.dataset.yMax),
+            ticks: JSON.parse(svg.dataset.yTicks),
+            containerOverflows:
+              document.querySelector('#terminal-chart-wrap').scrollWidth
+              > document.querySelector('#terminal-chart-wrap').clientWidth
+          };
+        })()"""
+    )
+    assert contract["bars"] == 9, contract
+    assert contract["accessible"], contract
+    assert contract["keyboardTargets"] == 0, contract
+    assert contract["heights"] == sorted(contract["heights"], reverse=True), contract
+    assert all(
+        height > width
+        for height, width in zip(contract["heights"], contract["widths"], strict=True)
+    ), contract
+    assert len(contract["categories"]) == 9, contract
+    assert "ma_ultra" in contract["categories"][0], contract
+    assert contract["tipMarks"] == 1, contract
+    assert contract["svgCount"] == 1, contract
+    assert contract["yMin"] == 50, contract
+    assert contract["yMax"] == 100, contract
+    assert contract["ticks"] == [50, 75, 100], contract
+    assert contract["containerOverflows"] == (js("window.innerWidth") <= 390), contract
+
+    tip_content = js(
+        """(async () => {
+          const svg = document.querySelector('#terminal-chart');
+          const bar = svg.querySelector('g.benchmark-bar rect[aria-label]');
+          const bounds = bar.getBoundingClientRect();
+          svg.dispatchEvent(new PointerEvent('pointermove', {
+            bubbles: true,
+            clientX: bounds.left + bounds.width / 2,
+            clientY: bounds.top + bounds.height / 2
+          }));
+          await new Promise(requestAnimationFrame);
+          await new Promise(requestAnimationFrame);
+          return svg.querySelector('g[aria-label="tip"]').textContent;
+        })()"""
+    )
+    assert "GPT-5.6 Sol Ultra" in tip_content, tip_content
+    assert "Reasoning: ma_ultra" in tip_content, tip_content
+    assert "Score: 91.91%" in tip_content, tip_content
+
+    js("document.querySelector('#terminalbench-tab-table').click()")
+    assert js("document.querySelector('#terminalbench-chart-panel').hidden")
+    assert not js("document.querySelector('#terminalbench-table-panel').hidden")
+    table_contract = js(
+        """(() => {
+          const rows = [...document.querySelectorAll('#terminalbench-table-body tr')];
+          return {
+            rows: rows.length,
+            scores: rows.map((row) => Number(row.dataset.score)),
+            firstModel: rows[0].dataset.model,
+            metric: document.querySelector('#terminalbench-metric').textContent,
+            count: document.querySelector('#terminalbench-count').textContent
+          };
+        })()"""
+    )
+    assert table_contract["rows"] == 9, table_contract
+    assert table_contract["scores"] == sorted(table_contract["scores"], reverse=True), (
+        table_contract
+    )
+    assert table_contract["firstModel"] == "GPT-5.6 Sol Ultra", table_contract
+    assert table_contract["metric"] == "Coding · sortable table", table_contract
+    assert table_contract["count"] == "9 rows", table_contract
+    js(
+        """document.querySelector(
+          '#terminalbench-table-panel .sort-button[data-sort-key="model"]'
+        ).click()"""
+    )
+    model_order = js(
+        """[...document.querySelectorAll('#terminalbench-table-body tr')].map(
+          (row) => row.dataset.model
+        )"""
+    )
+    expected_model_order = js(
+        """[...document.querySelectorAll('#terminalbench-table-body tr')]
+          .map((row) => row.dataset.model)
+          .toSorted((first, second) => first.localeCompare(second))"""
+    )
+    assert model_order == expected_model_order, model_order
+    js(
+        """document.querySelector(
+          '#terminalbench-view-tabs [data-terminalbench-view="table"]'
+        ).dispatchEvent(new KeyboardEvent('keydown', {
+          key: 'ArrowLeft',
+          bubbles: true
+        }))"""
+    )
+    assert not js("document.querySelector('#terminalbench-chart-panel').hidden")
+    assert js("document.querySelector('#terminalbench-table-panel').hidden")
+    assert (
+        js("document.querySelector('#terminalbench-count').textContent") == "9 models"
+    )
+
+
 def horizontal_point_distance(selector, first_id, second_id):
+    first_expression = plot_point_expression(selector, first_id)
+    second_expression = plot_point_expression(selector, second_id)
     return js(
         f"""(() => {{
-          const svg = document.querySelector({selector!r});
-          const first = svg.querySelector(
-            `[data-point-id="${{CSS.escape({first_id!r})}}"]`
-          ).getBoundingClientRect();
-          const second = svg.querySelector(
-            `[data-point-id="${{CSS.escape({second_id!r})}}"]`
-          ).getBoundingClientRect();
+          const first = ({first_expression}).getBoundingClientRect();
+          const second = ({second_expression}).getBoundingClientRect();
           return Math.abs(
             (first.left + first.width / 2) - (second.left + second.width / 2)
           );
@@ -677,8 +1384,12 @@ def verify_scatter(
     assert result["quadrantCount"] == 2, result
     assert result["attractive"]["fill"] == "#e2f7e4", result
     assert result["opposite"]["fill"] == "#f7f7f7", result
-    assert result["attractive"]["width"] == result["opposite"]["width"], result
-    assert result["attractive"]["height"] == result["opposite"]["height"], result
+    assert abs(result["attractive"]["width"] - result["opposite"]["width"]) < 1e-9, (
+        result
+    )
+    assert abs(result["attractive"]["height"] - result["opposite"]["height"]) < 1e-9, (
+        result
+    )
     expected_quadrant_x = (
         (result["xMin"] * result["xMax"]) ** 0.5
         if expected_scale == "log"
@@ -697,15 +1408,28 @@ def verify_scatter(
 def verify_grid(selector):
     result = js(
         f"""(() => {{
-          const lines = [...document.querySelectorAll(
-            {f"{selector} [data-grid-line]"!r}
+          const svg = document.querySelector({selector!r});
+          const nativeLines = [...svg.querySelectorAll(
+            'g.benchmark-grid-minor line, g.benchmark-grid-axis line'
           )];
+          const lines = nativeLines.length
+            ? nativeLines
+            : [...svg.querySelectorAll('[data-grid-line]')];
           return {{
             count: lines.length,
             invalid: lines.filter((line) => {{
-              const axis = line.dataset.gridLine === 'axis';
-              return line.getAttribute('stroke') !== (axis ? '#d4d7dc' : '#eef0f2')
-                || Number(line.getAttribute('stroke-width')) !== (axis ? 0.9 : 0.65);
+              const owner = line.closest(
+                '.benchmark-grid-axis, .benchmark-grid-minor'
+              );
+              const axis = owner
+                ? owner.classList.contains('benchmark-grid-axis')
+                : line.dataset.gridLine === 'axis';
+              const source = owner || line;
+              return source.getAttribute('stroke')
+                  !== (axis ? '#d4d7dc' : '#eef0f2')
+                || Number(source.getAttribute('stroke-width'))
+                  !== (axis ? 0.9 : 0.65)
+                || Number(source.getAttribute('stroke-opacity') ?? 1) !== 1;
             }}).length
           }};
         }})()"""
@@ -733,9 +1457,18 @@ def verify_point_label_toggle(toggle_selector, chart_selector, expected_points):
     assert hidden["renderedWidth"] == initial["renderedWidth"], (initial, hidden)
     assert hidden["renderedHeight"] == initial["renderedHeight"], (initial, hidden)
     accessible_points = js(
-        f"""[...document.querySelectorAll(
-          {f"{chart_selector} [data-point-id]"!r}
-        )].filter((point) => point.getAttribute('aria-label')).length"""
+        f"""(() => {{
+          const svg = document.querySelector({chart_selector!r});
+          const plotPoints = [...svg.querySelectorAll(
+            'g.benchmark-point [aria-label]'
+          )];
+          const points = plotPoints.length
+            ? plotPoints
+            : [...svg.querySelectorAll('[data-point-id]')];
+          return points.filter(
+            (point) => point.getAttribute('aria-label')
+          ).length;
+        }})()"""
     )
     assert accessible_points == expected_points, accessible_points
 
@@ -790,57 +1523,6 @@ def verify_family_lines_toggle(
 
 
 def verify_control_triggers():
-    result = js(
-        """(() => {
-          const pairs = [
-            [
-              '#genebench-pro-scaling-metric-select',
-              '#genebench-pro-scaling-selection-trigger'
-            ],
-            [
-              '#exploitgym-scatter-metric-select',
-              '#exploitgym-selection-trigger'
-            ]
-          ];
-          return pairs.map(([selectSelector, buttonSelector]) => {
-            const select = document.querySelector(selectSelector);
-            const selectTrigger = select.closest('.control-trigger');
-            const button = document.querySelector(buttonSelector);
-            const selectStyle = getComputedStyle(selectTrigger);
-            const buttonStyle = getComputedStyle(button);
-            const selectArrow = getComputedStyle(selectTrigger, '::after');
-            const buttonArrow = getComputedStyle(button, '::after');
-            const properties = [
-              'height',
-              'borderTopWidth',
-              'borderTopColor',
-              'borderRadius',
-              'backgroundColor',
-              'color',
-              'fontSize',
-              'fontWeight'
-            ];
-            return {
-              selectSelector,
-              buttonSelector,
-              mismatches: properties.filter(
-                (property) => selectStyle[property] !== buttonStyle[property]
-              ),
-              selectAppearance: getComputedStyle(select).appearance,
-              arrowMismatch:
-                selectArrow.width !== buttonArrow.width
-                || selectArrow.height !== buttonArrow.height
-                || selectArrow.borderRightColor !== buttonArrow.borderRightColor
-                || selectArrow.borderRightWidth !== buttonArrow.borderRightWidth,
-              buttonOverflow: button.scrollWidth > button.clientWidth
-            };
-          });
-        })()"""
-    )
-    assert all(not item["mismatches"] for item in result), result
-    assert all(item["selectAppearance"] == "none" for item in result), result
-    assert all(not item["arrowMismatch"] for item in result), result
-    assert all(not item["buttonOverflow"] for item in result), result
     compact_labels = js(
         """[...document.querySelectorAll('.multi-select-trigger')].map((trigger) => {
           const label = document.getElementById(trigger.getAttribute('aria-labelledby').split(' ')[0]);
@@ -864,6 +1546,41 @@ def verify_control_triggers():
         and item["clipPath"] == "inset(50%)"
         for item in compact_labels
     ), compact_labels
+
+
+def verify_workspace_meta_rows():
+    layouts = js(
+        """[
+          '#gene-selection-trigger',
+          '#genebench-pro-scaling-selection-trigger',
+          '#exploitbench-selection-trigger',
+          '#exploitgym-selection-trigger'
+        ].map((triggerSelector) => {
+          const actions = document.querySelector(triggerSelector)
+            .closest('.gene-workspace-actions');
+          const meta = actions.closest('.gene-workspace-meta');
+          const legend = meta.querySelector('.gene-workspace-legend');
+          const modelItems = [
+            ...legend.querySelectorAll('.gene-model-legend .legend-item')
+          ];
+          const modelTops = modelItems.map(
+            (item) => item.getBoundingClientRect().top
+          );
+          return {
+            triggerSelector,
+            legend: legend.getBoundingClientRect().toJSON(),
+            actions: actions.getBoundingClientRect().toJSON(),
+            modelTopSpread: Math.max(...modelTops) - Math.min(...modelTops),
+            legendScrollable: legend.scrollWidth > legend.clientWidth
+          };
+        })"""
+    )
+    assert all(
+        layout["legend"]["top"] >= layout["actions"]["bottom"] for layout in layouts
+    ), layouts
+    assert all(layout["modelTopSpread"] < 1 for layout in layouts), layouts
+    if js("window.innerWidth") <= 390:
+        assert all(layout["legendScrollable"] for layout in layouts), layouts
 
 
 def inspect_selection_hierarchy(panel):
@@ -1016,6 +1733,18 @@ def verify_exploitgym_selection_groups():
         "document.querySelector('#exploitgym-selection-summary').textContent"
     ) == ("12 / 17 models")
     assert inspect_scatter("#exploitgym-scatter")["pointCount"] == 12
+    activate_exploitgym_view("bar-score")
+    assert (
+        js(
+            "document.querySelectorAll("
+            "'#exploitgym-bars g.benchmark-bar rect[aria-label]'"
+            ").length"
+        )
+        == 12
+    )
+    activate_exploitgym_view("table")
+    assert js("document.querySelectorAll('#exploitgym-table-body tr').length") == 12
+    activate_exploitgym_view("scatter-cost")
 
     js(
         f"""[...document.querySelectorAll({f"{panel} .selection-option input"!r})]
@@ -1061,6 +1790,18 @@ def verify_exploitgym_selection_groups():
     assert js(
         "document.querySelector('#exploitgym-selection-summary').textContent"
     ) == ("15 / 15 models")
+    activate_exploitgym_view("bar-score")
+    assert (
+        js(
+            "document.querySelectorAll("
+            "'#exploitgym-bars g.benchmark-bar rect[aria-label]'"
+            ").length"
+        )
+        == 15
+    )
+    activate_exploitgym_view("table")
+    assert js("document.querySelectorAll('#exploitgym-table-body tr').length") == 15
+    activate_exploitgym_view("scatter-cost")
 
     js(f"document.querySelector({sol_selector!r}).click()")
     assert inspect_scatter("#exploitgym-scatter")["pointCount"] == 10
@@ -1131,27 +1872,96 @@ def verify_gene_bench_pareto_lines():
 
 def verify_gene_bench_pro_interactions():
     selector = "#genebench-pro-scaling"
+    expected_views = [
+        "scatter-tokens",
+        "scatter-cost",
+        "bar-score",
+        "bar-tokens",
+        "bar-cost",
+        "table",
+    ]
+    tabs = js(
+        """[...document.querySelectorAll(
+          '#genebench-pro-view-tabs [role="tab"]'
+        )].map((tab) => ({
+          view: tab.dataset.genebenchProView,
+          selected: tab.getAttribute('aria-selected'),
+          tabIndex: tab.tabIndex
+        }))"""
+    )
+    assert [tab["view"] for tab in tabs] == expected_views, tabs
+    assert tabs[0]["selected"] == "true" and tabs[0]["tabIndex"] == 0, tabs
+    assert all(
+        tab["selected"] == "false" and tab["tabIndex"] == -1 for tab in tabs[1:]
+    ), tabs
+    js(
+        """document.querySelector(
+          '#genebench-pro-view-tabs [data-genebench-pro-view="scatter-tokens"]'
+        ).dispatchEvent(new KeyboardEvent('keydown', {
+          key: 'ArrowRight',
+          bubbles: true
+        }))"""
+    )
+    assert (
+        js(
+            "document.querySelector('#genebench-pro-view-tabs "
+            '[aria-selected="true"]\').dataset.genebenchProView'
+        )
+        == "scatter-cost"
+    )
+    activate_gene_bench_pro_view("scatter-tokens")
     set_checkbox("#genebench-pro-scaling-family-lines-toggle", True)
     initial = inspect_scatter(selector)
     assert initial["pointCount"] == 33, initial
     assert initial["xMetric"] == "tokens", initial
     assert initial["xScale"] == "log", initial
+    y_tick_labels = js(
+        """[...document.querySelectorAll('#genebench-pro-scaling text')]
+          .map((label) => label.textContent.trim())
+          .filter(Boolean)"""
+    )
+    assert "30%" in y_tick_labels, y_tick_labels
+    assert "35%" not in y_tick_labels, y_tick_labels
+    plot_contract = js(
+        """(() => {
+          const container = document.querySelector('#genebench-pro-scaling-scroll');
+          const svg = document.querySelector('#genebench-pro-scaling');
+          const points = [...svg.querySelectorAll(
+            'g.benchmark-point path[aria-label]'
+          )];
+          return {
+            points: points.length,
+            accessible: points.every((point) => point.getAttribute('aria-label')),
+            keyboardTargets: points.filter((point) => point.tabIndex >= 0).length,
+            tipMarks: svg.querySelectorAll('g[aria-label="tip"]').length,
+            svgCount: container.querySelectorAll(':scope > svg').length,
+            controlledLogTicks: Boolean(svg.dataset.xTicks)
+          };
+        })()"""
+    )
+    assert plot_contract["points"] == 33, plot_contract
+    assert plot_contract["accessible"], plot_contract
+    assert plot_contract["keyboardTargets"] == 0, plot_contract
+    assert plot_contract["tipMarks"] == 1, plot_contract
+    assert plot_contract["svgCount"] == 1, plot_contract
+    assert plot_contract["controlledLogTicks"], plot_contract
     assert (
         js(
             "document.querySelectorAll('#genebench-pro-scaling "
-            "[data-point-label]').length"
+            "g.benchmark-point-label text').length"
         )
         == 33
     )
-    assert js("document.querySelector('#genebench-pro-scaling-title').textContent") == (
-        "GeneBench-Pro: Test-time compute scaling on GPT models"
-    )
+    assert " ".join(
+        js("document.querySelector('#genebench-pro-scaling-title').textContent").split()
+    ) == ("GeneBench-Pro: Test-time compute scaling on GPT models")
     assert "Tokens used" in js(
         "document.querySelector('#genebench-pro-scaling-metric').textContent"
     )
     assert (
         js(
-            "document.querySelector('#genebench-pro-scaling [data-point-id]').getAttribute('aria-label')"
+            "document.querySelector('#genebench-pro-scaling "
+            "g.benchmark-point [aria-label]').getAttribute('aria-label')"
         ).find("tokens used")
         >= 0
     )
@@ -1180,7 +1990,7 @@ def verify_gene_bench_pro_interactions():
     assert restored["xMin"] == initial["xMin"], (initial, restored)
     assert restored["xMax"] == initial["xMax"], (initial, restored)
 
-    set_select("#genebench-pro-scaling-metric-select", "cost")
+    activate_gene_bench_pro_view("scatter-cost")
     cost_log = inspect_scatter(selector)
     assert cost_log["pointCount"] == 33, cost_log
     assert cost_log["xMetric"] == "cost", cost_log
@@ -1194,15 +2004,32 @@ def verify_gene_bench_pro_interactions():
         "document.querySelector('#genebench-pro-cost-note').textContent"
     )
     assert "estimated api cost" in js(
-        "document.querySelector('#genebench-pro-scaling [data-point-id]').getAttribute('aria-label')"
-    )
-    js(
         "document.querySelector('#genebench-pro-scaling "
-        "[data-point-id=\"GPT-5.6 Sol|max\"]').dispatchEvent(new FocusEvent('focus'))"
+        "g.benchmark-point [aria-label]').getAttribute('aria-label')"
     )
-    tooltip_text = js("document.querySelector('#tooltip').textContent")
-    assert "Output-token price: $30.00 / 1M" in tooltip_text, tooltip_text
-    assert "Estimated API cost: $0.995" in tooltip_text, tooltip_text
+    tip_text = js(
+        """(async () => {
+          const svg = document.querySelector('#genebench-pro-scaling');
+          const point = [...svg.querySelectorAll(
+            'g.benchmark-point path[aria-label]'
+          )].find((candidate) =>
+            candidate.getAttribute('aria-label').startsWith(
+              'GPT-5.6 Sol, reasoning effort max,'
+            )
+          );
+          const bounds = point.getBoundingClientRect();
+          svg.dispatchEvent(new PointerEvent('pointermove', {
+            bubbles: true,
+            clientX: bounds.left + bounds.width / 2,
+            clientY: bounds.top + bounds.height / 2
+          }));
+          await new Promise(requestAnimationFrame);
+          await new Promise(requestAnimationFrame);
+          return svg.querySelector('g[aria-label="tip"]').textContent;
+        })()"""
+    )
+    assert "Output-token price: $30.00 / 1M" in tip_text, tip_text
+    assert "Estimated API cost: $0.995" in tip_text, tip_text
 
     set_checkbox("#genebench-pro-scaling-log-toggle", False)
     cost_linear = inspect_scatter(selector)
@@ -1211,12 +2038,54 @@ def verify_gene_bench_pro_interactions():
     assert cost_linear["xScale"] == "linear", cost_linear
     assert inspect_family_lines(selector)["valid"]
     set_checkbox("#genebench-pro-scaling-log-toggle", True)
-    set_select("#genebench-pro-scaling-metric-select", "tokens")
+    activate_gene_bench_pro_view("scatter-tokens")
     restored = inspect_scatter(selector)
     assert restored["xMetric"] == "tokens", restored
     assert restored["xMin"] == initial["xMin"], (initial, restored)
     assert restored["xMax"] == initial["xMax"], (initial, restored)
     assert inspect_family_lines(selector)["valid"]
+
+    for view in ("bar-score", "bar-tokens", "bar-cost"):
+        activate_gene_bench_pro_view(view)
+        bars = js(
+            """[...document.querySelectorAll(
+              '#genebench-pro-bars g.benchmark-bar rect[aria-label]'
+            )].map((bar) => ({
+              label: bar.getAttribute('aria-label'),
+              value: bar.getBoundingClientRect().height
+            }))"""
+        )
+        values = [bar["value"] for bar in bars]
+        assert len(bars) == 33, (view, bars)
+        assert all(bar["label"] for bar in bars), (view, bars)
+        assert values == sorted(values), (view, values)
+        assert js("document.querySelector('#genebench-pro-scatter-controls').hidden")
+        assert js("document.querySelector('#genebench-pro-quadrant-legend').hidden")
+        assert not js("document.querySelector('#genebench-pro-bars-panel').hidden")
+        assert js("document.querySelector('#genebench-pro-cost-note').hidden") == (
+            view != "bar-cost"
+        )
+
+    activate_gene_bench_pro_view("table")
+    assert js("document.querySelectorAll('#genebench-pro-table-body tr').length") == 33
+    assert js("document.querySelector('#genebench-pro-scatter-controls').hidden")
+    assert js("document.querySelector('#genebench-pro-quadrant-legend').hidden")
+    assert not js("document.querySelector('#genebench-pro-cost-note').hidden")
+    js(
+        """document.querySelector(
+          '#genebench-pro-table-panel .sort-button[data-sort-key="tokens"]'
+        ).click()"""
+    )
+    token_order = js(
+        """[...document.querySelectorAll('#genebench-pro-table-body tr')].map(
+          (row) => Number(row.dataset.tokens)
+        )"""
+    )
+    assert token_order == sorted(token_order, reverse=True), token_order
+    activate_gene_bench_pro_view("scatter-tokens")
+    assert not js("document.querySelector('#genebench-pro-scatter-controls').hidden")
+    assert not js("document.querySelector('#genebench-pro-quadrant-legend').hidden")
+    assert js("document.querySelector('#genebench-pro-cost-note').hidden")
 
     js("document.querySelector('#genebench-pro-scaling-selection-trigger').click()")
     panel = "#genebench-pro-scaling-selection-panel"
@@ -1244,6 +2113,18 @@ def verify_gene_bench_pro_interactions():
         )
         == "27 / 33 models"
     )
+    activate_gene_bench_pro_view("bar-score")
+    assert (
+        js(
+            "document.querySelectorAll("
+            "'#genebench-pro-bars g.benchmark-bar rect[aria-label]'"
+            ").length"
+        )
+        == 27
+    )
+    activate_gene_bench_pro_view("table")
+    assert js("document.querySelectorAll('#genebench-pro-table-body tr').length") == 27
+    activate_gene_bench_pro_view("scatter-tokens")
     js(f"document.querySelector({sol_group_selector!r}).click()")
     assert inspect_scatter(selector)["pointCount"] == 33
 
@@ -1289,14 +2170,8 @@ def verify_gene_bench_pro_interactions():
     )
     pareto = inspect_scatter(selector)
     assert pareto["pointCount"] == 7, pareto
-    assert not js(
-        "!!document.querySelector('#genebench-pro-scaling "
-        '[data-point-id="GPT-5.6 Terra|low"]\')'
-    )
-    assert js(
-        "!!document.querySelector('#genebench-pro-scaling "
-        '[data-point-id="GPT-5.6 Sol|low"]\')'
-    )
+    assert not js(f"Boolean({plot_point_expression(selector, 'GPT-5.6 Terra|low')})")
+    assert js(f"Boolean({plot_point_expression(selector, 'GPT-5.6 Sol|low')})")
     assert pareto["xMin"] != initial["xMin"] or pareto["xMax"] != initial["xMax"], (
         initial,
         pareto,
@@ -1309,8 +2184,13 @@ def verify_gene_bench_pro_interactions():
     visible_pareto_ids = set(
         js(
             """[...document.querySelectorAll(
-              '#genebench-pro-scaling [data-point-id]'
-            )].map((point) => point.dataset.pointId)"""
+              '#genebench-pro-scaling g.benchmark-point [aria-label]'
+            )].map((point) => {
+              const match = point.getAttribute('aria-label').match(
+                /^(.*), reasoning effort ([^,]+),/
+              );
+              return `${match[1]}|${match[2]}`;
+            })"""
         )
     )
     line_point_ids = {
@@ -1354,7 +2234,9 @@ def verify_api_pricing_table():
               item.cells[0].querySelector('strong').textContent
             ),
             beforeFirstChart: Boolean(
-              section.compareDocumentPosition(document.querySelector('#chart'))
+              section.compareDocumentPosition(
+                document.querySelector('#genebench-title').closest('section')
+              )
               & Node.DOCUMENT_POSITION_FOLLOWING
             ),
             sourceCount: document.querySelectorAll('#api-pricing-sources a').length,
@@ -1424,14 +2306,13 @@ def verify_current_view():
     verify_api_pricing_table()
     verify_exploit_bench()
     verify_gene_bench_workspace()
-    assert (
-        js(
-            "document.querySelectorAll('#terminal-chart [role=\"graphics-symbol\"]').length"
-        )
-        == 9
-    )
+    verify_gene_bench_plot_contract()
+    verify_exploitgym_plot_contract()
+    verify_exploitgym_workspace()
+    verify_terminal_bench()
     assert js("document.querySelectorAll('.quadrant-legend').length") == 3
     verify_control_triggers()
+    verify_workspace_meta_rows()
     verify_family_lines_toggle(
         "#gene-scatter-family-lines-toggle",
         "#gene-scatter-labels-toggle",
@@ -1507,7 +2388,7 @@ def verify_current_view():
         for checked, scale in ((True, "log"), (False, "linear")):
             set_checkbox("#exploitgym-scatter-log-toggle", checked)
             for metric in METRICS:
-                set_select("#exploitgym-scatter-metric-select", metric)
+                activate_exploitgym_view(f"scatter-{metric}")
                 set_checkbox("#exploitgym-scatter-family-lines-toggle", True)
                 exploit_lines = inspect_family_lines("#exploitgym-scatter")
                 assert exploit_lines["count"] == 3, (
@@ -1525,6 +2406,7 @@ def verify_current_view():
                     allow_label_overlaps=not checked,
                 )
     set_checkbox("#exploitgym-scatter-log-toggle", True)
+    activate_exploitgym_view("scatter-cost")
 
 
 with app_server() as page_url:

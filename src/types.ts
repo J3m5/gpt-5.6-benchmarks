@@ -97,8 +97,3 @@ export interface PointOffset {
 }
 
 export type MetricLabelOffsets = Partial<Record<ResourceKey, Record<string, PointOffset>>>;
-
-export interface PointerCoordinates {
-  clientX: number;
-  clientY: number;
-}

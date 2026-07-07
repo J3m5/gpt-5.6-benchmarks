@@ -26,9 +26,17 @@ describe("chart scales", () => {
     const scale = createLinearScale([12, 18, 22], 40, 10);
 
     expect(scale.min).toBeLessThan(12);
-    expect(scale.max).toBeGreaterThan(22);
+    expect(scale.max).toBeGreaterThanOrEqual(22);
     expect(scale.min).toBeGreaterThanOrEqual(0);
     expect(scale.max).toBeLessThanOrEqual(100);
+  });
+
+  it("ends a percentage domain at the first nice tick covering the highest score", () => {
+    const scale = createLinearScale([0.5, 14.4, 28.733850129198967], 30, 5);
+
+    expect(scale.max).toBe(30);
+    expect(scale.ticks.at(-1)).toBe(30);
+    expect(scale.ticks).not.toContain(35);
   });
 
   it("ends a linear resource domain at the first nice tick covering the data", () => {

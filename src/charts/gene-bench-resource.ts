@@ -1,104 +1,88 @@
+import { createConfigurationSelect } from "../controls/configuration-select";
 import { geneScatterPoints } from "../data";
-import type { MetricLabelOffsets } from "../types";
-import type { TooltipController } from "../ui/tooltip";
+import type { ResourceKey } from "../types";
 import { byId } from "../utils/dom";
-import { createResourceScoreChart, type ResourceScoreChart } from "./resource-score";
-
-const metricLabelOffsets: MetricLabelOffsets = {
-  cost: {
-    "GPT-5.6 Terra|none": { dy: -10 },
-  },
-  latency: {
-    "GPT-5.6 Terra|none": { dy: -10 },
-  },
-  tokens: {
-    "GPT-5.6 Terra|none": { dy: -10 },
-  },
-};
+import { geneBenchScatterAxisLabel, prepareGeneBenchScatter } from "./gene-bench-plot-model";
+import { createPlotScatterRenderer } from "./plot/benchmark-plot";
+import type { ResourceScoreChart } from "./resource-score-chart";
 
 export function createGeneBenchResourceChart(
-  tooltip: TooltipController,
   onSelectionChange: (selectedIds: ReadonlySet<string>) => void,
 ): ResourceScoreChart {
+  const scrollContainer = byId("gene-scatter-scroll", HTMLDivElement);
+  const count = byId("gene-workspace-count", HTMLDivElement);
+  const heading = byId("genebench-title", HTMLHeadingElement);
+  const metricDescription = byId("gene-workspace-metric", HTMLParagraphElement);
   const logScaleToggle = byId("gene-scatter-log-toggle", HTMLInputElement);
-  const chart = createResourceScoreChart(
-    {
-      id: "gene-scatter",
-      points: geneScatterPoints,
-      svgId: "gene-scatter",
-      scrollId: "gene-scatter-scroll",
-      countId: "gene-workspace-count",
-      triggerId: "gene-selection-trigger",
-      summaryId: "gene-selection-summary",
-      paretoId: "pareto-toggle",
-      pointLabelsToggleId: "gene-scatter-labels-toggle",
-      familyLinesToggleId: "gene-scatter-family-lines-toggle",
-      metricKey: "cost",
-      onSelectionChange,
-      getMetricOverride: () => ({
-        scale: logScaleToggle.checked ? "log" : "linear",
-      }),
-      headingId: "genebench-title",
-      headingText: "GeneBench v1",
-      metricDescriptionId: "gene-workspace-metric",
-      selectionDialogLabel: "Select GeneBench configurations",
-      selectionGroupsAreSelectable: true,
-      selectionItemLabel: (point) => point.effort,
-      showSelectionItemSwatches: false,
-      rightMargin: 70,
-      xFallbacks: {
-        cost: {
-          min: 0.01,
-          max: 2.5,
-          ticks: [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2],
-        },
-        latency: {
-          min: 0.3,
-          max: 20,
-          ticks: [0.5, 1, 2, 5, 10, 20],
-        },
-        tokens: {
-          min: 500,
-          max: 100000,
-          ticks: [500, 1000, 2000, 5000, 10000, 20000, 50000, 100000],
-        },
-      },
-      xScaleFallbacks: {
-        cost: {
-          linear: {
-            min: 0,
-            max: 2.5,
-            ticks: [0, 0.5, 1, 1.5, 2, 2.5],
-          },
-        },
-        latency: {
-          linear: {
-            min: 0,
-            max: 20,
-            ticks: [0, 5, 10, 15, 20],
-          },
-        },
-        tokens: {
-          linear: {
-            min: 0,
-            max: 100000,
-            ticks: [0, 20000, 40000, 60000, 80000, 100000],
-          },
-        },
-      },
-      yMax: 35,
-      yStep: 5,
-      yAxisTitle: "Score",
-      scoreTooltipLabel: "Score",
-      benchmarkName: "GeneBench v1",
-      scoreDisplayName: "score",
-      scoreMetricLabel: "pass@1 score",
-      metricLabelOffsets,
-      svgTitleId: "gene-scatter-svg-title",
-      svgDescriptionId: "gene-scatter-description",
+  const pointLabelsToggle = byId("gene-scatter-labels-toggle", HTMLInputElement);
+  const familyLinesToggle = byId("gene-scatter-family-lines-toggle", HTMLInputElement);
+  const paretoToggle = byId("pareto-toggle", HTMLInputElement);
+  const renderer = createPlotScatterRenderer({
+    containerId: "gene-scatter-scroll",
+  });
+  let activeMetricKey: ResourceKey = "cost";
+
+  const configurationSelect = createConfigurationSelect({
+    id: "gene-scatter",
+    items: geneScatterPoints.map((point) => ({
+      color: point.color,
+      group: point.selectionGroup,
+      id: point.id,
+      label: point.effort,
+    })),
+    triggerId: "gene-selection-trigger",
+    summaryId: "gene-selection-summary",
+    dialogLabel: "Select GeneBench configurations",
+    groupSelection: true,
+    showItemSwatches: false,
+    isAvailable: () => true,
+    onChange() {
+      render();
+      onSelectionChange(configurationSelect.selectedIds);
     },
-    tooltip,
-  );
-  logScaleToggle.addEventListener("change", chart.render);
-  return chart;
+  });
+
+  function model() {
+    const scale = logScaleToggle.checked ? "log" : "linear";
+    return prepareGeneBenchScatter(geneScatterPoints, {
+      selectedIds: configurationSelect.selectedIds,
+      metricKey: activeMetricKey,
+      scale,
+      pareto: paretoToggle.checked,
+      showLabels: pointLabelsToggle.checked,
+      showFamilyLines: familyLinesToggle.checked,
+      width: scrollContainer.clientWidth,
+    });
+  }
+
+  function render(): void {
+    const chartModel = model();
+    renderer.render(chartModel);
+    heading.textContent = "GeneBench v1";
+    metricDescription.textContent = `${geneBenchScatterAxisLabel(activeMetricKey, chartModel.xAxis.scale)} \u00b7 Pass@1 score`;
+    count.textContent = `${chartModel.points.length} point${chartModel.points.length === 1 ? "" : "s"}${paretoToggle.checked ? " \u00b7 Pareto" : ""}`;
+  }
+
+  logScaleToggle.addEventListener("change", render);
+  pointLabelsToggle.addEventListener("change", render);
+  familyLinesToggle.addEventListener("change", render);
+  paretoToggle.addEventListener("change", render);
+  render();
+
+  return {
+    render,
+    selectedIds: configurationSelect.selectedIds,
+    setMetric(key) {
+      activeMetricKey = key;
+      render();
+    },
+    resize() {
+      render();
+      configurationSelect.reposition();
+    },
+    refreshVisibility() {
+      configurationSelect.refresh();
+      render();
+    },
+  };
 }

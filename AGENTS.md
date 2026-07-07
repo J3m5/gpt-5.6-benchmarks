@@ -10,6 +10,9 @@ These instructions apply to this entire project.
   chart ownership, tooling, or deployment.
 - Read [docs/verification.md](docs/verification.md) before changing visible
   behavior, interactions, responsive layout, or browser tests.
+- When changing Observable Plot usage, prefer the local mirrored documentation
+  at `/home/jeremy/.agents/docs/project-dependencies/observable-plot/README.md`
+  before relying on memory or upstream pages.
 
 ## Project Contract
 
@@ -33,8 +36,9 @@ These instructions apply to this entire project.
 - Keep extraction validation and generation deterministic and atomic. Identify
   Vega specifications by semantic title, not payload position or record ID.
 - Keep reusable calculations outside DOM rendering and cover them with Vitest.
-- Preserve keyboard focus, ARIA labels, SVG titles/descriptions, and tooltip
-  content, responsive containment, and stable chart dimensions.
+- Preserve keyboard interaction for controls and tabs, ARIA labels, SVG
+  titles/descriptions, tooltip content, responsive containment, and stable
+  chart dimensions. Plot data marks may remain pointer-only.
 - Update the linked documentation when architecture, behavior, verification,
   or operational risks change.
 

@@ -4,11 +4,11 @@ export interface ChartScale {
   ticks: number[];
 }
 
-export function cleanNumber(value: number): number {
+function cleanNumber(value: number): number {
   return Number(value.toPrecision(12));
 }
 
-export function niceStep(range: number, targetIntervals = 6): number {
+function niceStep(range: number, targetIntervals = 6): number {
   const roughStep = range / targetIntervals;
   if (!(roughStep > 0)) {
     return 1;
@@ -54,7 +54,7 @@ export function createLinearScale(
   const paddedMax = Math.min(100, dataMax + padding);
   const step = niceStep(paddedMax - paddedMin);
   let min = Math.max(0, Math.floor(paddedMin / step) * step);
-  let max = Math.min(100, Math.ceil(paddedMax / step) * step);
+  let max = Math.min(100, Math.ceil(dataMax / step) * step);
 
   if (max <= min) {
     min = Math.max(0, min - step);

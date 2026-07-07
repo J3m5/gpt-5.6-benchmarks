@@ -65,25 +65,47 @@ browser-harness. Set `BROWSER_TEST_URL` to probe another preferred server URL.
   and table views. The selector and model legend remain visible.
 - Tabs support ArrowLeft, ArrowRight, Home, and End and scroll horizontally on
   narrow viewports.
+- Its Plot SVG exposes an ARIA label for every visible point or bar. Points have
+  no white stroke, and native Plot tips expose the same metric content at the
+  pointer. Data marks are not keyboard targets.
 
 ### ExploitGym
 
 - It contains 17 selectable model/effort configurations.
+- One card exposes eight accessible tabs: intended exploit rate versus API
+  cost, latency, or output tokens; intended-exploit-rate, API-cost, latency, or
+  output-token bar rankings; and the data table.
+- Bar rankings sort ascending, while the sortable table defaults to intended
+  exploit rate descending.
 - The duration control is the only place where 2 h and 6 h are selected. It
-  displays 17 points for 2 h and 15 points for 6 h while preserving
-  multi-select state.
+  displays 17 configurations for 2 h and 15 for 6 h across scatter, bar, and
+  table views while preserving multi-select state.
 - GPT-5.4 and GPT-5.5 are disabled in the multi-select at 6 h because no source
   runs exist for them at that duration.
 - Its model selector uses the shared selectable family hierarchy: family
   checkboxes select or clear every available effort, expose tri-state status,
   and contain indented effort-only rows without redundant swatches.
+- The selector, duration, and model legend remain visible in every view.
+  Scatter toggles and the attractive-quadrant legend are hidden in bar and
+  table views.
 - Every resource metric supports logarithmic and linear horizontal scales. The
   chart defaults to logarithmic.
+- Its Plot SVG exposes an ARIA label for every visible point. Points have no
+  white stroke, and native Plot tips expose the resource and intended exploit
+  rate content at the pointer. Data marks are not keyboard targets.
 
 ### ExploitBench
 
 - The normalized snapshot contains 23 GPT series points across GPT-5.6 Sol,
   Terra, Luna, GPT-5.5, and GPT-5.4.
+- One card exposes four accessible tabs: cap percent versus output tokens,
+  cap-percent bar ranking, output-token bar ranking, and the data table. It
+  defaults to cap percent versus output tokens.
+- Bar rankings sort ascending and include the two standalone comparison points
+  independently of GPT model selection.
+- The sortable table includes the selected GPT series rows, the two comparison
+  points, and the two horizontal reference rows. It defaults to cap percent
+  descending and keeps its sort state across tab changes.
 - The chart connects each model family's points in reasoning-effort order and
   preserves the exact source output-token and cap-percent values.
 - Mythos Preview and Opus 4.7 appear as standalone comparison points. Mythos 5
@@ -94,11 +116,14 @@ browser-harness. Set `BROWSER_TEST_URL` to probe another preferred server URL.
   changing the fixed source domain or selected points.
 - Point labels default to visible. Family lines default to hidden and use the
   shared contiguous-effort behavior when enabled.
+- Scatter controls are hidden in bar and table views, while the grouped
+  selector and legend remain visible.
 - Pareto mode filters the selected GPT configurations together with the two
   comparison points while retaining both horizontal references. With every
   configuration selected, the frontier contains eight points.
-- Every visible point symbol remains keyboard focusable, has an accessible
-  name, and exposes output tokens and cap percent through the shared tooltip.
+- Every visible Plot point has an accessible name, no white stroke, no keyboard
+  target, and exposes output tokens and cap percent through its native pointer
+  tip.
 - The fixed 900 px chart scrolls inside its container on narrow viewports
   without widening the document.
 
@@ -106,7 +131,13 @@ browser-harness. Set `BROWSER_TEST_URL` to probe another preferred server URL.
 
 - It contains 9 models, sorted by score descending.
 - Every source reasoning level is displayed.
+- One card exposes two accessible tabs: score bar ranking and the data table.
+- The table defaults to score descending, remains sortable, and keeps its sort
+  state across tab changes.
+- Scores are rendered as vertical Plot bars.
 - The score axis runs from 50% to 100%, with ticks at 50%, 75%, and 100%.
+- Every bar exposes an ARIA label and native pointer tip containing the model,
+  source reasoning level, and score. Data marks are not keyboard targets.
 
 ### GeneBench-Pro
 
@@ -116,6 +147,16 @@ browser-harness. Set `BROWSER_TEST_URL` to probe another preferred server URL.
   Luna, Terra, and Sol each contain six, including `max`.
 - The max-reasoning collection contains 18 models: six GPT, six GPT Pro, and
   six other models.
+- One card exposes six accessible tabs: passrate versus tokens or estimated
+  cost; passrate, token, or estimated-cost bar rankings; and the data table. It
+  defaults to passrate versus tokens.
+- Tabs share the GeneBench v1 ArrowLeft, ArrowRight, Home, End, and mobile
+  horizontal-scroll behavior.
+- Bar rankings sort every metric ascending. The table defaults to passrate
+  descending, remains sortable, and keeps its sort state across view changes.
+- The grouped model/reasoning selection filters scatter, bar, and table views
+  consistently. Scatter controls and the attractive-quadrant legend are hidden
+  in bar and table views, while the selector and model legend remain visible.
 - Passrate fractions and percentages must agree exactly within floating-point
   tolerance.
 - The scaling chart renders all 33 points with "Tokens used" on a logarithmic
@@ -168,13 +209,17 @@ browser-harness. Set `BROWSER_TEST_URL` to probe another preferred server URL.
 
 ## Visual And Interaction Contracts
 
-- Preserve keyboard focus, ARIA labels, SVG titles and descriptions, and
-  tooltip content.
+- Preserve keyboard interaction for controls and tabs, ARIA labels, SVG titles
+  and descriptions, and tooltip content. Plot data marks may remain
+  pointer-only.
 - Keep the document within the viewport width. Wide charts and tables may
   scroll inside their containers on mobile.
 - Keep chart dimensions stable when labels, filters, and values change.
-- Native axis selects and model multi-select triggers share height, border,
-  background, typography, focus treatment, and chevron styling.
+- Model multi-select triggers share height, border, background, typography,
+  focus treatment, and chevron styling across workspaces.
+- In all tabbed cards, controls occupy the first full row and the legend
+  occupies a more spacious second row. Model legend items remain horizontal and
+  scroll within the card on narrow viewports.
 - Model multi-select triggers use the compact `selected / available models`
   summary, retain a visually hidden accessible label, and open a panel matching
   the trigger width.
@@ -193,12 +238,23 @@ browser-harness. Set `BROWSER_TEST_URL` to probe another preferred server URL.
 - all eight GeneBench tabs, keyboard tab navigation, contextual controls,
   metric-specific scatter and bar rendering, shared configuration selection,
   and persistent table sorting;
+- native Plot marks and tips for GeneBench v1, GeneBench-Pro, ExploitGym,
+  ExploitBench, and TerminalBench,
+  per-datum ARIA labels, pointer-only data marks, exact extreme ticks, and
+  absence of duplicate SVGs;
+- 100 combined GeneBench Plot cycles across metrics, scales, labels, family
+  lines, Pareto, selection, and resize without console errors or duplicate
+  SVGs;
 - 33 GeneBench-Pro scaling points on linear and logarithmic tokens-used and
   estimated-cost axes;
 - 17 ExploitGym points in 2 h mode and 15 in 6 h mode;
-- ExploitBench grouped selection, logarithmic/linear scale switching, point
-  labels, five correctly positioned optional family lines, eight-point Pareto
-  filtering, two comparison points, and two persistent horizontal references;
+- ExploitGym eight-tab navigation, contextual controls, ascending bar views,
+  sortable table, and selection/duration synchronization across views;
+- ExploitBench grouped selection, four-tab navigation, ascending bar views,
+  sortable table, logarithmic/linear scale switching, point labels, five
+  correctly positioned optional family lines, eight-point Pareto filtering,
+  two comparison points, two persistent horizontal references, pointer-only
+  marks, and native tip content;
 - 9 TerminalBench bars;
 - all resource axes and both ExploitGym durations;
 - point-label toggles on all three resource scatter plots, including preserved
@@ -217,6 +273,8 @@ browser-harness. Set `BROWSER_TEST_URL` to probe another preferred server URL.
 - GeneBench-Pro selectable families and hierarchical selector presentation;
 - GeneBench-Pro estimated-cost methodology note, point accessibility labels,
   unit pricing, and calculated cost tooltip content;
+- GeneBench-Pro six-tab navigation, contextual controls, ascending bar views,
+  sortable table, shared selection, and cost-note visibility;
 - GeneBench-Pro Pareto mode contains seven points, excludes Terra / low, and
   retains Sol / low;
 - quadrant geometry, point-label placement, and grid styling;

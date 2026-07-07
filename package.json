@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build --base ./",
+    "fallow": "fallow",
     "preview": "vite preview",
     "lint": "oxlint .",
     "lint:fix": "oxlint . --fix",
@@ -15,7 +16,12 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
+  "dependencies": {
+    "@observablehq/plot": "0.6.17"
+  },
   "devDependencies": {
+    "@types/d3": "7.4.3",
+    "fallow": "3.2.0",
     "oxfmt": "0.56.0",
     "oxlint": "1.71.0",
     "oxlint-tsgolint": "0.23.0",

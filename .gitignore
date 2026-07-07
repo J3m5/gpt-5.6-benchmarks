@@ -1,4 +1,8 @@
-.agents/
+.agents/*
+!.agents/skills/
+.agents/skills/*
+!.agents/skills/fallow/
+!.agents/skills/fallow/**
 dist/
 node_modules/
 .ruff_cache/
