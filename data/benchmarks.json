@@ -1673,11 +1673,11 @@
   "schemaVersion": 4,
   "sources": {
     "geneBenchPro": {
-      "specSha256": "18ab3a5e05d7a3ffccb0c60c52c8b6d994abf7cb0b26db88fb3c20d16b7aa5c5",
+      "specSha256": "b6ea8c7cf0d9a2d21c27c0aa6102a854cf061c81ebe98976d791d07f864d8c70",
       "url": "https://openai.com/index/introducing-genebench-pro/"
     },
     "gpt56SolPreview": {
-      "specSha256": "0cc2fe45cc5b7a1023d2f10756e772dabac084dc3f7a196de28dd144d8fc09ee",
+      "specSha256": "40fdb59bc0e725beae872461f24268053c4e7df58edea1e2a3a4159a47f4cda0",
       "url": "https://openai.com/index/previewing-gpt-5-6-sol/"
     }
   },

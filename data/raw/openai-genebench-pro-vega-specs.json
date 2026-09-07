@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": {
     "format": "nextjs-react-flight-inline-vega-lite",
-    "specSha256": "18ab3a5e05d7a3ffccb0c60c52c8b6d994abf7cb0b26db88fb3c20d16b7aa5c5",
+    "specSha256": "b6ea8c7cf0d9a2d21c27c0aa6102a854cf061c81ebe98976d791d07f864d8c70",
     "url": "https://openai.com/index/introducing-genebench-pro/"
   },
   "specs": {
@@ -136,9 +136,9 @@
                   "Other models"
                 ],
                 "range": [
-                  "theme1",
                   "theme2",
-                  "theme3"
+                  "theme3",
+                  "theme4"
                 ]
               },
               "type": "nominal"
@@ -769,12 +769,12 @@
               "GPT-5.6 Sol"
             ],
             "range": [
-              "theme1",
-              "theme2",
-              "theme3",
-              "theme4",
-              "theme1",
-              "theme2"
+              "theme2_purple",
+              "theme3_purple",
+              "theme4_purple",
+              "theme2_blue",
+              "theme3_blue",
+              "theme4_blue"
             ]
           },
           "sort": [
@@ -919,9 +919,7 @@
           "name": "model_points"
         }
       ],
-      "title": [
-        "GeneBench-Pro: Test-time compute scaling on GPT models"
-      ]
+      "title": "GeneBench-Pro: Test-time compute scaling on GPT models"
     }
   }
 }

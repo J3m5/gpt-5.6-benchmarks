@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "source": {
     "format": "nextjs-react-flight-inline-vega-lite",
-    "specSha256": "0cc2fe45cc5b7a1023d2f10756e772dabac084dc3f7a196de28dd144d8fc09ee",
+    "specSha256": "40fdb59bc0e725beae872461f24268053c4e7df58edea1e2a3a4159a47f4cda0",
     "url": "https://openai.com/index/previewing-gpt-5-6-sol/"
   },
   "specs": {
     "ExploitBench": {
       "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
-      "description": "Cap percent by selected metric across reasoning-effort levels on ExploitBench.",
+      "description": "Cap percent by API cost and output tokens on ExploitBench.",
       "height": 340,
       "layer": [
         {
@@ -400,13 +400,13 @@
             },
             "tooltip": {
               "value": {
-                "expr": "{'Model': datum.model, 'Reasoning effort': upper(substring(datum.juice_level, 0, 1)) + substring(datum.juice_level, 1), 'Output Tokens': format(datum.x_value, ',.0f'), 'Cap percent': datum.score_label}"
+                "expr": "{'Model': datum.model, 'Reasoning effort': upper(substring(datum.juice_level, 0, 1)) + substring(datum.juice_level, 1), 'Output tokens': format(datum.x_value, ',.0f'), 'Cap percent': datum.score_label}"
               }
             },
             "x": {
               "axis": {
                 "labelExpr": "format(datum.value / 1000, '.0f') + 'K'",
-                "title": "Output Tokens",
+                "title": "Output tokens",
                 "values": [
                   100000,
                   200000,
@@ -488,7 +488,7 @@
               {
                 "field": "x_value",
                 "format": ",.0f",
-                "title": "Output Tokens",
+                "title": "Output tokens",
                 "type": "quantitative"
               }
             ],
@@ -538,7 +538,7 @@
               {
                 "field": "x_value",
                 "format": ",.0f",
-                "title": "Output Tokens",
+                "title": "Output tokens",
                 "type": "quantitative"
               }
             ],
@@ -592,7 +592,7 @@
               {
                 "field": "x_value",
                 "format": ",.0f",
-                "title": "Output Tokens",
+                "title": "Output tokens",
                 "type": "quantitative"
               }
             ],
@@ -647,7 +647,7 @@
               {
                 "field": "x_value",
                 "format": ",.0f",
-                "title": "Output Tokens",
+                "title": "Output tokens",
                 "type": "quantitative"
               }
             ],
@@ -889,7 +889,7 @@
       ],
       "params": [],
       "title": {
-        "subtitle": "Cyber",
+        "subtitle": "Cybersecurity",
         "text": "ExploitBench"
       }
     },
